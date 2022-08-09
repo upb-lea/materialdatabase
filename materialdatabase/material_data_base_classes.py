@@ -20,6 +20,7 @@ class MaterialDatabase:
         self.freq = None
         self.temp = None
         self.mat = None
+        self.b_f = None
         self.mu_real = None
         self.mu_imag = None
 
@@ -41,9 +42,9 @@ class MaterialDatabase:
             m_data = json.load(database)
         freq_list = []
         # print(len(m_data["data"]))
-        for i in range(len(m_data["data"])):
-            freq_list.append(m_data["data"][i]["frequency"])
-        # print(freq_list)
+        for i in range(len(m_data[f"{material_name}"]["data"])):
+            freq_list.append(m_data[f"{material_name}"]["data"][i]["frequency"])
+        print(freq_list)
         n = len(freq_list)  # len of array
         freq_list = list(remove(freq_list, n))
         # print(freq_list)
@@ -58,45 +59,45 @@ class MaterialDatabase:
         temp_list_l = []
         temp_list_h = []
 
-        for i in range(len(m_data["data"])):
-            if m_data["data"][i]["frequency"] == f_l:
-                temp_list_l.append(m_data["data"][i]["temperature"])
-        for i in range(len(m_data["data"])):
-            if m_data["data"][i]["frequency"] == f_h:
-                temp_list_h.append(m_data["data"][i]["temperature"])
+        for i in range(len(m_data[f"{material_name}"]["data"])):
+            if m_data[f"{material_name}"]["data"][i]["frequency"] == f_l:
+                temp_list_l.append(m_data[f"{material_name}"]["data"][i]["temperature"])
+        for i in range(len(m_data[f"{material_name}"]["data"])):
+            if m_data[f"{material_name}"]["data"][i]["frequency"] == f_h:
+                temp_list_h.append(m_data[f"{material_name}"]["data"][i]["temperature"])
 
         temp_list_l = find_nearest(temp_list_l, T)
         temp_list_h = find_nearest(temp_list_h, T)
         print(temp_list_l)
+
         # print(temp_list_h)
 
         # -------get the data----------
         def getdata(variable, F, t_1, t_2):
-            global t_mu_imag_1, t_mu_imag_2, t_mu_real_2, t_mu_real_1
-            for k in range(len(m_data["data"])):
-                if m_data["data"][k]["frequency"] == F and m_data["data"][k]["temperature"] == t_1:
-                    b_1 = m_data["data"][k]["b"]
-                    mu_real_1 = m_data["data"][k]["mu_real"]
-                    mu_imag_1 = m_data["data"][k]["mu_imag"]
+            for k in range(len(m_data[f"{material_name}"]["data"])):
+                if m_data[f"{material_name}"]["data"][k]["frequency"] == F and m_data[f"{material_name}"]["data"][k]["temperature"] == t_1:
+                    b_1 = m_data[f"{material_name}"]["data"][k]["b"]
+                    mu_real_1 = m_data[f"{material_name}"]["data"][k]["mu_real"]
+                    mu_imag_1 = m_data[f"{material_name}"]["data"][k]["mu_imag"]
                     t_mu_imag_1 = interp1d(b_1, mu_imag_1)
                     t_mu_real_1 = interp1d(b_1, mu_real_1)
-                if m_data["data"][k]["frequency"] == F and m_data["data"][k]["temperature"] == t_2:
-                    b_2 = m_data["data"][k]["b"]
-                    mu_real_2 = m_data["data"][k]["mu_real"]
-                    mu_imag_2 = m_data["data"][k]["mu_imag"]
+                if m_data[f"{material_name}"]["data"][k]["frequency"] == F and m_data[f"{material_name}"]["data"][k]["temperature"] == t_2:
+                    b_2 = m_data[f"{material_name}"]["data"][k]["b"]
+                    mu_real_2 = m_data[f"{material_name}"]["data"][k]["mu_real"]
+                    mu_imag_2 = m_data[f"{material_name}"]["data"][k]["mu_imag"]
                     t_mu_imag_2 = interp1d(b_2, mu_imag_2)
                     t_mu_real_2 = interp1d(b_2, mu_real_2)
 
             # --------linear interpolation at constant freq-------------
             mu_i = []
             mu_r = []
-            b_f = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+            b_t = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
 
-            for j in range(len(b_f)):
+            for j in range(len(b_t)):
                 mu_r.append(
-                    t_mu_real_1(b_f[j]) + (t_mu_real_2(b_f[j]) - t_mu_real_1(b_f[j])) / (t_2 - t_1) * (variable - t_1))
+                    t_mu_real_1(b_t[j]) + (t_mu_real_2(b_t[j]) - t_mu_real_1(b_t[j])) / (t_2 - t_1) * (variable - t_1))
                 mu_i.append(
-                    t_mu_imag_1(b_f[j]) + (t_mu_imag_2(b_f[j]) - t_mu_imag_1(b_f[j])) / (t_2 - t_1) * (variable - t_1))
+                    t_mu_imag_1(b_t[j]) + (t_mu_imag_2(b_t[j]) - t_mu_imag_1(b_t[j])) / (t_2 - t_1) * (variable - t_1))
             return mu_r, mu_i
 
         # --------interpolated data at constant freq and nearby temp--------
@@ -106,34 +107,54 @@ class MaterialDatabase:
         # print(interpolate_temp_2)
 
         # ------linear interpolation at constant temp and nearby freq-----------------
-        b_g = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-        f_mu_real_1 = interp1d(b_g, interpolate_temp_1[0])
-        f_mu_imag_1 = interp1d(b_g, interpolate_temp_1[1])
-        f_mu_real_2 = interp1d(b_g, interpolate_temp_2[0])
-        f_mu_imag_2 = interp1d(b_g, interpolate_temp_2[1])
+        self.b_f = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+        f_mu_real_1 = interp1d(self.b_f, interpolate_temp_1[0])
+        f_mu_imag_1 = interp1d(self.b_f, interpolate_temp_1[1])
+        f_mu_real_2 = interp1d(self.b_f, interpolate_temp_2[0])
+        f_mu_imag_2 = interp1d(self.b_f, interpolate_temp_2[1])
         mu_i_f = []
         mu_r_f = []
-        for b in range(len(b_g)):
+        for b in range(len(self.b_f)):
             mu_r_f.append(
-                f_mu_real_1(b_g[b]) + (f_mu_real_2(b_g[b]) - f_mu_real_1(b_g[b])) / (f_h - f_l) * (f - f_l))
+                f_mu_real_1(self.b_f[b]) + (f_mu_real_2(self.b_f[b]) - f_mu_real_1(self.b_f[b])) / (f_h - f_l) * (
+                            f - f_l))
             mu_i_f.append(
-                f_mu_imag_1(b_g[b]) + (f_mu_imag_2(b_g[b]) - f_mu_imag_1(b_g[b])) / (f_h - f_l) * (f - f_l))
+                f_mu_imag_1(self.b_f[b]) + (f_mu_imag_2(self.b_f[b]) - f_mu_imag_1(self.b_f[b])) / (f_h - f_l) * (
+                            f - f_l))
         self.mu_real = mu_r_f
         self.mu_imag = mu_i_f
-        print(self.mu_real)
-        print(self.mu_imag)
 
         print(f"Material properties of {material_name} are loaded at {T} °C and {f} Hz.")
         pass
 
-    def export_data(self, data_to_export, format):
+    def export_data(self, format: str = None):
         """
         Method is used to export data from the material database in a certain file format.
         :param data_to_export:
         :param format:
         :return:
         """
-        print(f"Data {data_to_export} is exported in a {format}-file.")
+        if format == "pro":
+            with open("materials_temp.pro", "w") as file:
+                file.write(f'Material = %s; \n' % self.mat)
+                file.write(f'Frequency = %d; \n' % self.freq)
+                file.write(f'Temperature = %d; \n' % self.temp)
+                file.write(f'B = %s; \n' % self.b_f)
+                file.write(f'mu_real = %s; \n' % self.mu_real)
+                file.write(f'mu_imag = %s; \n' % self.mu_imag)
+            with open("core_materials_temp.pro", "w") as file:
+                file.write(f'Include "Parameter.pro";\n')
+                file.write(
+                    f"Function{{\n  b = {str(self.b_f).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(self.mu_real).replace('[', '{').replace(']', '}')} ;"
+                    f"\n  mu_imag = {str(self.mu_imag).replace('[', '{').replace(']', '}')} ;\n  "
+                    f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
+                    f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
+                    f"f_mu_imag_d[] = InterpolationLinear[Norm[$1]]{{List[mu_imag_couples]}};\n  "
+                    f"f_mu_real_d[] = InterpolationLinear[Norm[$1]]{{List[mu_real_couples]}};\n  "
+                    f"f_mu_imag[] = f_mu_imag_d[$1];\n  "
+                    f"f_mu_real[] = f_mu_real_d[$1];\n }}  ")
+
+        print(f"Data is exported in a {format}-file.")
         pass
 
     def store_data(self, material_name, data_to_be_stored):
@@ -143,6 +164,8 @@ class MaterialDatabase:
         :param data_to_be_stored:
         :return:
         """
+        with open('material_data_base.json', 'w') as outfile:
+            json.dump(data_to_be_stored, outfile, indent=4)
         print(f"Material properties of {material_name} are stored in the material database.")
         pass
 
@@ -153,10 +176,39 @@ class MaterialDatabase:
         :param material_name:
         :return:
         """
-        plt.plot([1, 2, 3], [10, 20, 30])
-        plt.ylabel(properties)
-        plt.xlabel('B in mT')
-        plt.show()
+        if properties == "mu_real":
+            plt.plot(self.b_f, self.mu_real)
+            plt.ylabel(properties)
+            plt.xlabel('B in T')
+            plt.title("Real part of permeability")
+            plt.show()
+        elif properties == "mu_imag":
+            plt.plot(self.b_f, self.mu_imag)
+            plt.ylabel(properties)
+            plt.xlabel('B in T')
+            plt.title("Imaginary part of permeability")
+            plt.show()
+
+        # -------B_H Curve-------
+        if properties == "B_H curve":
+            script_dir = os.path.dirname(__file__)
+            file_path = os.path.join(script_dir, 'data/material_data_base.json')
+            with open(file_path, 'r') as B_H:
+                data = json.load(B_H)
+            B_1 = data[f"{material_name}"][f"{properties}"][0]["B_25"]
+            H_1 = data[f"{material_name}"][f"{properties}"][0]["H_25"]
+            plt.plot(H_1, B_1)
+            plt.xlabel("H in A/m")
+            plt.ylabel('B in T')
+            plt.title("B_H curve at 25°C")
+            plt.show()
+            B_2 = data[f"{material_name}"][f"{properties}"][0]["B_100"]
+            H_2 = data[f"{material_name}"][f"{properties}"][0]["H_100"]
+            plt.plot(H_2, B_2)
+            plt.xlabel("H in A/m")
+            plt.ylabel('B in T')
+            plt.title("B_H curve at 100°C")
+            plt.show()
         print(f"Material properties {properties} of {material_name} are plotted.")
         pass
 
