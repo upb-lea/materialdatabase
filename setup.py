@@ -15,13 +15,8 @@ with open('README.md') as readme_file:
 
 
 
-<<<<<<< HEAD
 # with open('CHANGELOG.md') as history_file:
 #   history = history_file.read()
-=======
-# with open('CHANGELOG.md') as history_file:
-#     history = history_file.read()
->>>>>>> 69fe049356fde1c74c8c41f5ff33bf135ef7d7dc
 
 
 
@@ -68,11 +63,8 @@ setup(
                       'femmt',
 ],
     license="GNU General Public License v3",
-<<<<<<< HEAD
-    long_description=readme + '\n\n' + history,
-=======
+
     # long_description=readme + '\n\n' + history,
->>>>>>> 69fe049356fde1c74c8c41f5ff33bf135ef7d7dc
     long_description_content_type="text/markdown",
     include_package_data=True,
     keywords='materialdatabase',
@@ -89,9 +81,5 @@ setup(
     },
     version='0.0.0',
     zip_safe=False,
-<<<<<<< HEAD
     #data_files=[('', ['CHANGELOG.md'])]
-=======
-    # data_files=[('', ['CHANGELOG.md'])]
->>>>>>> 69fe049356fde1c74c8c41f5ff33bf135ef7d7dc
 )
