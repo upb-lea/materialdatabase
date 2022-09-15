@@ -1,9 +1,9 @@
-import material_data_base_classes as m
+import material_data_base_classes as mdb
 
-database = m.MaterialDatabase()
+database = mdb.MaterialDatabase()
 
 # -----Enter the freq and Temp-----------
-# database.get_permeability_data(T=50, f=150000, material_name="N95", datasource="measurements")
+# database.permeability_data_to_pro_file(T=60, f=250000, material_name="N95", datasource="manufacturer_datasheet", pro=True)
 
 # ------material properties to be plotted-----
 # database.plot_data(material_name="N95", properties="mu_real")
@@ -15,5 +15,7 @@ database = m.MaterialDatabase()
 # database.get_initial_permeability(material_name="N95")
 # database.get_resistivity(material_name="N95")
 # --------------compare-----------
-m.compare_core_loss_flux_density_data(material_list=["N95", "N87"], temperature=25)
-m.compare_core_loss_temperature(material_list=["N95", "N87"], flux=200e-3)
+# mdb.compare_core_loss_flux_density_data(material_list=["N95", "N87"], temperature=None)
+# mdb.compare_core_loss_temperature(material_list=["N95", "N87"], flux=None)
+# mdb.compare_core_loss_frequency(material_list=["N87"], temperature=25)
+mdb.compare_b_h_curve(material_list=["N95", "N87"], temperature=None)

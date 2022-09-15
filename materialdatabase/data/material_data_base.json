@@ -239,7 +239,7 @@
             488897.5701,
             576381.3779,
             697954.5283,
-            94352.4046,
+            823520.4046,
             972665.5554
           ],
           "power_loss": [
@@ -519,9 +519,7 @@
             183142.1179,
             256217.6931,
             372804.3833,
-            567864.8805,
-            808824.9889,
-            1253180.416
+            567864.8805
           ],
           "power_loss": [
             5043.309438,
@@ -900,32 +898,9 @@
             1962.385269
           ]
         }
-      ]
-    },
-    "measurements": [
-       {
-        "name": "ANSYS_extraction",
-        "data_type": "steinmetz_data",
-        "data":
+      ],
+      "permeability_data": [
         {
-        "ki": 1,
-        "alpha": 1.2,
-        "beta": 2.2}
-      },
-       {
-        "data_type": "complex_permeability_data",
-        "name": "Lukas Keuck",
-        "company": "Paderborn University",
-        "date": "xx.xx.xxxx",
-        "test_setup_name": "Setup_Keuck",
-        "test_setup_description": {
-          "Toroid": "R24x28x5 Toroid",
-          "Measurement_Method": "Electrical, Calorimetric",
-          "Scope": "LeCroy",
-          "Calorimetric": "Yes",
-          "comment": "some nice weather this day"},
-        "data": [
-          {
               "frequency": 100000,
               "temperature": 25,
               "b": [
@@ -959,7 +934,7 @@
                 0
               ]
             },
-          {
+        {
               "frequency": 100000,
               "temperature": 100,
               "b": [
@@ -993,7 +968,7 @@
                 0
               ]
             },
-          {
+        {
               "frequency": 200000,
               "temperature": 25,
               "b": [
@@ -1027,7 +1002,7 @@
                 0
               ]
             },
-          {
+        {
               "frequency": 200000,
               "temperature": 100,
               "b": [
@@ -1042,11 +1017,11 @@
               ],
               "mu_real": [
                 3000,
-                2998.0,
-                2997.0,
-                2995.0,
-                2978.0,
-                2973.0,
+                2995.64,
+                2994.83,
+                2989.3,
+                2971.41,
+                2931.75,
                 1,
                 1
               ],
@@ -1061,7 +1036,7 @@
                 0
               ]
             },
-          {
+        {
               "frequency": 300000,
               "temperature": 25,
               "b": [
@@ -1076,11 +1051,11 @@
               ],
               "mu_real": [
                 3000,
-                2989.0,
-                2978.0,
-                2969.0,
-                2951.0,
-                2939.0,
+                2988.0,
+                2980.14,
+                2966.38,
+                2952.34,
+                2963.04,
                 1,
                 1
               ],
@@ -1095,7 +1070,7 @@
                 0
               ]
             },
-          {
+        {
               "frequency": 300000,
               "temperature": 100,
               "b": [
@@ -1110,11 +1085,11 @@
               ],
               "mu_real": [
                 3000,
-                2998.0,
-                2997.0,
-                2995.0,
-                2978.0,
-                2973.0,
+                2987.0,
+                2986.09,
+                2975.32,
+                2888.86,
+                2969.86,
                 1,
                 1
               ],
@@ -1128,7 +1103,32 @@
                 0,
                 0
               ]
-            }]
+            }
+      ]
+    },
+    "measurements": [
+       {
+         "data_type": "steinmetz_data",
+        "name": "ANSYS_extraction",
+        "data":
+        {
+        "ki": 1,
+        "alpha": 1.2,
+        "beta": 2.2}
+      },
+       {
+        "data_type": "complex_permeability_data",
+        "name": "Lukas Keuck",
+        "company": "Paderborn University",
+        "date": "xx.xx.xxxx",
+        "test_setup_name": "Setup_Keuck",
+        "test_setup_description": {
+          "Toroid": "R24x28x5 Toroid",
+          "Measurement_Method": "Electrical, Calorimetric",
+          "Scope": "LeCroy",
+          "Calorimetric": "Yes",
+          "comment": "some nice weather this day"},
+        "data": []
         }
       ]
     },
@@ -1139,7 +1139,7 @@
             "initial_permeability": 2200,
             "resistivity": 10,
             "b_h_curve": [
-               {
+              {
                     "temperature": 25,
                     "h":[24,
                         34.66666667,
@@ -1184,7 +1184,7 @@
                         0.1,
                         0.000952381]
                },
-                {
+              {
                     "temperature": 100,
                     "h": [17.44966443,
                         33.55704698,
@@ -1706,17 +1706,106 @@
                         43298.8474
                     ]
                 }
+            ],
+            "permeability_data": [
+              {
+                "frequency": 100000,
+                "temperature": 25,
+                "b": [0,
+                0.025,
+                0.05,
+                0.1,
+                0.2,
+                1],
+                "mu_real": [2200,2197.45,2194.5,2191.1,2186.84,1],
+                "mu_imag": [1,105.72,155.41,197.89,240.2,0]
+              },
+              {
+                "frequency": 100000,
+                "temperature": 100,
+                "b": [0,
+                0.025,
+                0.05,
+                0.1,
+                0.2,
+                1],
+                "mu_real": [2200,2199.7,2199.5,2198.6,2195.2,1],
+                "mu_imag": [1,32.32,45.83,75.95,145.29,0]
+              },
+              {
+                "frequency": 200000,
+                "temperature": 25,
+                "b": [0,
+                0.025,
+                0.05,
+                0.1,
+                0.2,
+                1],
+                "mu_real": [2200,2196.3,2191.5,2185.2,2177.63],
+                "mu_imag": [1,126.65,193,254.74,312.93,0]
+              },
+              {
+                "frequency": 200000,
+                "temperature": 100,
+                "b": [0,
+                0.025,
+                0.05,
+                0.1,
+                0.2,
+                1],
+                "mu_real": [2200,2198.9,2198.2,2196.2,2189.1,1],
+                "mu_imag": [1,68.78,88.64,128.76,218.52,0]
+              },
+              {
+                "frequency": 300000,
+                "temperature": 25,
+                "b": [0,
+                0.025,
+                0.05,
+                0.1,
+                0.2,
+                1],
+                "mu_real": [2200,2194.6,2188.1,2179.2,2167,1],
+                "mu_imag": [1,153.62,228.56,301.67,379.56,0]
+              },
+              {
+                "frequency": 300000,
+                "temperature": 100,
+                "b": [0,
+                0.025,
+                0.05,
+                0.1,
+                0.2,
+                1],
+                "mu_real": [2200,2196.6,2195.2,2191.8,2177.56,1],
+                "mu_imag": [1,120.92,145.02,189.14,313.4,0]
+              }
             ]
         },
-        "measurements": {
-            "steinmetz_data": {
-                "ANSYS_extraction": {
-                    "ki": 0,
-                    "alpha": 0,
-                    "beta": 0
-                }
-            },
-            "complex_permeability_data": {}
-        }
+        "measurements": [
+          {
+         "data_type": "steinmetz_data",
+        "name": "ANSYS_extraction",
+        "data":
+          {
+          "ki": 0,
+          "alpha": 0,
+          "beta": 0}
+          },
+          {
+          "data_type": "complex_permeability_data",
+          "name": "Lukas Keuck",
+          "company": "Paderborn University",
+          "date": "xx.xx.xxxx",
+          "test_setup_name": "Setup_Keuck",
+          "test_setup_description": {
+          "Toroid": "R24x28x5 Toroid",
+          "Measurement_Method": "Electrical, Calorimetric",
+          "Scope": "LeCroy",
+          "Calorimetric": "Yes",
+          "comment": "some nice weather this day"},
+          "data": []
+          }
+        ]
     }
 }
