@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import json
-from .material_data_base_functions import *
+from material_data_base_functions import *
 
 
 class MaterialDatabase:
@@ -61,7 +61,7 @@ class MaterialDatabase:
         # print(freq_list)
         n = len(freq_list)  # len of array
         freq_list = list(remove(freq_list, n))
-        print(freq_list)
+        # print(freq_list)
 
         result = find_nearest(freq_list, f)
         # print(result)
@@ -151,6 +151,8 @@ class MaterialDatabase:
         Method is used to export data from the material database in a certain file format.
         :param file_format: export format
         :parent_directory:
+        @param file_format:
+        @param parent_directory:
         """
         if file_format == "pro":
             with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
@@ -202,52 +204,6 @@ class MaterialDatabase:
 
         print(f"Material properties {properties} of {material_name} are plotted.")
         pass
-
-    # ------load Steinmetz data--------------
-    @staticmethod
-    def get_steinmetz_data(material_name: str, type: str, datasource: str):
-        """
-
-        :param material_name:
-        :param datasource: measurement or datasheet
-        :param type: steinmetz or generalized steinmetz
-        """
-        script_dir = os.path.dirname(__file__)
-        file_path = os.path.join(script_dir, 'data/material_data_base.json')
-        with open(file_path, 'r') as data:
-            s_data = json.load(data)
-
-        s_data_new = s_data[f"{material_name}"][f"{datasource}"]
-        if type == "Steinmetz":
-            for i in range(len(s_data_new)):
-                if s_data_new[i]["data_type"] == "steinmetz_data":
-                    coefficient = dict(s_data_new[i]["data"])
-        # elif type == "Generalized_Steinmetz":
-        #     coefficient = dict(s_data[f"{material_name}"]["generalized_steinmetz_data"])
-        # print(coefficient)
-        return coefficient
-
-    # ----------load initial permeability---------
-    @staticmethod
-    def get_initial_permeability(material_name: str):
-        script_dir = os.path.dirname(__file__)
-        file_path = os.path.join(script_dir, 'data/material_data_base.json')
-        with open(file_path, 'r') as data:
-            ip_data = json.load(data)
-        mu_rel = ip_data[f"{material_name}"]["manufacturer_datasheet"]["initial_permeability"]
-        # print(mu_rel)
-        return mu_rel
-
-    # ----load resistivity-----------
-    @staticmethod
-    def get_resistivity(material_name: str):
-        script_dir = os.path.dirname(__file__)
-        file_path = os.path.join(script_dir, 'data/material_data_base.json')
-        with open(file_path, 'r') as data:
-            r_data = json.load(data)
-        resistivity = r_data[f"{material_name}"]["manufacturer_datasheet"]["resistivity"]
-        # print(resistivity)
-        return resistivity
 
 
 def compare_core_loss_flux_density_data(material_list: list, temperature: float = None):

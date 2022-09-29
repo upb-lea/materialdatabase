@@ -17,5 +17,6 @@ database = mdb.MaterialDatabase()
 # --------------compare-----------
 # mdb.compare_core_loss_flux_density_data(material_list=["N95", "N87"], temperature=None)
 # mdb.compare_core_loss_temperature(material_list=["N95", "N87"], flux=None)
-# mdb.compare_core_loss_frequency(material_list=["N87"], temperature=25)
-mdb.compare_b_h_curve(material_list=["N95", "N87"], temperature=None)
+# mdb.compare_core_loss_frequency(material_list=["N95", "N87"], temperature=25)
+# mdb.compare_b_h_curve(material_list=["N95", "N87"], temperature=None)
+mdb.get_material_property(material_name="N87", property="weight_density")
