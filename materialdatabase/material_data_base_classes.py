@@ -500,7 +500,7 @@ def compare_b_h_curve(matplotlib_widget, material_list: list, temperature: float
     plt.show()
 
 
-def compare_permeability_measurement_data(matplotlib_widget, material_list: list, frequency: float = None):
+def compare_permeability_measurement_data(material_list: list, frequency: float = None):
     """
         Method is used to compare material properties.
         :param material_list:[material1, material2, .....]
