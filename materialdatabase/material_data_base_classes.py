@@ -269,17 +269,17 @@ def compare_core_loss_flux_density_data(matplotlib_widget, material_list: list, 
             power_loss = []
             temperature_list = []
             color = color_list[i]
-            for i in range(len(curve_data_material)):
-                b.append(curve_data_material[i]["b"])
-                frequency.append(curve_data_material[i]["frequency"])
-                power_loss.append(curve_data_material[i]["power_loss"])
-                temperature_list.append(curve_data_material[i]["temperature"])
-            for i in range(len(temperature_list)):
+            for j in range(len(curve_data_material)):
+                b.append(curve_data_material[j]["b"])
+                frequency.append(curve_data_material[j]["frequency"])
+                power_loss.append(curve_data_material[j]["power_loss"])
+                temperature_list.append(curve_data_material[j]["temperature"])
+            for j in range(len(temperature_list)):
                 line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                               (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
-                label = f"{material}", f"F={frequency[i]}Hz", f"T={temperature_list[i]}°C"
-                lines = matplotlib_widget.axis.plot(b[i], power_loss[i], label=label, color=color,
-                                                    linestyle=line_style[i])
+                label = f"{material}", f"F={frequency[i]}Hz", f"T={temperature_list[j]}°C"
+                lines = matplotlib_widget.axis.plot(b[j], power_loss[j], label=label, color=color,
+                                                    linestyle=line_style[j])
                 mplcursors.cursor(lines)
                 # plt.legend()
     else:
@@ -291,17 +291,17 @@ def compare_core_loss_flux_density_data(matplotlib_widget, material_list: list, 
             frequency = []
             power_loss = []
             color = color_list[i]
-            for i in range(len(curve_data_material)):
-                if curve_data_material[i]["temperature"] == temperature:
-                    b.append(curve_data_material[i]["b"])
-                    frequency.append(curve_data_material[i]["frequency"])
-                    power_loss.append(curve_data_material[i]["power_loss"])
-            for i in range(len(b)):
+            for j in range(len(curve_data_material)):
+                if curve_data_material[j]["temperature"] == temperature:
+                    b.append(curve_data_material[j]["b"])
+                    frequency.append(curve_data_material[j]["frequency"])
+                    power_loss.append(curve_data_material[j]["power_loss"])
+            for j in range(len(b)):
                 line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                               (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
-                label = f"{material}", f"F={frequency[i]}Hz", f"T={temperature}°C"
-                lines = matplotlib_widget.axis.plot(b[i], power_loss[i], label=label, color=color,
-                                                    linestyle=line_style[i])
+                label = f"{material}", f"F={frequency[j]}Hz", f"T={temperature}°C"
+                lines = matplotlib_widget.axis.plot(b[j], power_loss[j], label=label, color=color,
+                                                    linestyle=line_style[j])
                 mplcursors.cursor(lines)
                 # plt.legend()
     matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log', xscale='log')
@@ -376,11 +376,11 @@ def compare_core_loss_temperature(matplotlib_widget, material_list: list, flux: 
                 mplcursors.cursor(lines)
                 # plt.legend()
     matplotlib_widget.axis.set(xlabel="Temperature in °C", ylabel="Relative power loss in W/m\u00b3", yscale='log')
-    plt.yscale('log')
-    plt.xlabel("Temperature in °C")
-    plt.ylabel("Relative power loss in W/m\u00b3")
-    plt.grid()
-    plt.show()
+    # plt.yscale('log')
+    # plt.xlabel("Temperature in °C")
+    # plt.ylabel("Relative power loss in W/m\u00b3")
+    # plt.grid()
+    # plt.show()
     print(f"Material properties of {material_list} are compared.")
 
 
@@ -527,62 +527,72 @@ def compare_permeability_measurement_data(material_list: list, frequency: float 
         for i in range(len(material_list)):
             curve_data_material = curve_data[f"{material_list[i]}"]["measurements"]
             material = material_list[i]
-            for i in range(len(curve_data_material)):
-                if curve_data_material[i]["data_type"] == "complex_permeability_data":
-                    curve_data_material_new = curve_data_material[i]["data"]
+            for j in range(len(curve_data_material)):
+                if curve_data_material[j]["data_type"] == "complex_permeability_data":
+                    curve_data_material_new = curve_data_material[j]["data"]
                     b = []
                     freq = []
                     mu_phi = []
-                    # mu_r = []
+                    mu_r = []
                     temperature_list = []
-                    color = color_list[i]
-                    for i in range(len(curve_data_material_new)):
-                        b.append(curve_data_material_new[i]["b"])
-                        freq.append(curve_data_material_new[i]["frequency"])
-                        # mu_r.append(curve_data_material_new[i]["mu_r"])
-                        mu_phi.append(curve_data_material_new[i]["mu_phi"])
-                        temperature_list.append(curve_data_material_new[i]["temperature"])
-                    for i in range(len(temperature_list)):
+                    color = color_list[j]
+                    for k in range(len(curve_data_material_new)):
+                        b.append(curve_data_material_new[k]["b"])
+                        freq.append(curve_data_material_new[k]["frequency"])
+                        mu_r.append(curve_data_material_new[k]["mu_r"])
+                        mu_phi.append(curve_data_material_new[k]["mu_phi"])
+                        temperature_list.append(curve_data_material_new[k]["temperature"])
+                    for k in range(len(temperature_list)):
                         line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)),
                                       (0, (5, 10)),
                                       (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)),
                                       (0, (3, 10, 1, 10))]
-                        label = f"{material}", f"T={temperature_list[i]}°C"
-                        plt.plot(1000 * b[i], mu_phi[i], label=label, color=color, linestyle=line_style[i])
-                        # plt.plot(1000*b[i], mu_r[i], label=label, color=color, linestyle=line_style[i])
+                        label = f"{material}", f"T={temperature_list[k]}°C"
+                        fig, axs = plt.subplots(1,2)
+                        axs[1].plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
+                        axs[0].plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
                         plt.legend()
     else:
-        for j in range(len(material_list)):
-            curve_data_material = curve_data[f"{material_list[j]}"]["measurements"]
-            material = material_list[j]
-            color = color_list[j]
-            for i in range(len(curve_data_material)):
-                if curve_data_material[i]["data_type"] == "complex_permeability_data":
-                    curve_data_material_new = curve_data_material[i]["data"]
+        for i in range(len(material_list)):
+            curve_data_material = curve_data[f"{material_list[i]}"]["measurements"]
+            material = material_list[i]
+            color = color_list[i]
+            fig, axs = plt.subplots(1, 2)
+            axs[0].grid()
+            axs[1].grid()
+            for j in range(len(curve_data_material)):
+                if curve_data_material[j]["data_type"] == "complex_permeability_data":
+                    curve_data_material_new = curve_data_material[j]["data"]
                     b = []
                     freq = []
                     mu_phi = []
-                    # mu_r = []
+                    mu_r = []
                     temperature_list = []
 
-                    for i in range(len(curve_data_material_new)):
-                        if curve_data_material_new[i]["frequency"] == frequency:
-                            b.append(curve_data_material_new[i]["b"])
-                            freq.append(curve_data_material_new[i]["frequency"])
-                            mu_phi.append(curve_data_material_new[i]["mu_phi"])
-                            temperature_list.append(curve_data_material_new[i]["temperature"])
-                            # mu_r.append(curve_data_material_new[i]["mu_r"])
-                    for i in range(len(b)):
+                    for k in range(len(curve_data_material_new)):
+                        if curve_data_material_new[k]["frequency"] == frequency:
+                            b.append(curve_data_material_new[k]["b"])
+                            freq.append(curve_data_material_new[k]["frequency"])
+                            mu_phi.append(curve_data_material_new[k]["mu_phi"])
+                            temperature_list.append(curve_data_material_new[k]["temperature"])
+                            mu_r.append(curve_data_material_new[k]["mu_r"])
+
+                    for k in range(len(temperature_list)):
                         line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)),
                                       (0, (5, 10)),
                                       (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)),
                                       (0, (3, 10, 1, 10))]
-                        label = f"{material}", f"T={temperature_list[i]}°C"
-                        plt.plot(b[i], mu_phi[i], label=label, color=color, linestyle=line_style[i])
-                        # plt.plot(1000*b[i], mu_r[i], label=label, color=color, linestyle=line_style[i])
+                        label = f"{material}", f"T={temperature_list[k]}°C"
+
+                        axs[1].plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
+                        axs[1].grid()
+                        axs[1].set_ylabel(r"$\zeta_\mathrm{\mu}$")
+                        axs[1].set_xlabel(r"B in T")
+
+                        axs[0].plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
+                        axs[0].grid()
+                        axs[0].set_ylabel(r"$\mu_\mathrm{r}  /  \mu_0$")
+                        axs[0].set_xlabel(r"B in T")
                         plt.legend()
 
-    plt.xlabel("B in T")
-    plt.ylabel(r"$\zeta_\mathrm{\mu}$")
-    plt.grid()
     plt.show()

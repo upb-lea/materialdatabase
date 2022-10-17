@@ -6,7 +6,7 @@
       "initial_permeability": 3000,
       "resistivity": 6,
       "max_flux_density": 0.525,
-      "weight_density": 4900,
+      "volumetric_mass_density": 4900,
       "b_h_curve": [
         {
           "temperature": 25,
@@ -222,7 +222,7 @@
         },
         {
           "frequency": 100000,
-          "temperature": 120,
+          "temperature": 100,
           "b": [
             0.025470858,
             0.031815644,
@@ -1281,7 +1281,7 @@
             "initial_permeability": 2200,
             "resistivity": 10,
             "max_flux_density": 0.490,
-            "weight_density": 4850,
+            "volumetric_mass_density": 4850,
             "b_h_curve": [
               {
                     "temperature": 25,
