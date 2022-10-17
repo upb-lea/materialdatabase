@@ -4,7 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import json
-from material_data_base_functions import *
+from materialdatabase.material_data_base_functions import *
 import mplcursors
 
 
