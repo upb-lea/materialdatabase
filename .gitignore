@@ -5,7 +5,7 @@
 # Directories
 .idea/
 __pycache__/
-
+materialdatabase.egg-info/
 
 
 # Files
