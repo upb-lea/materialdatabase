@@ -22,6 +22,9 @@ def find_nearest(array, value):
     if array[idx] > value:
         return array[idx - 1], array[idx]
     else:
-        return array[idx], array[idx + 1]
+        if idx == len(array) - 1:
+            return array[idx - 1], array[idx]
+        else:
+            return array[idx], array[idx + 1]
 
 

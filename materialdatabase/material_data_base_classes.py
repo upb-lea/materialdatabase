@@ -218,7 +218,7 @@ class MaterialDatabase:
         with open(file_path, 'r') as data:
             r_data = json.load(data)
         value = r_data[f"{material_name}"]["manufacturer_datasheet"][f"{property}"]
-        print(value)
+        print(f'value=', value)
         return value
 
     # ----------to get steinmetz data from database file-----------------------
@@ -553,13 +553,14 @@ def compare_permeability_measurement_data(material_list: list, frequency: float 
                         axs[0].plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
                         plt.legend()
     else:
+        fig, axs = plt.subplots(1, 2)
+        axs[0].grid()
+        axs[1].grid()
         for i in range(len(material_list)):
             curve_data_material = curve_data[f"{material_list[i]}"]["measurements"]
             material = material_list[i]
             color = color_list[i]
-            fig, axs = plt.subplots(1, 2)
-            axs[0].grid()
-            axs[1].grid()
+
             for j in range(len(curve_data_material)):
                 if curve_data_material[j]["data_type"] == "complex_permeability_data":
                     curve_data_material_new = curve_data_material[j]["data"]
@@ -585,12 +586,12 @@ def compare_permeability_measurement_data(material_list: list, frequency: float 
                         label = f"{material}", f"T={temperature_list[k]}°C"
 
                         axs[1].plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
-                        axs[1].grid()
+
                         axs[1].set_ylabel(r"$\zeta_\mathrm{\mu}$")
                         axs[1].set_xlabel(r"B in T")
 
                         axs[0].plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
-                        axs[0].grid()
+
                         axs[0].set_ylabel(r"$\mu_\mathrm{r}  /  \mu_0$")
                         axs[0].set_xlabel(r"B in T")
                         plt.legend()
