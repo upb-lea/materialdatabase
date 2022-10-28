@@ -27,4 +27,26 @@ def find_nearest(array, value):
         else:
             return array[idx], array[idx + 1]
 
+def set_silent_status(is_silent: bool):
+    """
+    Silent mode global variable.
 
+    :param is_silent: True for silent mode, False for mode with print outputs
+    :type is_silent: bool
+    """
+    global silent
+    silent = is_silent
+
+def mdb_print(text: str, end='\n'):
+    """
+    Print function what checks the silent-mode-flag.
+    Print only in case of no-silent-mode.
+
+    :param text: Text to print
+    :type text: str
+    :param end: command for end of line, e.g. '\n' or '\t'
+    :type end: str
+
+    """
+    if not silent:
+        print(text, end)

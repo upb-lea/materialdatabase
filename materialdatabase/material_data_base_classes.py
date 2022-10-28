@@ -16,13 +16,14 @@ class MaterialDatabase:
     """
 
     def __init__(self):
-        print("The material database is now initialized")
+
         self.freq = None
         self.temp = None
         self.mat = None
         self.b_f = None
         self.mu_real = None
         self.mu_imag = None
+        mdb_print("The material database is now initialized")
 
     def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datasource: str, pro: bool = False,
                                       parent_directory: str = ""):
@@ -144,7 +145,7 @@ class MaterialDatabase:
         # print(self.mu_imag)
         if pro:
             self.export_data(parent_directory=parent_directory, file_format="pro")
-        print(f"Material properties of {material_name} are loaded at {T} °C and {f} Hz.")
+        mdb_print(f"Material properties of {material_name} are loaded at {T} °C and {f} Hz.")
         return self.b_f, self.mu_imag, self.mu_real
 
     def export_data(self, parent_directory: str = "", file_format: str = None):
@@ -168,7 +169,7 @@ class MaterialDatabase:
                     f"f_mu_imag[] = f_mu_imag_d[$1];\n  "
                     f"f_mu_real[] = f_mu_real_d[$1];\n }}  ")
 
-        print(f"Data is exported in a {file_format}-file.")
+        mdb_print(f"Data is exported in a {file_format}-file.")
         pass
 
     def store_data(self, material_name, data_to_be_stored):
@@ -180,7 +181,7 @@ class MaterialDatabase:
         """
         with open('material_data_base.json', 'w') as outfile:
             json.dump(data_to_be_stored, outfile, indent=4)
-        print(f"Material properties of {material_name} are stored in the material database.")
+        mdb_print(f"Material properties of {material_name} are stored in the material database.")
         pass
 
     def plot_data(self, material_name: str = None, properties: str = None):
@@ -203,7 +204,7 @@ class MaterialDatabase:
             plt.title("Imaginary part of permeability")
             plt.show()
 
-        print(f"Material properties {properties} of {material_name} are plotted.")
+        mdb_print(f"Material properties {properties} of {material_name} are plotted.")
         pass
 
     # --------to get different material property from database file---------
@@ -218,7 +219,7 @@ class MaterialDatabase:
         with open(file_path, 'r') as data:
             r_data = json.load(data)
         value = r_data[f"{material_name}"]["manufacturer_datasheet"][f"{property}"]
-        print(f'value=', value)
+        mdb_print(f'value=', value)
         return value
 
     # ----------to get steinmetz data from database file-----------------------
@@ -312,7 +313,7 @@ def compare_core_loss_flux_density_data(matplotlib_widget, material_list: list, 
     # plt.grid()
     # plt.show()
 
-    print(f"Material properties of {material_list} are compared.")
+    mdb_print(f"Material properties of {material_list} are compared.")
 
 
 def compare_core_loss_temperature(matplotlib_widget, material_list: list, flux: float = None):
@@ -381,7 +382,7 @@ def compare_core_loss_temperature(matplotlib_widget, material_list: list, flux: 
     # plt.ylabel("Relative power loss in W/m\u00b3")
     # plt.grid()
     # plt.show()
-    print(f"Material properties of {material_list} are compared.")
+    mdb_print(f"Material properties of {material_list} are compared.")
 
 
 def compare_core_loss_frequency(matplotlib_widget, material_list: list, temperature: float = None):
@@ -450,7 +451,7 @@ def compare_core_loss_frequency(matplotlib_widget, material_list: list, temperat
     # plt.ylabel("Relative power loss in W/m\u00b3")
     # plt.grid()
     # plt.show()
-    print(f"Material properties of {material_list} are compared.")
+    mdb_print(f"Material properties of {material_list} are compared.")
 
 
 def compare_b_h_curve(matplotlib_widget, material_list: list, temperature: float = None):
@@ -506,7 +507,7 @@ def compare_b_h_curve(matplotlib_widget, material_list: list, temperature: float
     # plt.title(f"B_H curve")
     # plt.grid()
     # plt.show()
-    print(f"Material properties of {material_list} are compared.")
+    mdb_print(f"Material properties of {material_list} are compared.")
 
 
 def compare_permeability_measurement_data(material_list: list, frequency: float = None):
