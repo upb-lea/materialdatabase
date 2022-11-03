@@ -7,7 +7,6 @@ import json
 from materialdatabase.material_data_base_functions import *
 import mplcursors
 
-
 class MaterialDatabase:
     """
     This class manages the data stored in the material database.
@@ -15,7 +14,7 @@ class MaterialDatabase:
     so that it can easily be interfaced by tools like the FEM Magnetic Toolbox.
     """
 
-    def __init__(self):
+    def __init__(self, is_silent: bool = False):
 
         self.freq = None
         self.temp = None
@@ -23,6 +22,8 @@ class MaterialDatabase:
         self.b_f = None
         self.mu_real = None
         self.mu_imag = None
+        set_silent_status(is_silent)
+
         mdb_print("The material database is now initialized")
 
     def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datasource: str, pro: bool = False,
