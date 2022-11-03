@@ -58,8 +58,6 @@ setup(
                       'matplotlib>=3.3.4',
                       'pytest>=6.2.4',
                       'pandas',
-                      'pyserial',
-                      'pyjnius',
                       'femmt',
 ],
     license="GNU General Public License v3",
