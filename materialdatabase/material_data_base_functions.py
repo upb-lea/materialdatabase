@@ -27,6 +27,7 @@ def find_nearest(array, value):
         else:
             return array[idx], array[idx + 1]
 
+
 def set_silent_status(is_silent: bool):
     """
     Silent mode global variable.
@@ -36,6 +37,7 @@ def set_silent_status(is_silent: bool):
     """
     global silent
     silent = is_silent
+
 
 def mdb_print(text: str, end='\n'):
     """
