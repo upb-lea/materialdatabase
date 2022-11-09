@@ -33,9 +33,9 @@ class MaterialDatabase:
         Method is used to read permeability data from the material database.
         :param T: temperature
         :param f: Frequency
-        :param material_name:
-        :param datasource: measurement or datasheet
-        :param pro : create temporary pro file
+        :param material_name: "N95","N87"....
+        :param datasource: "measurements" or "manufacturer_datasheet"
+        :param pro : create temporary pro file for solver
         :param parent_directory: location of solver file
         """
         self.temp = T
@@ -252,14 +252,14 @@ def drop_down_list(material_name: str, comparison_type: str, temperature: bool =
                    freq: bool = False):
     """
     This function return a list temp, frq nad flux to GUI from database to used as dropdown list
-    @param freq:
+    @param freq: to get freq list
     @param material_name:
-    @param temperature:
-    @param flux:
+    @param temperature: to get temp list
+    @param flux: to get flux list
     @param comparison_type: datasheet vs datasheet ="dvd", measurement vs measurement = "mvm", datasheet vs measurement = "dvm"
     @return:
     """
-    global temp_list, flux_list
+    global temp_list, flux_list, freq_list_new, temp_list_new, flux_list_new
     script_dir = os.path.dirname(__file__)
     file_path = os.path.join(script_dir, 'data/material_data_base.json')
     with open(file_path, 'r') as data:
@@ -311,6 +311,22 @@ def drop_down_list(material_name: str, comparison_type: str, temperature: bool =
         return flux_list_new
     if freq:
         return freq_list_new
+
+
+def material_list_in_database(material_list: bool = False):
+    """
+
+    @param material_list: boolean to get material list from the database for GUI
+    @return: materials present in database in form of list.
+    """
+    script_dir = os.path.dirname(__file__)
+    file_path = os.path.join(script_dir, 'data/material_data_base.json')
+    with open(file_path, 'r') as data:
+        data = json.load(data)
+    materials = []
+    for i in data:
+        materials.append(i)
+    return materials
 
 
 def compare_core_loss_flux_density_data(matplotlib_widget, material_list: list, temperature: float = None):
@@ -582,7 +598,8 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
                 mu_r = []
 
                 for k in range(len(curve_data_material_new)):
-                    if curve_data_material_new[k]["frequency"] == frequency and curve_data_material_new[k]["temperature"] == temperature:
+                    if curve_data_material_new[k]["frequency"] == frequency and curve_data_material_new[k][
+                        "temperature"] == temperature:
                         b.append(curve_data_material_new[k]["b"])
                         freq.append(curve_data_material_new[k]["frequency"])
                         mu_phi.append(curve_data_material_new[k]["mu_phi"])
