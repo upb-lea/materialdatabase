@@ -54,97 +54,197 @@ class MaterialDatabase:
             for i in range(len(m_data)):
                 if m_data[i]["data_type"] == "complex_permeability_data":
                     m_data_new = m_data[i]["data"]
-                    for j in range(len(m_data[i]["data"])):
-                        freq_list.append(m_data[i]["data"][j]["frequency"])
+            for j in range(len(m_data_new)):
+                freq_list.append(m_data_new[j]["frequency"])
+                # print(freq_list)
+            n = len(freq_list)  # len of array
+            freq_list = list(remove(freq_list, n))
+            print(freq_list)
+
+            result = find_nearest(freq_list, f)
+            print(result)
+
+            f_l = result[0]
+            f_h = result[1]
+
+            # ------find nearby temperature------
+            temp_list_l = []
+            temp_list_h = []
+
+            for i in range(len(m_data_new)):
+                if m_data_new[i]["frequency"] == f_l:
+                    temp_list_l.append(m_data_new[i]["temperature"])
+            for i in range(len(m_data_new)):
+                if m_data_new[i]["frequency"] == f_h:
+                    temp_list_h.append(m_data_new[i]["temperature"])
+
+            temp_list_l = find_nearest(temp_list_l, T)
+            temp_list_h = find_nearest(temp_list_h, T)
+
+            # print(temp_list_l)
+            # print(temp_list_h)
+
+            def getdata_measurements(variable, F, t_1, t_2):
+                for k in range(len(m_data_new)):
+                    if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_1:
+                        b_phi_deg_1 = m_data_new[k]["b"]
+                        mu_phi_deg_1 = m_data_new[k]["mu_phi_deg"]
+                        mu_r_1_and_b = m_data_new[k]["mu_r"]
+                        b_r_1 = mu_r_1_and_b[0]
+                        mu_r_1 = mu_r_1_and_b[1]
+                        t_mu_phi_1 = interp1d(b_phi_deg_1, mu_phi_deg_1)
+                        t_mu_r_1 = interp1d(b_r_1, mu_r_1)
+
+                    if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_2:
+                        b_phi_deg_2 = m_data_new[k]["b"]
+                        mu_phi_deg_2 = m_data_new[k]["mu_phi_deg"]
+                        mu_r_2_and_b = m_data_new[k]["mu_r"]
+                        b_r_2 = mu_r_2_and_b[0]
+                        mu_r_2 = mu_r_2_and_b[1]
+                        t_mu_phi_2 = interp1d(b_phi_deg_2, mu_phi_deg_2)
+                        t_mu_r_2 = interp1d(b_r_2, mu_r_2)
+                # --------linear interpolation at constant freq-------------
+                mu_phi = []
+                mu_r = []
+                b_t = [0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.125, 0.15, 0.175, 0.2]
+
+                for y in range(len(b_t)):
+                    mu_r.append(
+                        t_mu_r_1(b_t[y]) + (t_mu_r_2(b_t[y]) - t_mu_r_1(b_t[y])) / (
+                                t_2 - t_1) * (variable - t_1))
+                    mu_phi.append(
+                        t_mu_phi_1(b_t[y]) + (t_mu_phi_2(b_t[y]) - t_mu_phi_1(b_t[y])) / (
+                                t_2 - t_1) * (variable - t_1))
+                return mu_r, mu_phi
+
+            # --------interpolated data at constant freq and nearby temp--------
+            interpolate_temp_1 = getdata_measurements(T, f_l, temp_list_l[0], temp_list_l[1])
+            interpolate_temp_2 = getdata_measurements(T, f_h, temp_list_h[0], temp_list_h[1])
+            # print(interpolate_temp_1)
+            # print(interpolate_temp_2)
+
+            # ------linear interpolation at constant temp and nearby freq-----------------
+            self.b_f = [0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.125, 0.15, 0.175, 0.2]
+            f_mu_r_1 = interp1d(self.b_f, interpolate_temp_1[0])
+            f_mu_phi_1 = interp1d(self.b_f, interpolate_temp_1[1])
+            f_mu_r_2 = interp1d(self.b_f, interpolate_temp_2[0])
+            f_mu_phi_2 = interp1d(self.b_f, interpolate_temp_2[1])
+            mu_phi_f = []
+            mu_r_f = []
+            for b in range(len(self.b_f)):
+                mu_r_f.append(
+                    f_mu_r_1(self.b_f[b]) + (f_mu_r_2(self.b_f[b]) - f_mu_r_1(self.b_f[b])) / (
+                            f_h - f_l) * (
+                            f - f_l))
+                mu_phi_f.append(
+                    f_mu_phi_1(self.b_f[b]) + (f_mu_phi_2(self.b_f[b]) - f_mu_phi_1(self.b_f[b])) / (
+                            f_h - f_l) * (
+                            f - f_l))
+            mu_real_from_polar = []
+            mu_imag_from_polar = []
+            for n in range(len(self.b_f)):
+                cartesian = rect(mu_r_f[n], mu_phi_f[n])
+                mu_real_from_polar.append(cartesian[0])
+                mu_imag_from_polar.append(cartesian[1])
+            self.mu_real = mu_real_from_polar
+            self.mu_imag = mu_imag_from_polar
+            print(self.mu_real)
+            print(self.mu_imag)
+
+
         elif datasource == "manufacturer_datasheet":
+
             m_data = data[f"{material_name}"][f"{datasource}"]
             m_data_new = m_data["permeability_data"]
             for j in range(len(m_data_new)):
                 freq_list.append(m_data_new[j]["frequency"])
 
-        # print(freq_list)
-        n = len(freq_list)  # len of array
-        freq_list = list(remove(freq_list, n))
-        # print(freq_list)
+            # print(freq_list)
+            n = len(freq_list)  # len of array
+            freq_list = list(remove(freq_list, n))
+            # print(freq_list)
 
-        result = find_nearest(freq_list, f)
-        # print(result)
+            result = find_nearest(freq_list, f)
+            # print(result)
 
-        f_l = result[0]
-        f_h = result[1]
+            f_l = result[0]
+            f_h = result[1]
 
-        # ------find nearby temperature------
-        temp_list_l = []
-        temp_list_h = []
+            # ------find nearby temperature------
+            temp_list_l = []
+            temp_list_h = []
 
-        for i in range(len(m_data_new)):
-            if m_data_new[i]["frequency"] == f_l:
-                temp_list_l.append(m_data_new[i]["temperature"])
-        for i in range(len(m_data_new)):
-            if m_data_new[i]["frequency"] == f_h:
-                temp_list_h.append(m_data_new[i]["temperature"])
+            for i in range(len(m_data_new)):
+                if m_data_new[i]["frequency"] == f_l:
+                    temp_list_l.append(m_data_new[i]["temperature"])
+            for i in range(len(m_data_new)):
+                if m_data_new[i]["frequency"] == f_h:
+                    temp_list_h.append(m_data_new[i]["temperature"])
 
-        temp_list_l = find_nearest(temp_list_l, T)
-        temp_list_h = find_nearest(temp_list_h, T)
+            temp_list_l = find_nearest(temp_list_l, T)
+            temp_list_h = find_nearest(temp_list_h, T)
 
-        # print(temp_list_l)
+            # print(temp_list_l)
 
-        # print(temp_list_h)
+            # print(temp_list_h)
 
-        # -------get the data----------
-        def getdata(variable, F, t_1, t_2):
-            for k in range(len(m_data_new)):
-                if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_1:
-                    b_1 = m_data_new[k]["b"]
-                    mu_real_1 = m_data_new[k]["mu_real"]
-                    mu_imag_1 = m_data_new[k]["mu_imag"]
-                    t_mu_imag_1 = interp1d(b_1, mu_imag_1)
-                    t_mu_real_1 = interp1d(b_1, mu_real_1)
-                if m_data_new[k]["frequency"] == F and \
-                        m_data_new[k]["temperature"] == t_2:
-                    b_2 = m_data_new[k]["b"]
-                    mu_real_2 = m_data_new[k]["mu_real"]
-                    mu_imag_2 = m_data_new[k]["mu_imag"]
-                    t_mu_imag_2 = interp1d(b_2, mu_imag_2)
-                    t_mu_real_2 = interp1d(b_2, mu_real_2)
+            # -------get the data----------
+            def getdata(variable, F, t_1, t_2):
+                for k in range(len(m_data_new)):
+                    if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_1:
+                        b_1 = m_data_new[k]["b"]
+                        mu_real_1 = m_data_new[k]["mu_real"]
+                        mu_imag_1 = m_data_new[k]["mu_imag"]
+                        t_mu_imag_1 = interp1d(b_1, mu_imag_1)
+                        t_mu_real_1 = interp1d(b_1, mu_real_1)
+                    if m_data_new[k]["frequency"] == F and \
+                            m_data_new[k]["temperature"] == t_2:
+                        b_2 = m_data_new[k]["b"]
+                        mu_real_2 = m_data_new[k]["mu_real"]
+                        mu_imag_2 = m_data_new[k]["mu_imag"]
+                        t_mu_imag_2 = interp1d(b_2, mu_imag_2)
+                        t_mu_real_2 = interp1d(b_2, mu_real_2)
 
-            # --------linear interpolation at constant freq-------------
-            mu_i = []
-            mu_r = []
-            b_t = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+                # --------linear interpolation at constant freq-------------
+                mu_i = []
+                mu_r = []
+                b_t = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
 
-            for j in range(len(b_t)):
-                mu_r.append(
-                    t_mu_real_1(b_t[j]) + (t_mu_real_2(b_t[j]) - t_mu_real_1(b_t[j])) / (t_2 - t_1) * (variable - t_1))
-                mu_i.append(
-                    t_mu_imag_1(b_t[j]) + (t_mu_imag_2(b_t[j]) - t_mu_imag_1(b_t[j])) / (t_2 - t_1) * (variable - t_1))
-            return mu_r, mu_i
+                for y in range(len(b_t)):
+                    mu_r.append(
+                        t_mu_real_1(b_t[y]) + (t_mu_real_2(b_t[y]) - t_mu_real_1(b_t[y])) / (t_2 - t_1) * (
+                                variable - t_1))
+                    mu_i.append(
+                        t_mu_imag_1(b_t[y]) + (t_mu_imag_2(b_t[y]) - t_mu_imag_1(b_t[y])) / (t_2 - t_1) * (
+                                variable - t_1))
+                return mu_r, mu_i
 
-        # --------interpolated data at constant freq and nearby temp--------
-        interpolate_temp_1 = getdata(T, f_l, temp_list_l[0], temp_list_l[1])
-        interpolate_temp_2 = getdata(T, f_h, temp_list_h[0], temp_list_h[1])
-        # print(interpolate_temp_1)
-        # print(interpolate_temp_2)
+            # --------interpolated data at constant freq and nearby temp--------
+            interpolate_temp_1 = getdata(T, f_l, temp_list_l[0], temp_list_l[1])
+            interpolate_temp_2 = getdata(T, f_h, temp_list_h[0], temp_list_h[1])
+            # print(interpolate_temp_1)
+            # print(interpolate_temp_2)
 
-        # ------linear interpolation at constant temp and nearby freq-----------------
-        self.b_f = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-        f_mu_real_1 = interp1d(self.b_f, interpolate_temp_1[0])
-        f_mu_imag_1 = interp1d(self.b_f, interpolate_temp_1[1])
-        f_mu_real_2 = interp1d(self.b_f, interpolate_temp_2[0])
-        f_mu_imag_2 = interp1d(self.b_f, interpolate_temp_2[1])
-        mu_i_f = []
-        mu_r_f = []
-        for b in range(len(self.b_f)):
-            mu_r_f.append(
-                f_mu_real_1(self.b_f[b]) + (f_mu_real_2(self.b_f[b]) - f_mu_real_1(self.b_f[b])) / (f_h - f_l) * (
-                        f - f_l))
-            mu_i_f.append(
-                f_mu_imag_1(self.b_f[b]) + (f_mu_imag_2(self.b_f[b]) - f_mu_imag_1(self.b_f[b])) / (f_h - f_l) * (
-                        f - f_l))
-        self.mu_real = mu_r_f
-        self.mu_imag = mu_i_f
-        # print(self.mu_real)
-        # print(self.mu_imag)
+            # ------linear interpolation at constant temp and nearby freq-----------------
+            self.b_f = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+            f_mu_real_1 = interp1d(self.b_f, interpolate_temp_1[0])
+            f_mu_imag_1 = interp1d(self.b_f, interpolate_temp_1[1])
+            f_mu_real_2 = interp1d(self.b_f, interpolate_temp_2[0])
+            f_mu_imag_2 = interp1d(self.b_f, interpolate_temp_2[1])
+            mu_i_f = []
+            mu_r_f = []
+            for b in range(len(self.b_f)):
+                mu_r_f.append(
+                    f_mu_real_1(self.b_f[b]) + (f_mu_real_2(self.b_f[b]) - f_mu_real_1(self.b_f[b])) / (f_h - f_l) * (
+                            f - f_l))
+                mu_i_f.append(
+                    f_mu_imag_1(self.b_f[b]) + (f_mu_imag_2(self.b_f[b]) - f_mu_imag_1(self.b_f[b])) / (f_h - f_l) * (
+                            f - f_l))
+            self.mu_real = mu_r_f
+            self.mu_imag = mu_i_f
+            # print(self.mu_real)
+            # print(self.mu_imag)
+
         if pro:
             self.export_data(parent_directory=parent_directory, file_format="pro")
         mdb_print(f"Material properties of {material_name} are loaded at {T} °C and {f} Hz.")

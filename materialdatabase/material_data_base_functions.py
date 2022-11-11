@@ -1,5 +1,6 @@
 # all static functions shall be inserted in this file
 import numpy as np
+import math
 import json
 import os
 from scipy.interpolate import interp1d
@@ -52,3 +53,13 @@ def mdb_print(text: str, end='\n'):
     """
     if not silent:
         print(text, end)
+
+
+def rect(r, theta):
+    """theta in degrees
+
+    returns tuple; (float, float); (x,y)
+    """
+    x = r * math.cos(math.radians(theta))
+    y = r * math.sin(math.radians(theta))
+    return x, y
