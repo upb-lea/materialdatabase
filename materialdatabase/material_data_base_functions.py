@@ -1,10 +1,15 @@
 # all static functions shall be inserted in this file
-import numpy as np
+
+# Python integrated libraries
 import math
 import json
 import os
+
+# 3rd party libraries
+import numpy as np
 from scipy.interpolate import interp1d
 
+# local libraries
 
 # ------Remove Duplicate from freq array------
 def remove(arr, n):
