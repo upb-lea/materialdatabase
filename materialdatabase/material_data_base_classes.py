@@ -1,12 +1,15 @@
+# Python integrated libraries
 import os
-import femmt as fmt
+
+# 3rd party libraries
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import json
-from materialdatabase.material_data_base_functions import *
 import mplcursors
 
+# local libraries
+from materialdatabase.material_data_base_functions import *
 
 class MaterialDatabase:
     """
