@@ -17,6 +17,7 @@ class MaterialDatabase:
 
     def __init__(self, is_silent: bool = False):
 
+        self.b_1 = None
         self.freq = None
         self.temp = None
         self.mat = None
@@ -192,30 +193,30 @@ class MaterialDatabase:
             def getdata(variable, F, t_1, t_2):
                 for k in range(len(m_data_new)):
                     if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_1:
-                        b_1 = m_data_new[k]["b"]
+                        self.b_1 = m_data_new[k]["b"]
                         mu_real_1 = m_data_new[k]["mu_real"]
                         mu_imag_1 = m_data_new[k]["mu_imag"]
-                        t_mu_imag_1 = interp1d(b_1, mu_imag_1)
-                        t_mu_real_1 = interp1d(b_1, mu_real_1)
+                        t_mu_imag_1 = interp1d(self.b_1, mu_imag_1)
+                        t_mu_real_1 = interp1d(self.b_1, mu_real_1)
                     if m_data_new[k]["frequency"] == F and \
                             m_data_new[k]["temperature"] == t_2:
-                        b_2 = m_data_new[k]["b"]
+                        self.b_2 = m_data_new[k]["b"]
                         mu_real_2 = m_data_new[k]["mu_real"]
                         mu_imag_2 = m_data_new[k]["mu_imag"]
-                        t_mu_imag_2 = interp1d(b_2, mu_imag_2)
-                        t_mu_real_2 = interp1d(b_2, mu_real_2)
+                        t_mu_imag_2 = interp1d(self.b_2, mu_imag_2)
+                        t_mu_real_2 = interp1d(self.b_2, mu_real_2)
 
                 # --------linear interpolation at constant freq-------------
                 mu_i = []
                 mu_r = []
-                b_t = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+                # b_t = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
 
-                for y in range(len(b_t)):
+                for y in range(len(self.b_1)):
                     mu_r.append(
-                        t_mu_real_1(b_t[y]) + (t_mu_real_2(b_t[y]) - t_mu_real_1(b_t[y])) / (t_2 - t_1) * (
+                        t_mu_real_1(self.b_1[y]) + (t_mu_real_2(self.b_1[y]) - t_mu_real_1(self.b_1[y])) / (t_2 - t_1) * (
                                 variable - t_1))
                     mu_i.append(
-                        t_mu_imag_1(b_t[y]) + (t_mu_imag_2(b_t[y]) - t_mu_imag_1(b_t[y])) / (t_2 - t_1) * (
+                        t_mu_imag_1(self.b_1[y]) + (t_mu_imag_2(self.b_1[y]) - t_mu_imag_1(self.b_1[y])) / (t_2 - t_1) * (
                                 variable - t_1))
                 return mu_r, mu_i
 
@@ -226,19 +227,19 @@ class MaterialDatabase:
             # print(interpolate_temp_2)
 
             # ------linear interpolation at constant temp and nearby freq-----------------
-            self.b_f = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-            f_mu_real_1 = interp1d(self.b_f, interpolate_temp_1[0])
-            f_mu_imag_1 = interp1d(self.b_f, interpolate_temp_1[1])
-            f_mu_real_2 = interp1d(self.b_f, interpolate_temp_2[0])
-            f_mu_imag_2 = interp1d(self.b_f, interpolate_temp_2[1])
+            # self.b_f = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
+            f_mu_real_1 = interp1d(self.b_1, interpolate_temp_1[0])
+            f_mu_imag_1 = interp1d(self.b_1, interpolate_temp_1[1])
+            f_mu_real_2 = interp1d(self.b_1, interpolate_temp_2[0])
+            f_mu_imag_2 = interp1d(self.b_1, interpolate_temp_2[1])
             mu_i_f = []
             mu_r_f = []
-            for b in range(len(self.b_f)):
+            for b in range(len(self.b_1)):
                 mu_r_f.append(
-                    f_mu_real_1(self.b_f[b]) + (f_mu_real_2(self.b_f[b]) - f_mu_real_1(self.b_f[b])) / (f_h - f_l) * (
+                    f_mu_real_1(self.b_1[b]) + (f_mu_real_2(self.b_1[b]) - f_mu_real_1(self.b_1[b])) / (f_h - f_l) * (
                             f - f_l))
                 mu_i_f.append(
-                    f_mu_imag_1(self.b_f[b]) + (f_mu_imag_2(self.b_f[b]) - f_mu_imag_1(self.b_f[b])) / (f_h - f_l) * (
+                    f_mu_imag_1(self.b_1[b]) + (f_mu_imag_2(self.b_1[b]) - f_mu_imag_1(self.b_1[b])) / (f_h - f_l) * (
                             f - f_l))
             self.mu_real = mu_r_f
             self.mu_imag = mu_i_f
@@ -248,7 +249,7 @@ class MaterialDatabase:
         if pro:
             self.export_data(parent_directory=parent_directory, file_format="pro")
         mdb_print(f"Material properties of {material_name} are loaded at {T} °C and {f} Hz.")
-        return self.b_f, self.mu_imag, self.mu_real
+        return self.b_1, self.mu_imag, self.mu_real
 
     def export_data(self, parent_directory: str = "", file_format: str = None):
         """
@@ -262,7 +263,7 @@ class MaterialDatabase:
             with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
                 file.write(f'Include "Parameter.pro";\n')
                 file.write(
-                    f"Function{{\n  b = {str(self.b_f).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(self.mu_real).replace('[', '{').replace(']', '}')} ;"
+                    f"Function{{\n  b = {str(self.b_1).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(self.mu_real).replace('[', '{').replace(']', '}')} ;"
                     f"\n  mu_imag = {str(self.mu_imag).replace('[', '{').replace(']', '}')} ;\n  "
                     f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
                     f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
@@ -413,7 +414,7 @@ def drop_down_list(material_name: str, comparison_type: str, temperature: bool =
         return freq_list_new
 
 
-def material_list_in_database(material_list: bool = False):
+def material_list_in_database(material_list: bool = True):
     """
 
     @param material_list: boolean to get material list from the database for GUI

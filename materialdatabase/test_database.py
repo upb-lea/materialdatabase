@@ -3,7 +3,7 @@ import material_data_base_classes as mdb
 database = mdb.MaterialDatabase()
 
 # -----Enter the freq and Temp-----------
-database.permeability_data_to_pro_file(T=30, f=200000, material_name="N87", datasource="measurements", pro=True)
+database.permeability_data_to_pro_file(T=30, f=300000, material_name="N49", datasource="manufacturer_datasheet", pro=True)
 
 # ------material properties to be plotted-----
 # database.plot_data(material_name="N95", properties="mu_real")
