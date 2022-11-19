@@ -29,8 +29,7 @@ setup_requirements = ['setuptools_scm']
 
 
 
-test_requirements = ['pytest',
-                     'deepdiff']
+test_requirements = ['pytest']
 
 
 
