@@ -43,6 +43,9 @@ class MaterialDatabase:
         :param pro : create temporary pro file for solver
         :param parent_directory: location of solver file
         """
+        if material_name is None or T is None or f is None:
+            raise Exception(f"Failure in selecting data from materialdatabase. {material_name = }, {T = }, {f =}.")
+
         self.temp = T
         self.freq = f
         self.mat = material_name
@@ -252,6 +255,9 @@ class MaterialDatabase:
             # print(self.mu_real)
             # print(self.mu_imag)
 
+        else:
+            raise Exception("'datasource' must be 'manufacturer_datasheet' or 'measurements'.")
+
         if pro:
             self.export_data(parent_directory=parent_directory, file_format="pro")
         mdb_print(f"Material properties of {material_name} are loaded at {T} °C and {f} Hz.")
@@ -278,8 +284,11 @@ class MaterialDatabase:
                     f"f_mu_imag[] = f_mu_imag_d[$1];\n  "
                     f"f_mu_real[] = f_mu_real_d[$1];\n }}  ")
 
-        mdb_print(f"Data is exported in a {file_format}-file.")
-        pass
+        else:
+            raise Exception("No valid file format is given!")
+
+        mdb_print(f"Data is exported to {parent_directory} in a {file_format}-file.")
+
 
     def store_data(self, material_name, data_to_be_stored):
         """
@@ -291,7 +300,6 @@ class MaterialDatabase:
         with open('material_data_base.json', 'w') as outfile:
             json.dump(data_to_be_stored, outfile, indent=4)
         mdb_print(f"Material properties of {material_name} are stored in the material database.")
-        pass
 
     def plot_data(self, material_name: str = None, properties: str = None):
         """
@@ -314,7 +322,6 @@ class MaterialDatabase:
             plt.show()
 
         mdb_print(f"Material properties {properties} of {material_name} are plotted.")
-        pass
 
     # --------to get different material property from database file---------
     @staticmethod
@@ -349,6 +356,8 @@ class MaterialDatabase:
             for i in range(len(s_data_new)):
                 if s_data_new[i]["data_type"] == "steinmetz_data":
                     coefficient = dict(s_data_new[i]["data"])
+        else:
+            raise Exception("Error in selecting loss data. 'type' must be 'Steinmetz' or others (will be implemented in future).")
         # elif type == "Generalized_Steinmetz":
         #     coefficient = dict(s_data[f"{material_name}"]["generalized_steinmetz_data"])
         # print(coefficient)

@@ -6,6 +6,7 @@
 .idea/
 __pycache__/
 materialdatabase.egg-info/
+tests/temp/
 .eggs/
 
 # Files
