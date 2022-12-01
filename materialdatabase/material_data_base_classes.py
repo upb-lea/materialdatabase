@@ -477,9 +477,9 @@ def compare_core_loss_flux_density_data(matplotlib_widget, material_list: list, 
             line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                           (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
             label = f"{material}", f"F={frequency[j]}Hz", f"T={temperature}°C"
-            lines = matplotlib_widget.axis.plot(b[j], power_loss[j], label=label, color=color,
-                                                linestyle=line_style[j])
+            lines = matplotlib_widget.axis.plot(b[j], power_loss[j], label=label, color=color,linestyle=line_style[j])
             mplcursors.cursor(lines)
+            # plt.plot(b[j], power_loss[j], label=label, color=color, linestyle=line_style[j])
             # plt.legend()
     matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log', xscale='log')
     # plt.yscale('log')
@@ -496,7 +496,7 @@ def compare_core_loss_temperature(matplotlib_widget, material_list: list, flux_l
     """
         Method is used to compare material properties.
         :param material_list:[material1, material2, ....]
-        :param flux
+        :param flux_list
         :return:
         """
     color_list = ['red', 'blue', 'green', 'yellow', 'orange']
@@ -515,19 +515,18 @@ def compare_core_loss_temperature(matplotlib_widget, material_list: list, flux_l
         frequency = []
         power_loss = []
         color = color_list[i]
-        for m in range(len(curve_data_material)):
-            if curve_data_material[m]["b"] == flux:
-                temperature.append(curve_data_material[m]["temperature"])
-                frequency.append(curve_data_material[m]["frequency"])
-                power_loss.append(curve_data_material[m]["power_loss"])
-
-        for i in range(len(temperature)):
+        for j in range(len(curve_data_material)):
+            if curve_data_material[j]["b"] == flux:
+                temperature.append(curve_data_material[j]["temperature"])
+                frequency.append(curve_data_material[j]["frequency"])
+                power_loss.append(curve_data_material[j]["power_loss"])
+        for j in range(len(temperature)):
             line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                           (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
-            label = f"{material}", f"B= {flux}T"
-            lines = matplotlib_widget.axis.plot(temperature[i], power_loss[i], label=label, color=color,
-                                                linestyle=line_style[i])
+            label = f"{material}", f"F={frequency[j]}Hz", f"B= {flux}T"
+            lines = matplotlib_widget.axis.plot(temperature[j], power_loss[j], label=label, color=color,linestyle=line_style[j])
             mplcursors.cursor(lines)
+            # plt.plot(temperature[j], power_loss[j], label=label, color=color, linestyle=line_style[j])
             # plt.legend()
     matplotlib_widget.axis.set(xlabel="Temperature in °C", ylabel="Relative power loss in W/m\u00b3", yscale='log')
     # plt.yscale('log')
@@ -571,13 +570,13 @@ def compare_core_loss_frequency(matplotlib_widget, material_list: list, temperat
             line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                           (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
             label = f"{material}", f"B= {flux}T", f"T= {temperature}°C"
-            lines = matplotlib_widget.axis.plot(frequency[j], power_loss[j], color=color, label=label,
-                                                linestyle=line_style[j])
+            lines = matplotlib_widget.axis.plot(frequency[j], power_loss[j], color=color, label=label,linestyle=line_style[j])
             mplcursors.cursor(lines)
+            # plt.plot(frequency[j], power_loss[j], color=color, label=label, linestyle=line_style[j])
             # plt.legend()
-    matplotlib_widget.axis.set(xlabel="Frequency in Hz", ylabel="Relative power loss in W/m\u00b3", yscale='log',
-                               xscale='log')
-
+    matplotlib_widget.axis.set(xlabel="Frequency in Hz", ylabel="Relative power loss in W/m\u00b3", yscale='log',xscale='log')
+    # plt.grid()
+    # plt.show()
     mdb_print(f"Material properties of {material_list} are compared.")
 
 
