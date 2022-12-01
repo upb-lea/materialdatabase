@@ -543,8 +543,8 @@ def compare_core_loss_frequency(matplotlib_widget, material_list: list, temperat
     """
             Method is used to compare material properties.
             :param material_list:[material1, material2, ....]
-            :param flux
-            :param temperature
+            :param flux_list
+            :param temperature_list
             :return:
             """
     color_list = ['red', 'blue', 'green', 'yellow', 'orange']
@@ -563,7 +563,7 @@ def compare_core_loss_frequency(matplotlib_widget, material_list: list, temperat
         power_loss = []
         color = color_list[i]
         for m in range(len(curve_data_material)):
-            if curve_data_material[m]["temperature"] == temperature and curve_data_material[m]["flux"] == flux:
+            if curve_data_material[m]["temperature"] == temperature and curve_data_material[m]["b"] == flux:
                 frequency.append(curve_data_material[m]["frequency"])
                 power_loss.append(curve_data_material[m]["power_loss"])
 
