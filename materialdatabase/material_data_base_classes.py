@@ -619,7 +619,7 @@ def compare_b_h_curve(matplotlib_widget, material_list: list, temperature_list: 
     mdb_print(f"Material properties of {material_list} are compared.")
 
 
-def compare_permeability_measurement_data(material_list: list, frequency_list: list = None,
+def compare_permeability_measurement_data(matplotlib_widget, material_list: list, frequency_list: list = None,
                                           temperature_list: list = None, plot_real_part: bool = False):
     """
         Method is used to compare material properties.
@@ -655,8 +655,7 @@ def compare_permeability_measurement_data(material_list: list, frequency_list: l
                 mu_r = []
 
                 for k in range(len(curve_data_material_new)):
-                    if curve_data_material_new[k]["frequency"] == frequency and curve_data_material_new[k][
-                        "temperature"] == temperature:
+                    if curve_data_material_new[k]["frequency"] == frequency and curve_data_material_new[k]["temperature"] == temperature:
                         b.append(curve_data_material_new[k]["b"])
                         freq.append(curve_data_material_new[k]["frequency"])
                         mu_phi.append(curve_data_material_new[k]["mu_phi_deg"])
@@ -669,34 +668,32 @@ def compare_permeability_measurement_data(material_list: list, frequency_list: l
                                       (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)),
                                       (0, (3, 10, 1, 10))]
                         label = f"{material}", f"T={temperature}°C"
-                        # matplotlib_widget.axis.axs[0].set(xlabel=r"B in T", ylabel=r"$\mu_\mathrm{r}  /  \mu_0$")
-                        # axs[0].plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
-                        plt.plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
-                        plt.xlabel(r"B in T")
-                        plt.ylabel(r"$\mu_\mathrm{r}  /  \mu_0$")
-                        plt.legend()
-                        # axs[0].set_ylabel(r"$\mu_\mathrm{r}  /  \mu_0$")
-                        # axs[0].set_xlabel(r"B in T")
+                        # plt.plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
+                        # plt.xlabel(r"B in T")
+                        # plt.ylabel(r"$\mu_\mathrm{r}  /  \mu_0$")
+                        # plt.legend()
+                        lines = matplotlib_widget.axis.plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
+                        mplcursors.cursor(lines)
+                        matplotlib_widget.axis.set(xlabel=r"B in T", ylabel=r"$\mu_\mathrm{r}  /  \mu_0$")
+
                     else:
                         line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)),
                                       (0, (5, 10)),
                                       (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)),
                                       (0, (3, 10, 1, 10))]
                         label = f"{material}", f"T={temperature}°C"
-                        # lines_1 = matplotlib_widget.axis.axs[1].plot(b[k], mu_phi[k], label=label, color=color,linestyle=line_style[k])
-                        # matplotlib_widget.axis.axs[1].set(xlabel=r"B in T", ylabel=r"$\zeta_\mathrm{\mu}$")
-                        # axs[1].plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
-                        plt.plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
-                        plt.xlabel(r"B in T")
-                        plt.ylabel(r"$\zeta_\mathrm{\mu}$")
-                        plt.legend()
-                        # axs[1].set_ylabel(r"$\zeta_\mathrm{\mu}$")
-                        # axs[1].set_xlabel(r"B in T")
-                        # lines_2 = matplotlib_widget.axis.axs[0].plot(mu_r[k][0], mu_r[k][1], label=label, color=color,linestyle=line_style[k])
+                        # plt.plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
+                        # plt.xlabel(r"B in T")
+                        # plt.ylabel(r"$\zeta_\mathrm{\mu}$")
+                        # plt.legend()
+                        lines = matplotlib_widget.axis.plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
+                        mplcursors.cursor(lines)
+                        matplotlib_widget.axis.set(xlabel=r"B in T", ylabel=r"$\mu_\mathrm{r}  /  \mu_0$")
+
 
 
                     # mplcursors.cursor(lines_1)
                     # mplcursors.cursor(lines_2)
 
-    plt.show()
+    # plt.show()
     mdb_print(f"Material properties of {material_list} are compared.")
