@@ -655,7 +655,8 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
                 mu_r = []
 
                 for k in range(len(curve_data_material_new)):
-                    if curve_data_material_new[k]["frequency"] == frequency and curve_data_material_new[k]["temperature"] == temperature:
+                    if curve_data_material_new[k]["frequency"] == frequency and curve_data_material_new[k][
+                        "temperature"] == temperature:
                         b.append(curve_data_material_new[k]["b"])
                         freq.append(curve_data_material_new[k]["frequency"])
                         mu_phi.append(curve_data_material_new[k]["mu_phi_deg"])
@@ -672,7 +673,8 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
                         # plt.xlabel(r"B in T")
                         # plt.ylabel(r"$\mu_\mathrm{r}  /  \mu_0$")
                         # plt.legend()
-                        lines = matplotlib_widget.axis.plot(mu_r[k][0], mu_r[k][1], label=label, color=color, linestyle=line_style[k])
+                        lines = matplotlib_widget.axis.plot(mu_r[k][0], mu_r[k][1], label=label, color=color,
+                                                            linestyle=line_style[k])
                         mplcursors.cursor(lines)
                         matplotlib_widget.axis.set(xlabel=r"B in T", ylabel=r"$\mu_\mathrm{r}  /  \mu_0$")
 
@@ -686,11 +688,10 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
                         # plt.xlabel(r"B in T")
                         # plt.ylabel(r"$\zeta_\mathrm{\mu}$")
                         # plt.legend()
-                        lines = matplotlib_widget.axis.plot(b[k], mu_phi[k], label=label, color=color, linestyle=line_style[k])
+                        lines = matplotlib_widget.axis.plot(b[k], mu_phi[k], label=label, color=color,
+                                                            linestyle=line_style[k])
                         mplcursors.cursor(lines)
                         matplotlib_widget.axis.set(xlabel=r"B in T", ylabel=r"$\mu_\mathrm{r}  /  \mu_0$")
-
-
 
                     # mplcursors.cursor(lines_1)
                     # mplcursors.cursor(lines_2)
@@ -698,7 +699,8 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
     # plt.show()
     mdb_print(f"Material properties of {material_list} are compared.")
 
-def compare_core_loss_flux_datasheet_measurement(material: str, temperature_list: list = None):
+
+def compare_core_loss_flux_datasheet_measurement(matplotlib_widget, material: str, temperature_list: list = None):
     """
     Method is used to compare material properties in datasheet and measurement.
     @param material_list:
@@ -712,7 +714,6 @@ def compare_core_loss_flux_datasheet_measurement(material: str, temperature_list
     file_path = os.path.join(script_dir, 'data/material_data_base.json')
     with open(file_path, 'r') as data:
         curve_data = json.load(data)
-
 
     curve_data_material_datasheet = curve_data[f"{material}"]["manufacturer_datasheet"][
         "relative_core_loss_flux_density"]
@@ -732,11 +733,11 @@ def compare_core_loss_flux_datasheet_measurement(material: str, temperature_list
             frequency_d.append(curve_data_material_datasheet[j]["frequency"])
             power_loss_d.append(curve_data_material_datasheet[j]["power_loss"])
     for j in range(len(b_d)):
-
         label = f"{material}", f"F={frequency_d[j]}Hz", f"T={temperature_datasheet}°C", f"Datasheet"
-
-        plt.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
-        plt.legend()
+        lines = matplotlib_widget.axis.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
+        mplcursors.cursor(lines)
+        # plt.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
+        # plt.legend()
     for j in range(len(curve_data_material_measurement)):
         if curve_data_material_measurement[j]["data_type"] == "complex_permeability_data":
             curve_data_material_measurement_new = curve_data_material_measurement[j]["core_loss_flux_density"]
@@ -746,15 +747,16 @@ def compare_core_loss_flux_datasheet_measurement(material: str, temperature_list
                     frequency_m.append(curve_data_material_measurement_new[j]["frequency"])
                     power_loss_m.append(curve_data_material_measurement_new[j]["power_loss"])
             for j in range(len(b_m)):
-                line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
-                              (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
                 label = f"{material}", f"F={frequency_m[j]}Hz", f"T={temperature_measurement}°C", f"Measurements"
-
-                plt.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
-                plt.legend()
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.xlabel("B in T")
-    plt.ylabel("Relative power loss in W/m\u00b3")
-    plt.grid()
-    plt.show()
+                lines = matplotlib_widget.axis.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
+                mplcursors.cursor(lines)
+                # plt.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
+                # plt.legend()
+    matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log', xscale='log')
+    # plt.yscale('log')
+    # plt.xscale('log')
+    # plt.xlabel("B in T")
+    # plt.ylabel("Relative power loss in W/m\u00b3")
+    # plt.grid()
+    # plt.show()
+    mdb_print(f"Material properties of {material} are compared.")
