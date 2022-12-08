@@ -61,7 +61,7 @@ class MaterialDatabase:
             # print(len(m_data["permeability_data"]))
             for i in range(len(m_data)):
                 if m_data[i]["data_type"] == "complex_permeability_data":
-                    m_data_new = m_data[i]["data"]
+                    m_data_new = m_data[i]["permeability_data"]
             for j in range(len(m_data_new)):
                 freq_list.append(m_data_new[j]["frequency"])
                 # print(freq_list)
@@ -410,7 +410,7 @@ def drop_down_list(material_name: str, comparison_type: str, temperature: bool =
         freq_list = []
         for j in range(len(curve_data_material)):
             if curve_data_material[j]["data_type"] == "complex_permeability_data":
-                curve_data_material_new = curve_data_material[j]["data"]
+                curve_data_material_new = curve_data_material[j]["permeability_data"]
                 for i in range(len(curve_data_material_new)):
                     temp_list.append(curve_data_material_new[i]["temperature"])
 
@@ -625,9 +625,9 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
         Method is used to compare material properties.
         :param material_list:[material1, material2, .....]
         @param plot_real_part: True plot real part of mu/ False plots imaginary part of mu
-        @type temperature: object
+        @type temperature_list: object
         @param material_list:
-        @param frequency:
+        @param frequency_list:
         :return:
         """
     color_list = ['red', 'blue', 'green', 'yellow', 'orange']
@@ -648,7 +648,7 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
 
         for j in range(len(curve_data_material)):
             if curve_data_material[j]["data_type"] == "complex_permeability_data":
-                curve_data_material_new = curve_data_material[j]["data"]
+                curve_data_material_new = curve_data_material[j]["permeability_data"]
                 b = []
                 freq = []
                 mu_phi = []
@@ -697,3 +697,64 @@ def compare_permeability_measurement_data(matplotlib_widget, material_list: list
 
     # plt.show()
     mdb_print(f"Material properties of {material_list} are compared.")
+
+def compare_core_loss_flux_datasheet_measurement(material: str, temperature_list: list = None):
+    """
+    Method is used to compare material properties in datasheet and measurement.
+    @param material_list:
+    @param temperature_list:
+    @return:
+    """
+    color_list = ['red', 'blue', 'green', 'yellow', 'orange']
+    line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
+                  (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
+    script_dir = os.path.dirname(__file__)
+    file_path = os.path.join(script_dir, 'data/material_data_base.json')
+    with open(file_path, 'r') as data:
+        curve_data = json.load(data)
+
+
+    curve_data_material_datasheet = curve_data[f"{material}"]["manufacturer_datasheet"][
+        "relative_core_loss_flux_density"]
+    curve_data_material_measurement = curve_data[f"{material}"]["measurements"]
+    temperature_datasheet = temperature_list[0]
+    temperature_measurement = temperature_list[1]
+    b_d = []
+    frequency_d = []
+    power_loss_d = []
+    b_m = []
+    frequency_m = []
+    power_loss_m = []
+
+    for j in range(len(curve_data_material_datasheet)):
+        if curve_data_material_datasheet[j]["temperature"] == temperature_datasheet:
+            b_d.append(curve_data_material_datasheet[j]["b"])
+            frequency_d.append(curve_data_material_datasheet[j]["frequency"])
+            power_loss_d.append(curve_data_material_datasheet[j]["power_loss"])
+    for j in range(len(b_d)):
+
+        label = f"{material}", f"F={frequency_d[j]}Hz", f"T={temperature_datasheet}°C", f"Datasheet"
+
+        plt.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
+        plt.legend()
+    for j in range(len(curve_data_material_measurement)):
+        if curve_data_material_measurement[j]["data_type"] == "complex_permeability_data":
+            curve_data_material_measurement_new = curve_data_material_measurement[j]["core_loss_flux_density"]
+            for j in range(len(curve_data_material_measurement_new)):
+                if curve_data_material_measurement_new[j]["temperature"] == temperature_measurement:
+                    b_m.append(curve_data_material_measurement_new[j]["b"])
+                    frequency_m.append(curve_data_material_measurement_new[j]["frequency"])
+                    power_loss_m.append(curve_data_material_measurement_new[j]["power_loss"])
+            for j in range(len(b_m)):
+                line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
+                              (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
+                label = f"{material}", f"F={frequency_m[j]}Hz", f"T={temperature_measurement}°C", f"Measurements"
+
+                plt.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
+                plt.legend()
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.xlabel("B in T")
+    plt.ylabel("Relative power loss in W/m\u00b3")
+    plt.grid()
+    plt.show()
