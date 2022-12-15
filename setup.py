@@ -57,7 +57,6 @@ setup(
                       'setuptools>=49.2.1',
                       'matplotlib>=3.3.4',
                       'pytest>=6.2.4',
-                      'pandas',
                       'mplcursors',
 ],
     license="GNU General Public License v3",
