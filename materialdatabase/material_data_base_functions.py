@@ -21,6 +21,18 @@ def remove(arr, n):
             return mp
 
 
+def store_data(material_name, data_to_be_stored):
+    """
+    Method is used to store data from measurement/datasheet into the material database.
+    :param material_name:
+    :param data_to_be_stored:
+    :return:
+    """
+    with open('material_data_base.json', 'w') as outfile:
+        json.dump(data_to_be_stored, outfile, indent=4)
+    mdb_print(f"Material properties of {material_name} are stored in the material database.")
+
+
 # -----find nearby frequency n Temp---------
 def find_nearest(array, value):
     array = np.asarray(array)
@@ -69,7 +81,6 @@ def rect(r, theta):
     x = r * math.cos(math.radians(theta))
     y = r * math.sin(math.radians(theta))
     return x, y
-
 
 
 def find_nearest_neighbours(value, list_to_search_in):

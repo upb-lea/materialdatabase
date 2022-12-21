@@ -292,17 +292,6 @@ class MaterialDatabase:
 
         mdb_print(f"Data is exported to {parent_directory} in a {file_format}-file.")
 
-    def store_data(self, material_name, data_to_be_stored):
-        """
-        Method is used to store data from measurement/datasheet into the material database.
-        :param material_name:
-        :param data_to_be_stored:
-        :return:
-        """
-        with open('material_data_base.json', 'w') as outfile:
-            json.dump(data_to_be_stored, outfile, indent=4)
-        mdb_print(f"Material properties of {material_name} are stored in the material database.")
-
     def plot_data(self, material_name: str = None, properties: str = None):
         """
         Method is used to plot certain material properties of materials.
