@@ -12,6 +12,112 @@ import mplcursors
 from materialdatabase.material_data_base_functions import *
 
 
+def export_data(parent_directory: str = "", file_format: str = None,
+                b_ref: list = None, mu_real: list = None, mu_imag: list = None):
+    """
+    Method is used to export data from the material database in a certain file format.
+    :param b_ref:
+    :param mu_imag:
+    :param mu_real:
+    :param file_format: export format
+    :parent_directory:
+    @param file_format:
+    @param parent_directory:
+    """
+    if file_format == "pro":
+        with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
+            file.write(f'Include "Parameter.pro";\n')
+            file.write(
+                f"Function{{\n  b = {str(b_ref).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(mu_real).replace('[', '{').replace(']', '}')} ;"
+                f"\n  mu_imag = {str(mu_imag).replace('[', '{').replace(']', '}')} ;\n  "
+                f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
+                f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
+                f"f_mu_imag_d[] = InterpolationLinear[Norm[$1]]{{List[mu_imag_couples]}};\n  "
+                f"f_mu_real_d[] = InterpolationLinear[Norm[$1]]{{List[mu_real_couples]}};\n  "
+                f"f_mu_imag[] = f_mu_imag_d[$1];\n  "
+                f"f_mu_real[] = f_mu_real_d[$1];\n }}  ")
+
+    else:
+        raise Exception("No valid file format is given!")
+
+    mdb_print(f"Data is exported to {parent_directory} in a {file_format}-file.")
+
+
+def plot_data(material_name: str = None, properties: str = None,
+              b_ref: list = None, mu_real=None, mu_imag: list = None):
+    """
+    Method is used to plot certain material properties of materials.
+    :param b_ref: TODO: parameter is new and will probably cause problems when plotting data, but previous implementation was very static...
+    :param properties:
+    :param material_name:
+    :return:
+    """
+    if properties == "mu_real":
+        plt.plot(b_ref, mu_real)
+        plt.ylabel(properties)
+        plt.xlabel('B in T')
+        plt.title("Real part of permeability")
+        plt.show()
+    elif properties == "mu_imag":
+        plt.plot(b_ref, mu_imag)
+        plt.ylabel(properties)
+        plt.xlabel('B in T')
+        plt.title("Imaginary part of permeability")
+        plt.show()
+
+    mdb_print(f"Material properties {properties} of {material_name} are plotted.")
+
+
+def clear_permeability_data_in_database(material_name, measurement_setup):
+    """
+
+    :param material_name:
+    :param measurement_setup:
+    :return:
+    """
+    relative_path_to_db = "../data/material_data_base.json"
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"] = []
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, material_name, measurement_setup):
+    """
+    CAUTION: This method only adds the given measurement series to the permeability data
+    without checking duplicates!
+    :param measurement_setup:
+    :param b_ref:
+    :param mu_r:
+    :param mu_phi_deg:
+    :param material_name:
+    :return:
+    """
+    relative_path_to_db = "../data/material_data_base.json"
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"]) is not list:
+        print("is not list")
+        data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"] = []
+
+    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"].append(
+        {
+            "temperature": T,
+            "frequency": f,
+            "b": list(b_ref),
+            "mu_r": list(mu_r),
+            "mu_phi_deg": list(mu_phi_deg)
+        }
+    )
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
 class MaterialDatabase:
     """
     This class manages the data stored in the material database.
@@ -28,291 +134,94 @@ class MaterialDatabase:
 
         self.data = self.load_database()
 
-        self.b_1 = None
-        self.freq = None
-        self.temp = None
-        self.mat = None
-        self.b_f = None
-        self.mu_real = None
-        self.mu_imag = None
         set_silent_status(is_silent)
-
         mdb_print("The material database is now initialized")
 
-    def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datasource: str, pro: bool = False,
-                                      parent_directory: str = ""):
+    def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datatype: str,
+                                      datasource: str, measurement_setup: str, parent_directory: str = ""):
         """
         Method is used to read permeability data from the material database.
         :param T: temperature
         :param f: Frequency
         :param material_name: "N95","N87"....
         :param datasource: "measurements" or "manufacturer_datasheet"
-        :param pro : create temporary pro file for solver
+        :param datatype: "complex_permeability", "complex_permittivity" or "Steinmetz"
+        :param measurement_setup: name of measuerement setup
         :param parent_directory: location of solver file
         """
-        if material_name is None or T is None or f is None:
-            raise Exception(f"Failure in selecting data from materialdatabase. {material_name = }, {T = }, {f =}.")
 
-        self.temp = T
-        self.freq = f
-        self.mat = material_name
-
-        freq_list = []
+        check_input_permeability_data(datasource, material_name, T, f)
 
         if datasource == "measurements":
-            m_data = self.data[f"{material_name}"][f"{datasource}"]
-            # print(len(m_data["permeability_data"]))
-            for i in range(len(m_data)):
-                if m_data[i]["data_type"] == "complex_permeability_data":
-                    m_data_new = m_data[i]["permeability_data"]
-            for j in range(len(m_data_new)):
-                freq_list.append(m_data_new[j]["frequency"])
-                # print(freq_list)
-            n = len(freq_list)  # len of array
-            freq_list = list(remove(freq_list, n))
-            print(freq_list)
+            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"]["permeability_data"]
+            # print(f"{permeability_data = }")
+            # print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
 
-            result = find_nearest(freq_list, f)
-            print(result)
+            # create_permeability_neighbourhood
+            nbh = create_permeability_neighbourhood_measurement(T, f, permeability_data)
+            # print(f"{nbh = }")
+            # print(f"{len(nbh['T_low_f_low']['b']), len(nbh['T_low_f_low']['mu_r']) = }")
 
-            f_l = result[0]
-            f_h = result[1]
+            b_ref, mu_r = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
+                                                                                        nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
+                                                                                        nbh["T_low_f_low"]["f"], nbh["T_low_f_high"]["f"],
+                                                                                        nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_r"],
+                                                                                        nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_r"],
+                                                                                        nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_r"],
+                                                                                        nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_r"])
 
-            # ------find nearby temperature------
-            temp_list_l = []
-            temp_list_h = []
+            b_ref, mu_phi_deg = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
+                                                                                              nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
+                                                                                              nbh["T_low_f_low"]["f"], nbh["T_low_f_high"]["f"],
+                                                                                              nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_phi_deg"],
+                                                                                              nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_phi_deg"],
+                                                                                              nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_phi_deg"],
+                                                                                              nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_phi_deg"])
 
-            for i in range(len(m_data_new)):
-                if m_data_new[i]["frequency"] == f_l:
-                    temp_list_l.append(m_data_new[i]["temperature"])
-            for i in range(len(m_data_new)):
-                if m_data_new[i]["frequency"] == f_h:
-                    temp_list_h.append(m_data_new[i]["temperature"])
+            # print(f"{b_ref, mu_r, mu_phi_deg = }")
 
-            temp_list_l = find_nearest(temp_list_l, T)
-            temp_list_h = find_nearest(temp_list_h, T)
-
-            # print(temp_list_l)
-            # print(temp_list_h)
-
-            def getdata_measurements(variable, F, t_1, t_2):
-                for k in range(len(m_data_new)):
-                    if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_1:
-                        b_phi_deg_1 = m_data_new[k]["b"]
-                        mu_phi_deg_1 = m_data_new[k]["mu_phi_deg"]
-                        mu_r_1_and_b = m_data_new[k]["mu_r"]
-                        b_r_1 = mu_r_1_and_b[0]
-                        mu_r_1 = mu_r_1_and_b[1]
-                        t_mu_phi_1 = interp1d(b_phi_deg_1, mu_phi_deg_1)
-                        t_mu_r_1 = interp1d(b_r_1, mu_r_1)
-
-                    if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_2:
-                        b_phi_deg_2 = m_data_new[k]["b"]
-                        mu_phi_deg_2 = m_data_new[k]["mu_phi_deg"]
-                        mu_r_2_and_b = m_data_new[k]["mu_r"]
-                        b_r_2 = mu_r_2_and_b[0]
-                        mu_r_2 = mu_r_2_and_b[1]
-                        t_mu_phi_2 = interp1d(b_phi_deg_2, mu_phi_deg_2)
-                        t_mu_r_2 = interp1d(b_r_2, mu_r_2)
-                # --------linear interpolation at constant freq-------------
-                mu_phi = []
-                mu_r = []
-                b_t = [0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.125, 0.15, 0.175, 0.2]
-
-                for y in range(len(b_t)):
-                    mu_r.append(
-                        t_mu_r_1(b_t[y]) + (t_mu_r_2(b_t[y]) - t_mu_r_1(b_t[y])) / (
-                                t_2 - t_1) * (variable - t_1))
-                    mu_phi.append(
-                        t_mu_phi_1(b_t[y]) + (t_mu_phi_2(b_t[y]) - t_mu_phi_1(b_t[y])) / (
-                                t_2 - t_1) * (variable - t_1))
-                return mu_r, mu_phi
-
-            # --------interpolated data at constant freq and nearby temp--------
-            interpolate_temp_1 = getdata_measurements(T, f_l, temp_list_l[0], temp_list_l[1])
-            interpolate_temp_2 = getdata_measurements(T, f_h, temp_list_h[0], temp_list_h[1])
-            # print(interpolate_temp_1)
-            # print(interpolate_temp_2)
-
-            # ------linear interpolation at constant temp and nearby freq-----------------
-            self.b_f = [0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.125, 0.15, 0.175, 0.2]
-            f_mu_r_1 = interp1d(self.b_f, interpolate_temp_1[0])
-            f_mu_phi_1 = interp1d(self.b_f, interpolate_temp_1[1])
-            f_mu_r_2 = interp1d(self.b_f, interpolate_temp_2[0])
-            f_mu_phi_2 = interp1d(self.b_f, interpolate_temp_2[1])
-            mu_phi_f = []
-            mu_r_f = []
-            for b in range(len(self.b_f)):
-                mu_r_f.append(
-                    f_mu_r_1(self.b_f[b]) + (f_mu_r_2(self.b_f[b]) - f_mu_r_1(self.b_f[b])) / (
-                            f_h - f_l) * (
-                            f - f_l))
-                mu_phi_f.append(
-                    f_mu_phi_1(self.b_f[b]) + (f_mu_phi_2(self.b_f[b]) - f_mu_phi_1(self.b_f[b])) / (
-                            f_h - f_l) * (
-                            f - f_l))
-            mu_real_from_polar = []
-            mu_imag_from_polar = []
-            for n in range(len(self.b_f)):
-                cartesian = rect(mu_r_f[n], mu_phi_f[n])
+            # Convert to cartesian
+            mu_real_from_polar, mu_imag_from_polar = [], []
+            for n in range(len(b_ref)):
+                cartesian = rect(mu_r[n], mu_phi_deg[n])
                 mu_real_from_polar.append(cartesian[0])
                 mu_imag_from_polar.append(cartesian[1])
-            self.mu_real = mu_real_from_polar
-            self.mu_imag = mu_imag_from_polar
-            print(self.mu_real)
-            print(self.mu_imag)
-
+            mu_real = mu_real_from_polar
+            mu_imag = mu_imag_from_polar
 
         elif datasource == "manufacturer_datasheet":
+            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["permeability_data"]
+            # print(f"{permeability_data = }")
 
-            m_data = self.data[f"{material_name}"][f"{datasource}"]
-            m_data_new = m_data["permeability_data"]
-            for j in range(len(m_data_new)):
-                freq_list.append(m_data_new[j]["frequency"])
+            # create_permeability_neighbourhood
+            nbh = create_permeability_neighbourhood_datasheet(T, f, permeability_data)
+            # print(f"{nbh = }")
 
-            # print(freq_list)
-            n = len(freq_list)  # len of array
-            freq_list = list(remove(freq_list, n))
-            # print(freq_list)
+            b_ref, mu_real = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
+                                                                                           nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
+                                                                                           nbh["T_low_f_low"]["f"], nbh["T_low_f_high"]["f"],
+                                                                                           nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_real"],
+                                                                                           nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_real"],
+                                                                                           nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_real"],
+                                                                                           nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_real"])
 
-            result = find_nearest(freq_list, f)
-            # print(result)
+            b_ref, mu_imag = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
+                                                                                           nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
+                                                                                           nbh["T_low_f_low"]["f"], nbh["T_low_f_high"]["f"],
+                                                                                           nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_imag"],
+                                                                                           nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_imag"],
+                                                                                           nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_imag"],
+                                                                                           nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_imag"])
 
-            f_l = result[0]
-            f_h = result[1]
 
-            # ------find nearby temperature------
-            temp_list_l = []
-            temp_list_h = []
+            print(f"{b_ref, mu_real, mu_imag = }")
 
-            for i in range(len(m_data_new)):
-                if m_data_new[i]["frequency"] == f_l:
-                    temp_list_l.append(m_data_new[i]["temperature"])
-            for i in range(len(m_data_new)):
-                if m_data_new[i]["frequency"] == f_h:
-                    temp_list_h.append(m_data_new[i]["temperature"])
+        # Write the .pro-file
+        export_data(parent_directory=parent_directory, file_format="pro", b_ref=list(b_ref), mu_real=list(mu_real), mu_imag=list(mu_imag))
 
-            temp_list_l = find_nearest(temp_list_l, T)
-            temp_list_h = find_nearest(temp_list_h, T)
-
-            # print(temp_list_l)
-
-            # print(temp_list_h)
-
-            # -------get the data----------
-            def getdata(variable, F, t_1, t_2):
-                for k in range(len(m_data_new)):
-                    if m_data_new[k]["frequency"] == F and m_data_new[k]["temperature"] == t_1:
-                        self.b_1 = m_data_new[k]["b"]
-                        mu_real_1 = m_data_new[k]["mu_real"]
-                        mu_imag_1 = m_data_new[k]["mu_imag"]
-                        t_mu_imag_1 = interp1d(self.b_1, mu_imag_1)
-                        t_mu_real_1 = interp1d(self.b_1, mu_real_1)
-                    if m_data_new[k]["frequency"] == F and \
-                            m_data_new[k]["temperature"] == t_2:
-                        self.b_2 = m_data_new[k]["b"]
-                        mu_real_2 = m_data_new[k]["mu_real"]
-                        mu_imag_2 = m_data_new[k]["mu_imag"]
-                        t_mu_imag_2 = interp1d(self.b_2, mu_imag_2)
-                        t_mu_real_2 = interp1d(self.b_2, mu_real_2)
-
-                # --------linear interpolation at constant freq-------------
-                mu_i = []
-                mu_r = []
-                # b_t = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-
-                for y in range(len(self.b_1)):
-                    mu_r.append(
-                        t_mu_real_1(self.b_1[y]) + (t_mu_real_2(self.b_1[y]) - t_mu_real_1(self.b_1[y])) / (
-                                t_2 - t_1) * (
-                                variable - t_1))
-                    mu_i.append(
-                        t_mu_imag_1(self.b_1[y]) + (t_mu_imag_2(self.b_1[y]) - t_mu_imag_1(self.b_1[y])) / (
-                                t_2 - t_1) * (
-                                variable - t_1))
-                return mu_r, mu_i
-
-            # --------interpolated data at constant freq and nearby temp--------
-            interpolate_temp_1 = getdata(T, f_l, temp_list_l[0], temp_list_l[1])
-            interpolate_temp_2 = getdata(T, f_h, temp_list_h[0], temp_list_h[1])
-            # print(interpolate_temp_1)
-            # print(interpolate_temp_2)
-
-            # ------linear interpolation at constant temp and nearby freq-----------------
-            # self.b_f = [0, 0.025, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
-            f_mu_real_1 = interp1d(self.b_1, interpolate_temp_1[0])
-            f_mu_imag_1 = interp1d(self.b_1, interpolate_temp_1[1])
-            f_mu_real_2 = interp1d(self.b_1, interpolate_temp_2[0])
-            f_mu_imag_2 = interp1d(self.b_1, interpolate_temp_2[1])
-            mu_i_f = []
-            mu_r_f = []
-            for b in range(len(self.b_1)):
-                mu_r_f.append(
-                    f_mu_real_1(self.b_1[b]) + (f_mu_real_2(self.b_1[b]) - f_mu_real_1(self.b_1[b])) / (f_h - f_l) * (
-                            f - f_l))
-                mu_i_f.append(
-                    f_mu_imag_1(self.b_1[b]) + (f_mu_imag_2(self.b_1[b]) - f_mu_imag_1(self.b_1[b])) / (f_h - f_l) * (
-                            f - f_l))
-            self.mu_real = mu_r_f
-            self.mu_imag = mu_i_f
-            # print(self.mu_real)
-            # print(self.mu_imag)
-
-        else:
-            raise Exception("'datasource' must be 'manufacturer_datasheet' or 'measurements'.")
-
-        if pro:
-            self.export_data(parent_directory=parent_directory, file_format="pro")
         mdb_print(f"Material properties of {material_name} are loaded at {T} °C and {f} Hz.")
-        return self.b_1, self.mu_imag, self.mu_real
 
-    def export_data(self, parent_directory: str = "", file_format: str = None):
-        """
-        Method is used to export data from the material database in a certain file format.
-        :param file_format: export format
-        :parent_directory:
-        @param file_format:
-        @param parent_directory:
-        """
-        if file_format == "pro":
-            with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
-                file.write(f'Include "Parameter.pro";\n')
-                file.write(
-                    f"Function{{\n  b = {str(self.b_1).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(self.mu_real).replace('[', '{').replace(']', '}')} ;"
-                    f"\n  mu_imag = {str(self.mu_imag).replace('[', '{').replace(']', '}')} ;\n  "
-                    f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
-                    f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
-                    f"f_mu_imag_d[] = InterpolationLinear[Norm[$1]]{{List[mu_imag_couples]}};\n  "
-                    f"f_mu_real_d[] = InterpolationLinear[Norm[$1]]{{List[mu_real_couples]}};\n  "
-                    f"f_mu_imag[] = f_mu_imag_d[$1];\n  "
-                    f"f_mu_real[] = f_mu_real_d[$1];\n }}  ")
-
-        else:
-            raise Exception("No valid file format is given!")
-
-        mdb_print(f"Data is exported to {parent_directory} in a {file_format}-file.")
-
-    def plot_data(self, material_name: str = None, properties: str = None):
-        """
-        Method is used to plot certain material properties of materials.
-        :param properties:
-        :param material_name:
-        :return:
-        """
-        if properties == "mu_real":
-            plt.plot(self.b_f, self.mu_real)
-            plt.ylabel(properties)
-            plt.xlabel('B in T')
-            plt.title("Real part of permeability")
-            plt.show()
-        elif properties == "mu_imag":
-            plt.plot(self.b_f, self.mu_imag)
-            plt.ylabel(properties)
-            plt.xlabel('B in T')
-            plt.title("Imaginary part of permeability")
-            plt.show()
-
-        mdb_print(f"Material properties {properties} of {material_name} are plotted.")
+        return b_ref, mu_imag, mu_real
 
     # --------to get different material property from database file---------
     def get_material_property(self, material_name: str, property: str):
@@ -408,10 +317,8 @@ class MaterialDatabase:
         if freq:
             return freq_list_new
 
-    def material_list_in_database(self, material_list: bool = True):
+    def material_list_in_database(self):
         """
-
-        @param material_list: boolean to get material list from the database for GUI
         @return: materials present in database in form of list.
         """
         materials = []
@@ -706,16 +613,31 @@ class MaterialDatabase:
         mdb_print(f"Material properties of {material} are compared.")
 
     # Permittivity Data
-    def load_permittivity_measurement(self, material_name: str, datasource: str = "measurements"):
-        # Load all available permittivity data from datasource
-        measurements = self.data[material_name][datasource]
-        for i, measurement in enumerate(measurements):
-            if measurement["data_type"] == "complex_permittivity_data":
-                return measurement["permittivity_data"]
+    def load_permittivity_measurement(self, material_name: str, datasource: str = "measurements",
+                                      datatype: str = "complex_permittivity", measurement_setup: str = None):
+        """
 
-    def get_permittivity(self, T: float, f: float, material_name: str, datasource: str = "measurements", interpolation_type: str = "linear"):
+        :param material_name:
+        :param datasource:
+        :param datatype:
+        :param measurement_setup:
+        :return:
+        """
+        # Load all available permittivity data from datasource
+        print(f"{material_name = }"
+              f"{datasource = }"
+              f"{datatype = }"
+              f"{measurement_setup =}")
+        return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
+
+    def get_permittivity(self, T: float, f: float, material_name: str,
+                         datasource: str = "measurements", datatype: str = "complex_permittivity", measurement_setup: str = None,
+                         interpolation_type: str = "linear"):
         """
         Returns the complex permittivity for a certain operation point defined by temperature T and frequency f.
+        :param measurement_setup:
+        :param datatype:
+        :param interpolation_type:
         :param datasource:
         :param T: float
         :param f: float
@@ -723,7 +645,7 @@ class MaterialDatabase:
         :return: complex
         """
         # Load the chosen permittivity data from the database
-        list_of_permittivity_dicts = self.load_permittivity_measurement(material_name, datasource)
+        list_of_permittivity_dicts = self.load_permittivity_measurement(material_name, datasource, datatype, measurement_setup)
 
         # Find the data, that is closest to the given operation point (T, f)
         neighbourhood = create_permittivity_neighbourhood(T=T, f=f, list_of_permittivity_dicts=list_of_permittivity_dicts)
@@ -735,4 +657,3 @@ class MaterialDatabase:
             raise NotImplementedError
 
         return epsilon_r, epsilon_phi_deg
-

@@ -3,7 +3,7 @@ from materialdatabase.material_data_base_classes import *
 
 mdb = MaterialDatabase()
 
-list_of_permittivity_dicts = mdb.load_permittivity_measurement(material_name="N49", datasource="measurements")
+list_of_permittivity_dicts = mdb.load_permittivity_measurement(material_name="N49", datasource="measurements", measurement_setup="LEA_LK")
 
 T = 64
 f = 450000
