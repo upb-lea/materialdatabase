@@ -15,8 +15,8 @@ with open('README.md') as readme_file:
 
 
 
-# with open('CHANGELOG.md') as history_file:
-#   history = history_file.read()
+with open('CHANGELOG.md') as history_file:
+    history = history_file.read()
 
 
 
@@ -57,7 +57,6 @@ setup(
                       'setuptools>=49.2.1',
                       'matplotlib>=3.3.4',
                       'pytest>=6.2.4',
-                      'pandas',
                       'mplcursors',
 ],
     license="GNU General Public License v3",
@@ -77,7 +76,7 @@ setup(
         "Documentation": "",
         "Source Code": "https://github.com/upb-lea/materialdatabase",
     },
-    version='0.0.0',
+    version='0.1.0',
     zip_safe=False,
-    #data_files=[('', ['CHANGELOG.md'])]
+    data_files=[('', ['CHANGELOG.md'])]
 )

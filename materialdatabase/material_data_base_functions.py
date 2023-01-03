@@ -1,15 +1,14 @@
 # all static functions shall be inserted in this file
 
 # Python integrated libraries
-import math
-import json
-import os
 
 # 3rd party libraries
+import os
 import numpy as np
 from scipy.interpolate import interp1d
 from matplotlib import pyplot as plt
 from scipy.signal import savgol_filter as savgol
+
 
 # local libraries
 from .constants import *
@@ -91,13 +90,17 @@ def mdb_print(text: str, end='\n'):
         print(text, end)
 
 
-def rect(r, theta):
-    """theta in degrees
-
-    returns tuple; (float, float); (x,y)
+def rect(r, theta_deg):
     """
-    x = r * math.cos(math.radians(theta))
-    y = r * math.sin(math.radians(theta))
+    converts polar coordinates [degree] kartesian coordinates
+    theta in degrees
+    :param r: radius or amplitude
+    :param theta_deg: angle in degree
+
+    :returns: tuple; (float, float); (x,y)
+    """
+    x = r * np.cos(np.radians(theta_deg))
+    y = r * np.sin(np.radians(theta_deg))
     return x, y
 
 
