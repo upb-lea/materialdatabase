@@ -792,3 +792,108 @@ def getdata_measurements(permeability, variable, F, t_1, t_2, b_t):
         mu_phi.append(t_mu_phi_1(b_t[y]) + (t_mu_phi_2(b_t[y]) - t_mu_phi_1(b_t[y])) / (t_2 - t_1) * (variable - t_1))
     return mu_r, mu_phi
 
+
+def export_data(parent_directory: str = "", file_format: str = None,
+                b_ref: list = None, mu_real: list = None, mu_imag: list = None):
+    """
+    Method is used to export data from the material database in a certain file format.
+    :param b_ref:
+    :param mu_imag:
+    :param mu_real:
+    :param file_format: export format
+    :parent_directory:
+    @param file_format:
+    @param parent_directory:
+    """
+    if file_format == "pro":
+        with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
+            file.write(f'Include "Parameter.pro";\n')
+            file.write(
+                f"Function{{\n  b = {str(b_ref).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(mu_real).replace('[', '{').replace(']', '}')} ;"
+                f"\n  mu_imag = {str(mu_imag).replace('[', '{').replace(']', '}')} ;\n  "
+                f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
+                f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
+                f"f_mu_imag_d[] = InterpolationLinear[Norm[$1]]{{List[mu_imag_couples]}};\n  "
+                f"f_mu_real_d[] = InterpolationLinear[Norm[$1]]{{List[mu_real_couples]}};\n  "
+                f"f_mu_imag[] = f_mu_imag_d[$1];\n  "
+                f"f_mu_real[] = f_mu_real_d[$1];\n }}  ")
+
+    else:
+        raise Exception("No valid file format is given!")
+
+    mdb_print(f"Data is exported to {parent_directory} in a {file_format}-file.")
+
+
+def plot_data(material_name: str = None, properties: str = None,
+              b_ref: list = None, mu_real=None, mu_imag: list = None):
+    """
+    Method is used to plot certain material properties of materials.
+    :param b_ref: TODO: parameter is new and will probably cause problems when plotting data, but previous implementation was very static...
+    :param properties:
+    :param material_name:
+    :return:
+    """
+    if properties == "mu_real":
+        plt.plot(b_ref, mu_real)
+        plt.ylabel(properties)
+        plt.xlabel('B in T')
+        plt.title("Real part of permeability")
+        plt.show()
+    elif properties == "mu_imag":
+        plt.plot(b_ref, mu_imag)
+        plt.ylabel(properties)
+        plt.xlabel('B in T')
+        plt.title("Imaginary part of permeability")
+        plt.show()
+
+    mdb_print(f"Material properties {properties} of {material_name} are plotted.")
+
+
+def clear_permeability_data_in_database(material_name, measurement_setup):
+    """
+
+    :param material_name:
+    :param measurement_setup:
+    :return:
+    """
+    relative_path_to_db = "../data/material_data_base.json"
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"] = []
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, material_name, measurement_setup):
+    """
+    CAUTION: This method only adds the given measurement series to the permeability data
+    without checking duplicates!
+    :param measurement_setup:
+    :param b_ref:
+    :param mu_r:
+    :param mu_phi_deg:
+    :param material_name:
+    :return:
+    """
+    relative_path_to_db = "../data/material_data_base.json"
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"]) is not list:
+        print("is not list")
+        data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"] = []
+
+    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"].append(
+        {
+            "temperature": T,
+            "frequency": f,
+            "b": list(b_ref),
+            "mu_r": list(mu_r),
+            "mu_phi_deg": list(mu_phi_deg)
+        }
+    )
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
