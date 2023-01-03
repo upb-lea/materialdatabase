@@ -12,7 +12,7 @@ from scipy.signal import savgol_filter as savgol
 
 # local libraries
 from .constants import *
-
+from .enumerations import *
 
 # ------Remove Duplicate from freq array------
 def remove(arr, n):
@@ -106,7 +106,8 @@ def rect(r, theta_deg):
 
 # Permeability
 def check_input_permeability_data(datasource, material_name, T, f):
-    if datasource != "measurements" and datasource != "manufacturer_datasheet":
+    # mdb_print(datasource)
+    if datasource != MaterialDataSource.Measurement and datasource != MaterialDataSource.ManufacturerDatasheet:
         raise Exception("'datasource' must be 'manufacturer_datasheet' or 'measurements'.")
 
     if material_name is None or T is None or f is None:
@@ -364,12 +365,12 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
     f_T_high_f_low_interpol = interp1d(b_T_high_f_low, f_b_T_high_f_low)
     f_T_low_f_high_interpol = interp1d(b_T_low_f_high, f_b_T_low_f_high)
     f_T_high_f_high_interpol = interp1d(b_T_high_f_high, f_b_T_high_f_high)
-    # print(f_T_low_f_low_interpol(1.5))
+    # mdb_print(f_T_low_f_low_interpol(1.5))
 
     # Find the border of the common magnetic flux density values
     b_max_min = max(min(b_T_low_f_low), min(b_T_high_f_low), min(b_T_low_f_high), min(b_T_high_f_high))
     b_min_max = min(max(b_T_low_f_low), max(b_T_high_f_low), max(b_T_low_f_high), max(b_T_high_f_high))
-    # print(f"{b_max_min, b_min_max = }")
+    # mdb_print(f"{b_max_min, b_min_max = }")
 
     # Create the magnetic flux density vector that is used for later interpolation actions
     b_common = np.linspace(b_max_min, b_min_max, no_interpolation_values)
@@ -397,7 +398,7 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
         f_T_f_high_common = f_T_low_f_high_common + (f_T_high_f_high_common - f_T_low_f_high_common) / (T_high - T_low) * (T - T_low)  # at f_high
 
     # Second interpolate in frequency:
-    # print(f"{f_high, f_low = }")
+    # mdb_print(f"{f_high, f_low = }")
     if f_low == f_high:
         f_T_f_common = f_T_f_low_common
     else:
@@ -435,10 +436,10 @@ def get_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
                              material_name: str, T: int, sub_folder_name: str = "Core_Loss"):
     filename = create_file_name_LEA_LK(quantity, f, material_name, T)
     complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
-    print(complete_path)
+    # mdb_print(complete_path)
 
     data = np.loadtxt(complete_path)
-    print(data)
+    # mdb_print(data)
     return data[:, 0], data[:, 1]
 
 
@@ -455,7 +456,7 @@ def get_permeability_data_from_LEA_LK(location: str, f, T, material_name, no_int
     # Find the border of the common magnetic flux density values
     b_max_min = max(min(b_hys), min(b_phi), min(b_hys), min(b_phi))
     b_min_max = min(max(b_hys), max(b_phi), max(b_hys), max(b_phi))
-    print(f"{b_max_min, b_min_max = }")
+    # mdb_print(f"{b_max_min, b_min_max = }")
     # Create the magnetic flux density vector that is used for later interpolation actions
     b_common = np.linspace(b_max_min, b_min_max, no_interpolation_values)
 
@@ -464,7 +465,7 @@ def get_permeability_data_from_LEA_LK(location: str, f, T, material_name, no_int
     f_p_hys_interpol_common = f_p_hys_interpol(b_common)
     f_b_phi_interpol_common = f_b_phi_interpol(b_common)
 
-    print(f"{b_common, f_p_hys_interpol_common, f_b_phi_interpol_common = }")
+    # mdb_print(f"{b_common, f_p_hys_interpol_common, f_b_phi_interpol_common = }")
 
     return b_common, mu_r__from_p_hyst_and_mu_phi_deg(f_b_phi_interpol_common, f, b_common, f_p_hys_interpol_common), f_b_phi_interpol_common
 
@@ -553,8 +554,8 @@ def find_nearest_neighbours(value, list_to_search_in):
             return 0, list_to_search_in[0], 1, list_to_search_in[1]
 
         for index_data, value_data in enumerate(list_to_search_in):
-            # print(value)
-            # print(value_data)
+            # mdb_print(value)
+            # mdb_print(value_data)
             if value_data < value:
                 value_low = value_data
                 index_low = index_data
@@ -749,13 +750,13 @@ def interpolate_neighbours_linear(T, f, neighbours):
 
 def find_nearest_frequencies(permeability, f):
     freq_list = []
-    print(f"{freq_list = }")
+    # mdb_print(f"{freq_list = }")
     for j in range(len(permeability)):
         freq_list.append(permeability[j]["frequency"])
-    print(f"{freq_list = }")
+    # mdb_print(f"{freq_list = }")
 
     freq_list = list(remove(freq_list, len(freq_list)))
-    print(f"{freq_list = }")
+    # mdb_print(f"{freq_list = }")
 
     result = find_nearest(freq_list, f)
 
@@ -885,7 +886,6 @@ def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, materia
         data = json.load(jsonFile)
 
     if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"]) is not list:
-        print("is not list")
         data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"] = []
 
     data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"].append(

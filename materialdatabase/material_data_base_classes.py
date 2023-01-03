@@ -5,6 +5,7 @@ import mplcursors
 
 # local libraries
 from materialdatabase.material_data_base_functions import *
+from materialdatabase.enumerations import *
 
 
 class MaterialDatabase:
@@ -26,8 +27,8 @@ class MaterialDatabase:
         set_silent_status(is_silent)
         mdb_print("The material database is now initialized")
 
-    def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datatype: str,
-                                      datasource: str, measurement_setup: str, parent_directory: str = ""):
+    def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datatype: MeasurementDataType,
+                                      datasource: MaterialDataSource = None, measurement_setup: str = None, parent_directory: str = ""):
         """
         Method is used to read permeability data from the material database.
         :param T: temperature
@@ -41,15 +42,15 @@ class MaterialDatabase:
 
         check_input_permeability_data(datasource, material_name, T, f)
 
-        if datasource == "measurements":
+        if datasource == MaterialDataSource.Measurement:
             permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"]["permeability_data"]
-            # print(f"{permeability_data = }")
-            # print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
+            # mdb_print(f"{permeability_data = }")
+            # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
 
             # create_permeability_neighbourhood
             nbh = create_permeability_neighbourhood_measurement(T, f, permeability_data)
-            # print(f"{nbh = }")
-            # print(f"{len(nbh['T_low_f_low']['b']), len(nbh['T_low_f_low']['mu_r']) = }")
+            # mdb_print(f"{nbh = }")
+            # mdb_print(f"{len(nbh['T_low_f_low']['b']), len(nbh['T_low_f_low']['mu_r']) = }")
 
             b_ref, mu_r = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
                                                                                         nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
@@ -67,7 +68,7 @@ class MaterialDatabase:
                                                                                               nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_phi_deg"],
                                                                                               nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_phi_deg"])
 
-            # print(f"{b_ref, mu_r, mu_phi_deg = }")
+            # mdb_print(f"{b_ref, mu_r, mu_phi_deg = }")
 
             # Convert to cartesian
             mu_real_from_polar, mu_imag_from_polar = [], []
@@ -78,13 +79,13 @@ class MaterialDatabase:
             mu_real = mu_real_from_polar
             mu_imag = mu_imag_from_polar
 
-        elif datasource == "manufacturer_datasheet":
+        elif datasource == MaterialDataSource.ManufacturerDatasheet:
             permeability_data = self.data[f"{material_name}"][f"{datasource}"]["permeability_data"]
-            # print(f"{permeability_data = }")
+            # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
             nbh = create_permeability_neighbourhood_datasheet(T, f, permeability_data)
-            # print(f"{nbh = }")
+            # mdb_print(f"{nbh = }")
 
             b_ref, mu_real = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
                                                                                            nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
@@ -102,8 +103,7 @@ class MaterialDatabase:
                                                                                            nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_imag"],
                                                                                            nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_imag"])
 
-
-            print(f"{b_ref, mu_real, mu_imag = }")
+            mdb_print(f"{b_ref, mu_real, mu_imag = }")
 
         # Write the .pro-file
         export_data(parent_directory=parent_directory, file_format="pro", b_ref=list(b_ref), mu_real=list(mu_real), mu_imag=list(mu_imag))
@@ -139,7 +139,7 @@ class MaterialDatabase:
                 "Error in selecting loss data. 'type' must be 'Steinmetz' or others (will be implemented in future).")
         # elif type == "Generalized_Steinmetz":
         #     coefficient = dict(s_data[f"{material_name}"]["generalized_steinmetz_data"])
-        # print(coefficient)
+        # mdb_print(coefficient)
         return coefficient
 
     def load_database(self):
@@ -223,7 +223,7 @@ class MaterialDatabase:
         :return:
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
-        # print(material_list)
+        # mdb_print(material_list)
 
         for i in range(len(material_list)):
             curve_data_material = self.data[f"{material_list[i]}"]["manufacturer_datasheet"][
@@ -265,7 +265,7 @@ class MaterialDatabase:
             :return:
             """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
-        # print(material_list)
+        # mdb_print(material_list)
 
         for i in range(len(material_list)):
             curve_data_material = self.data[f"{material_list[i]}"]["manufacturer_datasheet"][
@@ -503,24 +503,24 @@ class MaterialDatabase:
 
     # Permittivity Data
     def load_permittivity_measurement(self, material_name: str, datasource: str = "measurements",
-                                      datatype: str = "complex_permittivity", measurement_setup: str = None):
+                                      datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity, measurement_setup: str = None):
         """
 
         :param material_name:
         :param datasource:
-        :param datatype:
+        :param datatype: MeasurementDataType
         :param measurement_setup:
         :return:
         """
         # Load all available permittivity data from datasource
-        print(f"{material_name = }"
-              f"{datasource = }"
-              f"{datatype = }"
-              f"{measurement_setup =}")
+        mdb_print(f"{material_name = }"
+                  f"{datasource = }"
+                  f"{datatype = }"
+                  f"{measurement_setup =}")
         return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
 
     def get_permittivity(self, T: float, f: float, material_name: str,
-                         datasource: str = "measurements", datatype: str = "complex_permittivity", measurement_setup: str = None,
+                         datasource: str = "measurements", datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity, measurement_setup: str = None,
                          interpolation_type: str = "linear"):
         """
         Returns the complex permittivity for a certain operation point defined by temperature T and frequency f.
