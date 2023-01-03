@@ -335,9 +335,11 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
                                                                   b_T_high_f_low, f_b_T_high_f_low,
                                                                   b_T_low_f_high, f_b_T_low_f_high,
                                                                   b_T_high_f_high, f_b_T_high_f_high,
-                                                                  no_interpolation_values: int = 8, plot: bool = False):
+                                                                  no_interpolation_values: int = 8,
+                                                                  y_label: str = None, plot: bool = False):
     """
 
+    :param y_label:
     :param T:
     :param f:
     :param T_low:
@@ -405,13 +407,19 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
         f_T_f_common = f_T_f_low_common + (f_T_f_high_common - f_T_f_low_common) / (f_high - f_low) * (f - f_low)
 
     if plot:
-        plt.plot(b_common, f_T_low_f_low_common, linestyle='dashed', color="tab:blue", label=f"{T_low, f_low}")
-        plt.plot(b_common, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=f"{T_high, f_low}")
-        plt.plot(b_common, f_T_low_f_high_common, linestyle='dashed', color="tab:red", label=f"{T_low, f_high}")
-        plt.plot(b_common, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=f"{T_high, f_high}")
-        plt.plot(b_common, f_T_f_low_common, color="tab:blue", label=f"{T, f_low}")
-        plt.plot(b_common, f_T_f_high_common, color="tab:red", label=f"{T, f_high}")
-        plt.plot(b_common, f_T_f_common, color="tab:orange", label=f"{T, f}")
+        scale = 1000
+        plt.plot(b_common*scale, f_T_low_f_low_common, linestyle='dashed', color="tab:blue",  label=r"$T_\mathregular{low}$"+f"={T_low} and "+r"$f_\mathregular{low}$"+f"={f_low}")
+        plt.plot(b_common*scale, f_T_low_f_high_common, linestyle='dashed', color="tab:red",  label=r"$T_\mathregular{low}$"+f"={T_low} and "+r"$f_\mathregular{high}$"+f"={f_high}")
+
+        plt.plot(b_common*scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=r"$T_\mathregular{high}$"+f"={T_high} and "+r"$f_\mathregular{low}$"+f"={f_low}")
+        plt.plot(b_common*scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=r"$T_\mathregular{high}$"+f"={T_high} and "+r"$f_\mathregular{high}$"+f"={f_high}")
+
+        plt.plot(b_common*scale, f_T_f_low_common, color="tab:blue", label=r"$T$"+f"={T} and "+r"$f_\mathregular{low}$"+f"={f_low}")
+        plt.plot(b_common*scale, f_T_f_high_common, color="tab:red", label=r"$T$"+f"={T} and "+r"$f_\mathregular{high}$"+f"={f_high}")
+        plt.plot(b_common*scale, f_T_f_common, color="tab:orange", label=r"$T$"+f"={T} and "+r"$f$"+f"={f}")
+        plt.xlabel("amplitude of magnetic flux density in mT")
+        plt.ylabel(f"{y_label}")
+        plt.title(f"Interpolation in temperature and frequency")
         plt.legend()
         plt.grid()
         plt.show()

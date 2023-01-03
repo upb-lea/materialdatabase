@@ -15,6 +15,6 @@ for f in [100000, 200000, 300000, 400000, 500000]:
 
         b_ref, mu_r, mu_phi_deg = get_permeability_data_from_LEA_LK(location, f, T, "N49")
 
-        b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg, smooth_data=True, crop_data=False, plot_data=True)
+        b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg, smooth_data=True, crop_data=False, plot_data=False)
 
         write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, "N49", "LEA_LK")

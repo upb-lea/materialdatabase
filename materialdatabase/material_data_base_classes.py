@@ -61,7 +61,7 @@ class MaterialDatabase:
                                                                                         nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_r"],
                                                                                         nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_r"],
                                                                                         nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_r"],
-                                                                                        plot=plot_interpolation)
+                                                                                        y_label="rel. amplitude permeability", plot=plot_interpolation)
 
             b_ref, mu_phi_deg = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
                                                                                               nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
@@ -70,7 +70,7 @@ class MaterialDatabase:
                                                                                               nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_phi_deg"],
                                                                                               nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_phi_deg"],
                                                                                               nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_phi_deg"],
-                                                                                              plot=plot_interpolation)
+                                                                                              y_label="hyst. loss angle in deg", plot=plot_interpolation)
 
             # mdb_print(f"{b_ref, mu_r, mu_phi_deg = }")
 
