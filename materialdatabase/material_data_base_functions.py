@@ -335,7 +335,7 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
                                                                   b_T_high_f_low, f_b_T_high_f_low,
                                                                   b_T_low_f_high, f_b_T_low_f_high,
                                                                   b_T_high_f_high, f_b_T_high_f_high,
-                                                                  no_interpolation_values: int = 8, plot: bool = True):
+                                                                  no_interpolation_values: int = 8, plot: bool = False):
     """
 
     :param T:

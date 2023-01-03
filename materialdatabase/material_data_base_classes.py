@@ -28,9 +28,11 @@ class MaterialDatabase:
         mdb_print("The material database is now initialized")
 
     def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datatype: MeasurementDataType,
-                                      datasource: MaterialDataSource = None, measurement_setup: str = None, parent_directory: str = ""):
+                                      datasource: MaterialDataSource = None, measurement_setup: str = None, parent_directory: str = "",
+                                      plot_interpolation: bool = False):
         """
         Method is used to read permeability data from the material database.
+        :param plot_interpolation:
         :param T: temperature
         :param f: Frequency
         :param material_name: "N95","N87"....
@@ -58,7 +60,8 @@ class MaterialDatabase:
                                                                                         nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_r"],
                                                                                         nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_r"],
                                                                                         nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_r"],
-                                                                                        nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_r"])
+                                                                                        nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_r"],
+                                                                                        plot=plot_interpolation)
 
             b_ref, mu_phi_deg = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
                                                                                               nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
@@ -66,7 +69,8 @@ class MaterialDatabase:
                                                                                               nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_phi_deg"],
                                                                                               nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_phi_deg"],
                                                                                               nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_phi_deg"],
-                                                                                              nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_phi_deg"])
+                                                                                              nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_phi_deg"],
+                                                                                              plot=plot_interpolation)
 
             # mdb_print(f"{b_ref, mu_r, mu_phi_deg = }")
 
@@ -93,7 +97,8 @@ class MaterialDatabase:
                                                                                            nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_real"],
                                                                                            nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_real"],
                                                                                            nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_real"],
-                                                                                           nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_real"])
+                                                                                           nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_real"],
+                                                                                           plot=plot_interpolation)
 
             b_ref, mu_imag = interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f,
                                                                                            nbh["T_low_f_low"]["T"], nbh["T_high_f_low"]["T"],
@@ -101,7 +106,8 @@ class MaterialDatabase:
                                                                                            nbh["T_low_f_low"]["b"], nbh["T_low_f_low"]["mu_imag"],
                                                                                            nbh["T_high_f_low"]["b"], nbh["T_high_f_low"]["mu_imag"],
                                                                                            nbh["T_low_f_high"]["b"], nbh["T_low_f_high"]["mu_imag"],
-                                                                                           nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_imag"])
+                                                                                           nbh["T_high_f_high"]["b"], nbh["T_high_f_high"]["mu_imag"],
+                                                                                           plot=plot_interpolation)
 
             mdb_print(f"{b_ref, mu_real, mu_imag = }")
 
