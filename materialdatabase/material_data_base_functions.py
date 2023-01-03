@@ -2,13 +2,13 @@
 
 # Python integrated libraries
 
+import json
 # 3rd party libraries
 import os
-import numpy as np
-from scipy.interpolate import interp1d
-from matplotlib import pyplot as plt
-from scipy.signal import savgol_filter as savgol
 
+from matplotlib import pyplot as plt
+from scipy.interpolate import interp1d
+from scipy.signal import savgol_filter as savgol
 
 # local libraries
 from .constants import *

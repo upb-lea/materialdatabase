@@ -1,11 +1,6 @@
 # Python integrated libraries
-import os
 
 # 3rd party libraries
-import numpy as np
-import matplotlib.pyplot as plt
-from scipy.interpolate import interp1d
-import json
 import mplcursors
 
 # local libraries
