@@ -871,8 +871,8 @@ def write_permittivity_data_into_database(T, frequencies, epsilon_r, epsilon_phi
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"]) is not list:
-        data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
+    if type(data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"]) is not list:
+        data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"] = []
 
     data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"].append(
         {
@@ -913,7 +913,7 @@ def get_permeability_data_from_LEA_LK(location: str, f, T, material_name, no_int
 
 
 def create_permeability_file_name_LEA_LK(quantity: str = "p_hys", f: int = 100000, material_name: str = "N49", T: int = 30):
-    return quantity + "_" + f"{int(f / 1000)}" + "kHz_" + material_name + "_" + f"{T}" + "C.txt"
+    return "_".join([quantity, f"{int(f / 1000)}kHz", material_name, f"{T}C.txt"])
 
 
 def get_permeability_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
@@ -939,7 +939,8 @@ def get_permittivity_data_from_LEA_LK(location, T, f, material_name):
 
 
 def create_permittivity_file_name_LEA_LK(quantity: str = "p_hys", f: int = 100000, material_name: str = "N49", T: int = 30):
-    return quantity + "_" + material_name + "_" + f"{T}" + "C_" + f"{int(f / 1000)}" + "kHz.txt"
+    return "_".join([quantity, material_name, f"{T}C", f"{int(f / 1000)}kHz.txt"])
+
 
 
 def get_permittivity_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
