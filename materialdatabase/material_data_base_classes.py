@@ -45,7 +45,7 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, T, f)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"]["permeability_data"]
+            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"]["measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
 
@@ -84,7 +84,7 @@ class MaterialDatabase:
             mu_imag = mu_imag_from_polar
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["permeability_data"]
+            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["measurement_data"]
             # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
@@ -194,7 +194,7 @@ class MaterialDatabase:
             freq_list = []
             for j in range(len(curve_data_material)):
                 if curve_data_material[j]["data_type"] == "complex_permeability_data":
-                    curve_data_material_new = curve_data_material[j]["permeability_data"]
+                    curve_data_material_new = curve_data_material[j]["measurement_data"]
                     for i in range(len(curve_data_material_new)):
                         temp_list.append(curve_data_material_new[i]["temperature"])
 
@@ -400,7 +400,7 @@ class MaterialDatabase:
 
             for j in range(len(curve_data_material)):
                 if curve_data_material[j]["data_type"] == "complex_permeability_data":
-                    curve_data_material_new = curve_data_material[j]["permeability_data"]
+                    curve_data_material_new = curve_data_material[j]["measurement_data"]
                     b = []
                     freq = []
                     mu_phi = []

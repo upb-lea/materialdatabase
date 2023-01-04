@@ -14,8 +14,21 @@ from scipy.signal import savgol_filter as savgol
 from .constants import *
 from .enumerations import *
 
-# ------Remove Duplicate from freq array------
+# Relative path to the database json file
+global relative_path_to_db
+relative_path_to_db = "../data/material_data_base.json"
+
+
+# ---
+# Auxiliary functions
+
 def remove(arr, n):
+    """
+    Remove Duplicate from freq array
+    :param arr:
+    :param n:
+    :return:
+    """
     mp = {i: 0 for i in arr}
     for i in range(n):
         if mp[arr[i]] == 0:
@@ -50,8 +63,13 @@ def store_data(material_name, data_to_be_stored):
     mdb_print(f"Material properties of {material_name} are stored in the material database.")
 
 
-# -----find nearby frequency n Temp---------
 def find_nearest(array, value):
+    """
+    find nearby frequency n Temp
+    :param array:
+    :param value:
+    :return:
+    """
     array = np.asarray(array)
     array.sort()
     idx = (np.abs(array - value)).argmin()
@@ -104,7 +122,9 @@ def rect(r, theta_deg):
     return x, y
 
 
-# Permeability
+# ---
+# Load Permeability
+
 def check_input_permeability_data(datasource, material_name, T, f):
     # mdb_print(datasource)
     if datasource != MaterialDataSource.Measurement and datasource != MaterialDataSource.ManufacturerDatasheet:
@@ -408,15 +428,15 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
 
     if plot:
         scale = 1000
-        plt.plot(b_common*scale, f_T_low_f_low_common, linestyle='dashed', color="tab:blue",  label=r"$T_\mathregular{low}$"+f"={T_low} and "+r"$f_\mathregular{low}$"+f"={f_low}")
-        plt.plot(b_common*scale, f_T_low_f_high_common, linestyle='dashed', color="tab:red",  label=r"$T_\mathregular{low}$"+f"={T_low} and "+r"$f_\mathregular{high}$"+f"={f_high}")
+        plt.plot(b_common * scale, f_T_low_f_low_common, linestyle='dashed', color="tab:blue", label=r"$T_\mathregular{low}$" + f"={T_low} and " + r"$f_\mathregular{low}$" + f"={f_low}")
+        plt.plot(b_common * scale, f_T_low_f_high_common, linestyle='dashed', color="tab:red", label=r"$T_\mathregular{low}$" + f"={T_low} and " + r"$f_\mathregular{high}$" + f"={f_high}")
 
-        plt.plot(b_common*scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=r"$T_\mathregular{high}$"+f"={T_high} and "+r"$f_\mathregular{low}$"+f"={f_low}")
-        plt.plot(b_common*scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=r"$T_\mathregular{high}$"+f"={T_high} and "+r"$f_\mathregular{high}$"+f"={f_high}")
+        plt.plot(b_common * scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=r"$T_\mathregular{high}$" + f"={T_high} and " + r"$f_\mathregular{low}$" + f"={f_low}")
+        plt.plot(b_common * scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=r"$T_\mathregular{high}$" + f"={T_high} and " + r"$f_\mathregular{high}$" + f"={f_high}")
 
-        plt.plot(b_common*scale, f_T_f_low_common, color="tab:blue", label=r"$T$"+f"={T} and "+r"$f_\mathregular{low}$"+f"={f_low}")
-        plt.plot(b_common*scale, f_T_f_high_common, color="tab:red", label=r"$T$"+f"={T} and "+r"$f_\mathregular{high}$"+f"={f_high}")
-        plt.plot(b_common*scale, f_T_f_common, color="tab:orange", label=r"$T$"+f"={T} and "+r"$f$"+f"={f}")
+        plt.plot(b_common * scale, f_T_f_low_common, color="tab:blue", label=r"$T$" + f"={T} and " + r"$f_\mathregular{low}$" + f"={f_low}")
+        plt.plot(b_common * scale, f_T_f_high_common, color="tab:red", label=r"$T$" + f"={T} and " + r"$f_\mathregular{high}$" + f"={f_high}")
+        plt.plot(b_common * scale, f_T_f_common, color="tab:orange", label=r"$T$" + f"={T} and " + r"$f$" + f"={f}")
         plt.xlabel("amplitude of magnetic flux density in mT")
         plt.ylabel(f"{y_label}")
         plt.title(f"Interpolation in temperature and frequency")
@@ -438,44 +458,6 @@ def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, f, b_peak, p_hyst):
     """
     b_peak = np.array(b_peak)
     return b_peak ** 2 * np.pi * f * np.sin(np.deg2rad(mu_phi_deg)) / p_hyst / mu_0
-
-
-def get_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
-                             material_name: str, T: int, sub_folder_name: str = "Core_Loss"):
-    filename = create_file_name_LEA_LK(quantity, f, material_name, T)
-    complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
-    # mdb_print(complete_path)
-
-    data = np.loadtxt(complete_path)
-    # mdb_print(data)
-    return data[:, 0], data[:, 1]
-
-
-def create_file_name_LEA_LK(quantity: str = "p_hys", f: int = 100000, material_name: str = "N49", T: int = 30):
-    return quantity + "_" + f"{int(f / 1000)}" + "kHz_" + material_name + "_" + f"{T}" + "C.txt"
-
-
-def get_permeability_data_from_LEA_LK(location: str, f, T, material_name, no_interpolation_values: int = 10):
-    b_hys, p_hys = get_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="Core_Loss",
-                                            quantity="p_hys", f=f, material_name=material_name, T=T)
-    b_phi, mu_phi_deg = get_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
-                                                 quantity="mu_phi", f=f, material_name=material_name, T=T)
-
-    # Find the border of the common magnetic flux density values
-    b_max_min = max(min(b_hys), min(b_phi), min(b_hys), min(b_phi))
-    b_min_max = min(max(b_hys), max(b_phi), max(b_hys), max(b_phi))
-    # mdb_print(f"{b_max_min, b_min_max = }")
-    # Create the magnetic flux density vector that is used for later interpolation actions
-    b_common = np.linspace(b_max_min, b_min_max, no_interpolation_values)
-
-    f_p_hys_interpol = interp1d(b_hys, p_hys)
-    f_b_phi_interpol = interp1d(b_phi, mu_phi_deg)
-    f_p_hys_interpol_common = f_p_hys_interpol(b_common)
-    f_b_phi_interpol_common = f_b_phi_interpol(b_common)
-
-    # mdb_print(f"{b_common, f_p_hys_interpol_common, f_b_phi_interpol_common = }")
-
-    return b_common, mu_r__from_p_hyst_and_mu_phi_deg(f_b_phi_interpol_common, f, b_common, f_p_hys_interpol_common), f_b_phi_interpol_common
 
 
 def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
@@ -537,7 +519,9 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
     return b_ref, mu_r, mu_phi_deg
 
 
-# Permittivity
+# ---
+# Load Permittivity
+
 def find_nearest_neighbours(value, list_to_search_in):
     """
     only works for sorted lists (small to big)
@@ -754,6 +738,222 @@ def interpolate_neighbours_linear(T, f, neighbours):
     return epsilon_r, epsilon_phi_deg
 
 
+# ---
+# Add and remove data in Database
+
+# General
+# Permeability
+def create_permeability_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="",
+                                                toroid_dimensions="", measurement_method="", equipment_names="", comment=""):
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    data[material_name]["measurements"]["complex_permeability"] = {
+        measurement_setup: {
+            "data_type": "complex_permeability_data",
+            "name": measurement_setup,
+            "company": company,
+            "date": date,
+            "test_setup": {
+                "name": test_setup_name,
+                "Toroid": toroid_dimensions,
+                "Measurement_Method": measurement_method,
+                "Equipment": equipment_names,
+                "comment": comment
+            },
+            "measurement_data": []
+        }
+    }
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+def clear_permeability_measurement_data_in_database(material_name, measurement_setup):
+    """
+
+    :param material_name:
+    :param measurement_setup:
+    :return:
+    """
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, material_name, measurement_setup):
+    """
+    CAUTION: This method only adds the given measurement series to the permeability data
+    without checking duplicates!
+    :param T:
+    :param f:
+    :param measurement_setup:
+    :param b_ref:
+    :param mu_r:
+    :param mu_phi_deg:
+    :param material_name:
+    :return:
+    """
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"]) is not list:
+        data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
+
+    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"].append(
+        {
+            "temperature": T,
+            "frequency": f,
+            "b": list(b_ref),
+            "mu_r": list(mu_r),
+            "mu_phi_deg": list(mu_phi_deg)
+        }
+    )
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+# General
+# Permittivity
+def create_permittivity_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="",
+                                                probe_dimensions="", measurement_method="", equipment_names="", comment=""):
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    data[material_name]["measurements"]["complex_permittivity"] = {
+        measurement_setup: {
+            "data_type": "complex_permittivity_data",
+            "name": measurement_setup,
+            "company": company,
+            "date": date,
+            "test_setup": {
+                "name": test_setup_name,
+                "Probe": probe_dimensions,
+                "Measurement_Method": measurement_method,
+                "Equipment": equipment_names,
+                "comment": comment
+            },
+            "measurement_data": []
+        }
+    }
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+def clear_permittivity_measurement_data_in_database(material_name, measurement_setup):
+    """
+
+    :param material_name:
+    :param measurement_setup:
+    :return:
+    """
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"] = []
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+def write_permittivity_data_into_database(T, frequencies, epsilon_r, epsilon_phi_deg, material_name, measurement_setup):
+    # load data
+
+    # mean of data
+
+    # write data in DB
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"]) is not list:
+        data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
+
+    data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"].append(
+        {
+            "temperature": T,
+            "frequencies": frequencies,
+            "epsilon_r": epsilon_r,
+            "epsilon_phi_deg": epsilon_phi_deg
+        }
+    )
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+# LEA_LK
+# Permeability
+def get_permeability_data_from_LEA_LK(location: str, f, T, material_name, no_interpolation_values: int = 10):
+    b_hys, p_hys = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="Core_Loss",
+                                                         quantity="p_hys", f=f, material_name=material_name, T=T)
+    b_phi, mu_phi_deg = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
+                                                              quantity="mu_phi", f=f, material_name=material_name, T=T)
+
+    # Find the border of the common magnetic flux density values
+    b_max_min = max(min(b_hys), min(b_phi), min(b_hys), min(b_phi))
+    b_min_max = min(max(b_hys), max(b_phi), max(b_hys), max(b_phi))
+    # mdb_print(f"{b_max_min, b_min_max = }")
+    # Create the magnetic flux density vector that is used for later interpolation actions
+    b_common = np.linspace(b_max_min, b_min_max, no_interpolation_values)
+
+    f_p_hys_interpol = interp1d(b_hys, p_hys)
+    f_b_phi_interpol = interp1d(b_phi, mu_phi_deg)
+    f_p_hys_interpol_common = f_p_hys_interpol(b_common)
+    f_b_phi_interpol_common = f_b_phi_interpol(b_common)
+
+    # mdb_print(f"{b_common, f_p_hys_interpol_common, f_b_phi_interpol_common = }")
+
+    return b_common, mu_r__from_p_hyst_and_mu_phi_deg(f_b_phi_interpol_common, f, b_common, f_p_hys_interpol_common), f_b_phi_interpol_common
+
+
+def create_permeability_file_name_LEA_LK(quantity: str = "p_hys", f: int = 100000, material_name: str = "N49", T: int = 30):
+    return quantity + "_" + f"{int(f / 1000)}" + "kHz_" + material_name + "_" + f"{T}" + "C.txt"
+
+
+def get_permeability_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
+                                          material_name: str, T: int, sub_folder_name: str = "Core_Loss"):
+    filename = create_permeability_file_name_LEA_LK(quantity, f, material_name, T)
+    complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
+    # mdb_print(complete_path)
+
+    data = np.loadtxt(complete_path)
+    # mdb_print(data)
+    return data[:, 0], data[:, 1]
+
+
+# Permittivity
+def get_permittivity_data_from_LEA_LK(location, T, f, material_name):
+    e_amplitude, epsilon_r_tilde = get_permittivity_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="eps_r_Plot",
+                                                                         quantity="eps_r_tilde", f=f, material_name=material_name, T=T)
+
+    e_phi, epsilon_phi_deg = get_permittivity_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="eps_phi_Plot",
+                                                                   quantity="eps_phi_tilde", f=f, material_name=material_name, T=T)
+
+    return epsilon_r_tilde, epsilon_phi_deg
+
+
+def create_permittivity_file_name_LEA_LK(quantity: str = "p_hys", f: int = 100000, material_name: str = "N49", T: int = 30):
+    return quantity + "_" + material_name + "_" + f"{T}" + "C_" + f"{int(f / 1000)}" + "kHz.txt"
+
+
+def get_permittivity_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
+                                          material_name: str, T: int, sub_folder_name: str = "Core_Loss"):
+    filename = create_permittivity_file_name_LEA_LK(quantity, f, material_name, T)
+    complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
+    # mdb_print(complete_path)
+
+    data = np.loadtxt(complete_path)
+    # mdb_print(data)
+    return data[:, 0], data[:, 1]
+
+
+# ---
 # unused or externally used
 
 def find_nearest_frequencies(permeability, f):
@@ -859,52 +1059,3 @@ def plot_data(material_name: str = None, properties: str = None,
         plt.show()
 
     mdb_print(f"Material properties {properties} of {material_name} are plotted.")
-
-
-def clear_permeability_data_in_database(material_name, measurement_setup):
-    """
-
-    :param material_name:
-    :param measurement_setup:
-    :return:
-    """
-    relative_path_to_db = "../data/material_data_base.json"
-    with open(relative_path_to_db, "r") as jsonFile:
-        data = json.load(jsonFile)
-
-    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"] = []
-
-    with open(relative_path_to_db, "w") as jsonFile:
-        json.dump(data, jsonFile, indent=2)
-
-
-def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, material_name, measurement_setup):
-    """
-    CAUTION: This method only adds the given measurement series to the permeability data
-    without checking duplicates!
-    :param measurement_setup:
-    :param b_ref:
-    :param mu_r:
-    :param mu_phi_deg:
-    :param material_name:
-    :return:
-    """
-    relative_path_to_db = "../data/material_data_base.json"
-    with open(relative_path_to_db, "r") as jsonFile:
-        data = json.load(jsonFile)
-
-    if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"]) is not list:
-        data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"] = []
-
-    data[material_name]["measurements"]["complex_permeability"][measurement_setup]["permeability_data"].append(
-        {
-            "temperature": T,
-            "frequency": f,
-            "b": list(b_ref),
-            "mu_r": list(mu_r),
-            "mu_phi_deg": list(mu_phi_deg)
-        }
-    )
-
-    with open(relative_path_to_db, "w") as jsonFile:
-        json.dump(data, jsonFile, indent=2)

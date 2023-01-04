@@ -1,7 +1,7 @@
 from materialdatabase.material_data_base_functions import *
 
 location = "C:/Users/tpiepe/sciebo/Exchange_FEMMT/05_Materials/data/2022_10_10_Ferrite_mu_eps_Data_Keuck/"
-filename = create_file_name_LEA_LK()
+filename = create_permeability_file_name_LEA_LK()
 
 print(filename)
 for f in [100000, 200000, 300000, 400000, 500000]:
