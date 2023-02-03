@@ -38,12 +38,15 @@ def crop_data_variable_length(x):
         relative_rolling_average_change
 
 
-def store_data(material_name, data_to_be_stored):
+def store_data(material_name: str, data_to_be_stored: dict) -> None:
     """
     Method is used to store data from measurement/datasheet into the material database.
-    :param material_name:
-    :param data_to_be_stored:
-    :return:
+    :param material_name: Material name
+    :type material_name: str
+    :param data_to_be_stored: data to be stored
+    :type data_to_be_stored: dict
+    :return: None
+    :rtype: None
     """
     with open('material_data_base.json', 'w') as outfile:
         json.dump(data_to_be_stored, outfile, indent=4)
@@ -64,7 +67,7 @@ def find_nearest(array, value):
             return array[idx], array[idx + 1]
 
 
-def set_silent_status(is_silent: bool):
+def set_silent_status(is_silent: bool) -> None:
     """
     Silent mode global variable.
 
@@ -75,7 +78,7 @@ def set_silent_status(is_silent: bool):
     silent = is_silent
 
 
-def mdb_print(text: str, end='\n'):
+def mdb_print(text: str, end='\n') -> None:
     """
     Print function what checks the silent-mode-flag.
     Print only in case of no-silent-mode.
@@ -90,22 +93,40 @@ def mdb_print(text: str, end='\n'):
         print(text, end)
 
 
-def rect(r, theta_deg):
+def rect(radius_or_amplitude: float, theta_deg: float):
     """
     converts polar coordinates [degree] kartesian coordinates
     theta in degrees
-    :param r: radius or amplitude
+    :param radius_or_amplitude: radius or amplitude
+    :type radius_or_amplitude: float
     :param theta_deg: angle in degree
+    :type theta_deg: float
 
-    :returns: tuple; (float, float); (x,y)
+    :returns: tuple; (float, float); (abscissa_x,ordinate_y)
     """
-    x = r * np.cos(np.radians(theta_deg))
-    y = r * np.sin(np.radians(theta_deg))
-    return x, y
+    abscissa_x = radius_or_amplitude * np.cos(np.radians(theta_deg))
+    ordinate_y = radius_or_amplitude * np.sin(np.radians(theta_deg))
+    return abscissa_x, ordinate_y
 
 
 # Permeability
-def check_input_permeability_data(datasource, material_name, T, f):
+def check_input_permeability_data(datasource: str, material_name: str, T: float, f: float) -> None:
+    """
+    Checks input permeability data for correct input parameters.
+     * datasource must be 'measurements' or 'manufacturer_datasheet'
+     * material_name, T, f must be different from None
+
+    :param datasource: datasource as a string
+    :type datasource: str
+    :param material_name: material name as a string
+    :type material_name: str
+    :param T: temperature in degree
+    :type T: float
+    :param f: frequency in Hz
+    :type f: float
+    :returns: None
+    :rtype: None
+    """
     if datasource != "measurements" and datasource != "manufacturer_datasheet":
         raise Exception("'datasource' must be 'manufacturer_datasheet' or 'measurements'.")
 
@@ -422,9 +443,9 @@ def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, f, b_peak, p_hyst):
     """
 
     :param mu_phi_deg:
-    :param f:
-    :param b_peak:
-    :param p_hyst:
+    :param f: frequency
+    :param b_peak: peak flux density
+    :param p_hyst: hysteresis losses
     :return:
     """
     b_peak = np.array(b_peak)
@@ -677,13 +698,16 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
 
 def my_interpolate_linear(a, b, f_a, f_b, x):
     """
-    interpolates linear for a < x < b
-    :param a:
-    :param b:
-    :param f_a:
-    :param f_b:
-    :param x:
-    :return:
+    interpolates linear between to points 'a' and 'b'.
+    The return value is f_x in dependence of x
+    Tt applies: a < x < b.
+
+    :param a: input x-value for point a
+    :param b: input x-value for point b
+    :param f_a: input y-value for point a
+    :param f_b: input y-value for point b
+    :param x: x-value for the searched answer f_x
+    :return: y-value for given x-value
     """
     slope = (f_b - f_a) / (b - a)
     f_x = slope * (x - a) + f_a
@@ -693,12 +717,13 @@ def my_interpolate_linear(a, b, f_a, f_b, x):
 def my_polate_linear(a, b, f_a, f_b, x):
     """
     interpolates or extrapolates linear for a<x<b or x<a and x>b
-    :param a:
-    :param b:
-    :param f_a:
-    :param f_b:
-    :param x:
-    :return:
+
+    :param a: input x-value for point a
+    :param b: input x-value for point b
+    :param f_a: input y-value for point a
+    :param f_b: input y-value for point b
+    :param x: x-value for the searched answer f_x
+    :return: y-value for given x-value
     """
     if a == b == x and f_a == f_b:
         f_x = f_a
