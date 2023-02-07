@@ -84,7 +84,7 @@ class MaterialDatabase:
             mu_imag = mu_imag_from_polar
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["measurement_data"]
+            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["permeability_data"]
             # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
