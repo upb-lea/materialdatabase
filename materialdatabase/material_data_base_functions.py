@@ -156,15 +156,15 @@ def check_input_permeability_data(datasource: str, material_name: str, T: float,
 def getdata_datasheet(permeability, variable, F, t_1, t_2):
     for k in range(len(permeability)):
         if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_1:
-            b_1 = permeability[k]["b"]
-            mu_real_1 = permeability[k]["mu_real"]
-            mu_imag_1 = permeability[k]["mu_imag"]
+            b_1 = permeability[k]["flux_density"]
+            mu_real_1 = permeability[k]["mu_r_real"]
+            mu_imag_1 = permeability[k]["mu_r_imag"]
             t_mu_imag_1 = interp1d(b_1, mu_imag_1)
             t_mu_real_1 = interp1d(b_1, mu_real_1)
         if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_2:
-            b_2 = permeability[k]["b"]
-            mu_real_2 = permeability[k]["mu_real"]
-            mu_imag_2 = permeability[k]["mu_imag"]
+            b_2 = permeability[k]["flux_density"]
+            mu_real_2 = permeability[k]["mu_r_real"]
+            mu_imag_2 = permeability[k]["mu_r_imag"]
             t_mu_imag_2 = interp1d(b_2, mu_imag_2)
             t_mu_real_2 = interp1d(b_2, mu_real_2)
 
@@ -193,75 +193,75 @@ def create_permeability_neighbourhood_datasheet(T, f, list_of_permeability_dicts
         "T_low_f_low":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_real": None,
-                "mu_imag": None
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_real": None,
+                "mu_r_imag": None
             },
         "T_low_f_high":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_real": None,
-                "mu_imag": None
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_real": None,
+                "mu_r_imag": None
             },
         "T_high_f_low":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_real": None,
-                "mu_imag": None
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_real": None,
+                "mu_r_imag": None
             },
         "T_high_f_high":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_real": None,
-                "mu_imag": None
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_real": None,
+                "mu_r_imag": None
             }
     }
 
     # In permeability data: find values of nearest neighbours
     T_value_low, T_value_high, f_value_low, f_value_high = find_nearest_neighbour_values_permeability(list_of_permeability_dicts, T, f)
 
-    nbh["T_low_f_low"]["T"], nbh["T_low_f_high"]["T"] = T_value_low, T_value_low
-    nbh["T_high_f_low"]["T"], nbh["T_high_f_high"]["T"] = T_value_high, T_value_high
-    nbh["T_low_f_low"]["f"], nbh["T_high_f_low"]["f"] = f_value_low, f_value_low
-    nbh["T_low_f_high"]["f"], nbh["T_high_f_high"]["f"] = f_value_high, f_value_high
+    nbh["T_low_f_low"]["temperature"], nbh["T_low_f_high"]["temperature"] = T_value_low, T_value_low
+    nbh["T_high_f_low"]["temperature"], nbh["T_high_f_high"]["temperature"] = T_value_high, T_value_high
+    nbh["T_low_f_low"]["frequency"], nbh["T_high_f_low"]["frequency"] = f_value_low, f_value_low
+    nbh["T_low_f_high"]["frequency"], nbh["T_high_f_high"]["frequency"] = f_value_high, f_value_high
 
     # find the indices of the neighbours in the original unsorted data
     for k_original, permeability_set in enumerate(list_of_permeability_dicts):
 
         if permeability_set["temperature"] == T_value_low and permeability_set["frequency"] == f_value_low:
             nbh["T_low_f_low"]["index"] = k_original
-            nbh["T_low_f_low"]["b"] = permeability_set["b"]
-            nbh["T_low_f_low"]["mu_real"] = permeability_set["mu_real"]
-            nbh["T_low_f_low"]["mu_imag"] = permeability_set["mu_imag"]
+            nbh["T_low_f_low"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_low_f_low"]["mu_r_real"] = permeability_set["mu_r_real"]
+            nbh["T_low_f_low"]["mu_r_imag"] = permeability_set["mu_r_imag"]
 
         if permeability_set["temperature"] == T_value_high and permeability_set["frequency"] == f_value_low:
             nbh["T_high_f_low"]["index"] = k_original
-            nbh["T_high_f_low"]["b"] = permeability_set["b"]
-            nbh["T_high_f_low"]["mu_real"] = permeability_set["mu_real"]
-            nbh["T_high_f_low"]["mu_imag"] = permeability_set["mu_imag"]
+            nbh["T_high_f_low"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_high_f_low"]["mu_r_real"] = permeability_set["mu_r_real"]
+            nbh["T_high_f_low"]["mu_r_imag"] = permeability_set["mu_r_imag"]
 
         if permeability_set["temperature"] == T_value_low and permeability_set["frequency"] == f_value_high:
             nbh["T_low_f_high"]["index"] = k_original
-            nbh["T_low_f_high"]["b"] = permeability_set["b"]
-            nbh["T_low_f_high"]["mu_real"] = permeability_set["mu_real"]
-            nbh["T_low_f_high"]["mu_imag"] = permeability_set["mu_imag"]
+            nbh["T_low_f_high"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_low_f_high"]["mu_r_real"] = permeability_set["mu_r_real"]
+            nbh["T_low_f_high"]["mu_r_imag"] = permeability_set["mu_r_imag"]
 
         if permeability_set["temperature"] == T_value_high and permeability_set["frequency"] == f_value_high:
             nbh["T_high_f_high"]["index"] = k_original
-            nbh["T_high_f_high"]["b"] = permeability_set["b"]
-            nbh["T_high_f_high"]["mu_real"] = permeability_set["mu_real"]
-            nbh["T_high_f_high"]["mu_imag"] = permeability_set["mu_imag"]
+            nbh["T_high_f_high"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_high_f_high"]["mu_r_real"] = permeability_set["mu_r_real"]
+            nbh["T_high_f_high"]["mu_r_imag"] = permeability_set["mu_r_imag"]
 
     return nbh
 
@@ -279,37 +279,37 @@ def create_permeability_neighbourhood_measurement(T, f, list_of_permeability_dic
         "T_low_f_low":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_r": None,
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_abs": None,
                 "mu_phi_deg": None
             },
         "T_low_f_high":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_r": None,
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_abs": None,
                 "mu_phi_deg": None
             },
         "T_high_f_low":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_r": None,
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_abs": None,
                 "mu_phi_deg": None
             },
         "T_high_f_high":
             {
                 "index": None,
-                "T": None,
-                "f": None,
-                "b": None,
-                "mu_r": None,
+                "temperature": None,
+                "frequency": None,
+                "flux_density": None,
+                "mu_r_abs": None,
                 "mu_phi_deg": None
             }
     }
@@ -317,36 +317,36 @@ def create_permeability_neighbourhood_measurement(T, f, list_of_permeability_dic
     # In permeability data: find values of nearest neighbours
     T_value_low, T_value_high, f_value_low, f_value_high = find_nearest_neighbour_values_permeability(list_of_permeability_dicts, T, f)
 
-    nbh["T_low_f_low"]["T"], nbh["T_low_f_high"]["T"] = T_value_low, T_value_low
-    nbh["T_high_f_low"]["T"], nbh["T_high_f_high"]["T"] = T_value_high, T_value_high
-    nbh["T_low_f_low"]["f"], nbh["T_high_f_low"]["f"] = f_value_low, f_value_low
-    nbh["T_low_f_high"]["f"], nbh["T_high_f_high"]["f"] = f_value_high, f_value_high
+    nbh["T_low_f_low"]["temperature"], nbh["T_low_f_high"]["temperature"] = T_value_low, T_value_low
+    nbh["T_high_f_low"]["temperature"], nbh["T_high_f_high"]["temperature"] = T_value_high, T_value_high
+    nbh["T_low_f_low"]["frequency"], nbh["T_high_f_low"]["frequency"] = f_value_low, f_value_low
+    nbh["T_low_f_high"]["frequency"], nbh["T_high_f_high"]["frequency"] = f_value_high, f_value_high
 
     # find the indices of the neighbours in the original unsorted data
     for k_original, permeability_set in enumerate(list_of_permeability_dicts):
 
         if permeability_set["temperature"] == T_value_low and permeability_set["frequency"] == f_value_low:
             nbh["T_low_f_low"]["index"] = k_original
-            nbh["T_low_f_low"]["b"] = permeability_set["b"]
-            nbh["T_low_f_low"]["mu_r"] = permeability_set["mu_r"]
+            nbh["T_low_f_low"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_low_f_low"]["mu_r_abs"] = permeability_set["mu_r_abs"]
             nbh["T_low_f_low"]["mu_phi_deg"] = permeability_set["mu_phi_deg"]
 
         if permeability_set["temperature"] == T_value_high and permeability_set["frequency"] == f_value_low:
             nbh["T_high_f_low"]["index"] = k_original
-            nbh["T_high_f_low"]["b"] = permeability_set["b"]
-            nbh["T_high_f_low"]["mu_r"] = permeability_set["mu_r"]
+            nbh["T_high_f_low"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_high_f_low"]["mu_r_abs"] = permeability_set["mu_r_abs"]
             nbh["T_high_f_low"]["mu_phi_deg"] = permeability_set["mu_phi_deg"]
 
         if permeability_set["temperature"] == T_value_low and permeability_set["frequency"] == f_value_high:
             nbh["T_low_f_high"]["index"] = k_original
-            nbh["T_low_f_high"]["b"] = permeability_set["b"]
-            nbh["T_low_f_high"]["mu_r"] = permeability_set["mu_r"]
+            nbh["T_low_f_high"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_low_f_high"]["mu_r_abs"] = permeability_set["mu_r_abs"]
             nbh["T_low_f_high"]["mu_phi_deg"] = permeability_set["mu_phi_deg"]
 
         if permeability_set["temperature"] == T_value_high and permeability_set["frequency"] == f_value_high:
             nbh["T_high_f_high"]["index"] = k_original
-            nbh["T_high_f_high"]["b"] = permeability_set["b"]
-            nbh["T_high_f_high"]["mu_r"] = permeability_set["mu_r"]
+            nbh["T_high_f_high"]["flux_density"] = permeability_set["flux_density"]
+            nbh["T_high_f_high"]["mu_r_abs"] = permeability_set["mu_r_abs"]
             nbh["T_high_f_high"]["mu_phi_deg"] = permeability_set["mu_phi_deg"]
 
     return nbh
@@ -599,11 +599,11 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
     nbh = {
         "T_low_f_low":
             {
-                "T": {
+                "temperature": {
                     "value": None,
                     "index": None
                 },
-                "f": {
+                "frequency": {
                     "value": None,
                     "index": None
                 },
@@ -612,11 +612,11 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
             },
         "T_low_f_high":
             {
-                "T": {
+                "temperature": {
                     "value": None,
                     "index": None
                 },
-                "f": {
+                "frequency": {
                     "value": None,
                     "index": None
                 },
@@ -625,11 +625,11 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
             },
         "T_high_f_low":
             {
-                "T": {
+                "temperature": {
                     "value": None,
                     "index": None
                 },
-                "f": {
+                "frequency": {
                     "value": None,
                     "index": None
                 },
@@ -638,11 +638,11 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
             },
         "T_high_f_high":
             {
-                "T": {
+                "temperature": {
                     "value": None,
                     "index": None
                 },
-                "f": {
+                "frequency": {
                     "value": None,
                     "index": None
                 },
@@ -659,30 +659,30 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
     index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = \
         find_nearest_neighbours(T, temperatures)
 
-    nbh["T_low_f_low"]["T"]["value"], nbh["T_low_f_high"]["T"]["value"] = value_T_low_neighbour, value_T_low_neighbour
-    nbh["T_low_f_low"]["T"]["index"], nbh["T_low_f_high"]["T"]["index"] = index_T_low_neighbour, index_T_low_neighbour
-    nbh["T_high_f_low"]["T"]["value"], nbh["T_high_f_high"]["T"]["value"] = value_T_high_neighbour, value_T_high_neighbour
-    nbh["T_high_f_low"]["T"]["index"], nbh["T_high_f_high"]["T"]["index"] = index_T_high_neighbour, index_T_high_neighbour
+    nbh["T_low_f_low"]["temperature"]["value"], nbh["T_low_f_high"]["temperature"]["value"] = value_T_low_neighbour, value_T_low_neighbour
+    nbh["T_low_f_low"]["temperature"]["index"], nbh["T_low_f_high"]["temperature"]["index"] = index_T_low_neighbour, index_T_low_neighbour
+    nbh["T_high_f_low"]["temperature"]["value"], nbh["T_high_f_high"]["temperature"]["value"] = value_T_high_neighbour, value_T_high_neighbour
+    nbh["T_high_f_low"]["temperature"]["index"], nbh["T_high_f_high"]["temperature"]["index"] = index_T_high_neighbour, index_T_high_neighbour
 
     # T low
-    nbh["T_low_f_low"]["f"]["index"], nbh["T_low_f_low"]["f"]["value"], \
-    nbh["T_low_f_high"]["f"]["index"], nbh["T_low_f_high"]["f"]["value"] = \
+    nbh["T_low_f_low"]["frequency"]["index"], nbh["T_low_f_low"]["frequency"]["value"], \
+    nbh["T_low_f_high"]["frequency"]["index"], nbh["T_low_f_high"]["frequency"]["value"] = \
         find_nearest_neighbours(f, list_of_permittivity_dicts[index_T_low_neighbour]["frequencies"])
 
-    nbh["T_low_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["T"]["index"]]["epsilon_r"][nbh["T_low_f_low"]["f"]["index"]]
-    nbh["T_low_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["T"]["index"]]["epsilon_phi_deg"][nbh["T_low_f_low"]["f"]["index"]]
-    nbh["T_low_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["T"]["index"]]["epsilon_r"][nbh["T_low_f_high"]["f"]["index"]]
-    nbh["T_low_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["T"]["index"]]["epsilon_phi_deg"][nbh["T_low_f_high"]["f"]["index"]]
+    nbh["T_low_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]]["epsilon_r"][nbh["T_low_f_low"]["frequency"]["index"]]
+    nbh["T_low_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_low_f_low"]["frequency"]["index"]]
+    nbh["T_low_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["temperature"]["index"]]["epsilon_r"][nbh["T_low_f_high"]["frequency"]["index"]]
+    nbh["T_low_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_low_f_high"]["frequency"]["index"]]
 
     # T high
-    nbh["T_high_f_low"]["f"]["index"], nbh["T_high_f_low"]["f"]["value"], \
-    nbh["T_high_f_high"]["f"]["index"], nbh["T_high_f_high"]["f"]["value"] = \
+    nbh["T_high_f_low"]["frequency"]["index"], nbh["T_high_f_low"]["frequency"]["value"], \
+    nbh["T_high_f_high"]["frequency"]["index"], nbh["T_high_f_high"]["frequency"]["value"] = \
         find_nearest_neighbours(f, list_of_permittivity_dicts[index_T_high_neighbour]["frequencies"])
 
-    nbh["T_high_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["T"]["index"]]["epsilon_r"][nbh["T_high_f_low"]["f"]["index"]]
-    nbh["T_high_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["T"]["index"]]["epsilon_phi_deg"][nbh["T_high_f_low"]["f"]["index"]]
-    nbh["T_high_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["T"]["index"]]["epsilon_r"][nbh["T_high_f_high"]["f"]["index"]]
-    nbh["T_high_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["T"]["index"]]["epsilon_phi_deg"][nbh["T_high_f_high"]["f"]["index"]]
+    nbh["T_high_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]]["epsilon_r"][nbh["T_high_f_low"]["frequency"]["index"]]
+    nbh["T_high_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_high_f_low"]["frequency"]["index"]]
+    nbh["T_high_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["temperature"]["index"]]["epsilon_r"][nbh["T_high_f_high"]["frequency"]["index"]]
+    nbh["T_high_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_high_f_high"]["frequency"]["index"]]
 
     return nbh
 
@@ -734,28 +734,28 @@ def interpolate_neighbours_linear(T, f, neighbours):
     """
     # Interpolation of Amplitude
     # in temperature at f_low
-    epsilon_r_at_T_f_low = my_polate_linear(a=neighbours["T_low_f_low"]["T"]["value"], b=neighbours["T_high_f_low"]["T"]["value"],
+    epsilon_r_at_T_f_low = my_polate_linear(a=neighbours["T_low_f_low"]["temperature"]["value"], b=neighbours["T_high_f_low"]["temperature"]["value"],
                                             f_a=neighbours["T_low_f_low"]["epsilon_r"], f_b=neighbours["T_high_f_low"]["epsilon_r"],
                                             x=T)
     # in temperature at f_high
-    epsilon_r_at_T_f_high = my_polate_linear(a=neighbours["T_low_f_high"]["T"]["value"], b=neighbours["T_high_f_high"]["T"]["value"],
+    epsilon_r_at_T_f_high = my_polate_linear(a=neighbours["T_low_f_high"]["temperature"]["value"], b=neighbours["T_high_f_high"]["temperature"]["value"],
                                              f_a=neighbours["T_low_f_high"]["epsilon_r"], f_b=neighbours["T_high_f_high"]["epsilon_r"],
                                              x=T)
     # between f_low and f_high
-    epsilon_r = my_polate_linear(a=neighbours["T_low_f_low"]["f"]["value"], b=neighbours["T_low_f_high"]["f"]["value"],
+    epsilon_r = my_polate_linear(a=neighbours["T_low_f_low"]["frequency"]["value"], b=neighbours["T_low_f_high"]["frequency"]["value"],
                                  f_a=epsilon_r_at_T_f_low, f_b=epsilon_r_at_T_f_high, x=f)
 
     # Interpolation of Phase
     # in temperature at f_low
-    epsilon_phi_deg_at_T_f_low = my_polate_linear(a=neighbours["T_low_f_low"]["T"]["value"], b=neighbours["T_high_f_low"]["T"]["value"],
+    epsilon_phi_deg_at_T_f_low = my_polate_linear(a=neighbours["T_low_f_low"]["temperature"]["value"], b=neighbours["T_high_f_low"]["temperature"]["value"],
                                                   f_a=neighbours["T_low_f_low"]["epsilon_phi_deg"], f_b=neighbours["T_high_f_low"]["epsilon_phi_deg"],
                                                   x=T)
     # in temperature at f_high
-    epsilon_phi_deg_at_T_f_high = my_polate_linear(a=neighbours["T_low_f_high"]["T"]["value"], b=neighbours["T_high_f_high"]["T"]["value"],
+    epsilon_phi_deg_at_T_f_high = my_polate_linear(a=neighbours["T_low_f_high"]["temperature"]["value"], b=neighbours["T_high_f_high"]["temperature"]["value"],
                                                    f_a=neighbours["T_low_f_high"]["epsilon_phi_deg"], f_b=neighbours["T_high_f_high"]["epsilon_phi_deg"],
                                                    x=T)
     # between f_low and f_high
-    epsilon_phi_deg = my_polate_linear(a=neighbours["T_low_f_low"]["f"]["value"], b=neighbours["T_low_f_high"]["f"]["value"],
+    epsilon_phi_deg = my_polate_linear(a=neighbours["T_low_f_low"]["frequency"]["value"], b=neighbours["T_low_f_high"]["frequency"]["value"],
                                        f_a=epsilon_phi_deg_at_T_f_low, f_b=epsilon_phi_deg_at_T_f_high, x=f)
 
     return epsilon_r, epsilon_phi_deg
@@ -831,8 +831,8 @@ def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, materia
         {
             "temperature": T,
             "frequency": f,
-            "b": list(b_ref),
-            "mu_r": list(mu_r),
+            "flux_density": list(b_ref),
+            "mu_r_abs": list(mu_r),
             "mu_phi_deg": list(mu_phi_deg)
         }
     )
@@ -1013,12 +1013,12 @@ def find_nearest_temperatures(permeability, f_l, f_h, T):
 def getdata_measurements(permeability, variable, F, t_1, t_2, b_t):
     for k in range(len(permeability)):
         if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_1:
-            t_mu_phi_1 = interp1d(permeability[k]["b"], permeability[k]["mu_phi_deg"])
-            t_mu_r_1 = interp1d(permeability[k]["mu_r"], permeability[k]["mu_r"])
+            t_mu_phi_1 = interp1d(permeability[k]["flux_density"], permeability[k]["mu_phi_deg"])
+            t_mu_r_1 = interp1d(permeability[k]["mu_r_abs"], permeability[k]["mu_r_abs"])
 
         if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_2:
-            t_mu_phi_2 = interp1d(permeability[k]["b"], permeability[k]["mu_phi_deg"])
-            t_mu_r_2 = interp1d(permeability[k]["mu_r"], permeability[k]["mu_r"])
+            t_mu_phi_2 = interp1d(permeability[k]["flux_density"], permeability[k]["mu_phi_deg"])
+            t_mu_r_2 = interp1d(permeability[k]["mu_r_abs"], permeability[k]["mu_r_abs"])
     # --------linear interpolation at constant freq-------------
     mu_phi = []
     mu_r = []
@@ -1069,13 +1069,13 @@ def plot_data(material_name: str = None, properties: str = None,
     :param material_name:
     :return:
     """
-    if properties == "mu_real":
+    if properties == "mu_r_real":
         plt.plot(b_ref, mu_real)
         plt.ylabel(properties)
         plt.xlabel('B in T')
         plt.title("Real part of permeability")
         plt.show()
-    elif properties == "mu_imag":
+    elif properties == "mu_r_imag":
         plt.plot(b_ref, mu_imag)
         plt.ylabel(properties)
         plt.xlabel('B in T')
