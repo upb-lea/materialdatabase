@@ -27,7 +27,7 @@ class MaterialDatabase:
         set_silent_status(is_silent)
         mdb_print("The material database is now initialized")
 
-    def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datatype: MeasurementDataType,
+    def permeability_data_to_pro_file(self, T: float, f: float, material_name: str, datatype: MaterialDataSource,
                                       datasource: MaterialDataSource = None, measurement_setup: str = None, parent_directory: str = "",
                                       plot_interpolation: bool = False):
         """
@@ -84,7 +84,7 @@ class MaterialDatabase:
             mu_imag = mu_imag_from_polar
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["measurement_data"]
+            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["permeability_data"]
             # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
@@ -121,12 +121,48 @@ class MaterialDatabase:
     # --------to get different material property from database file---------
     def get_material_property(self, material_name: str, property: str):
         """
-            :param material_name: str: N95,N87.....
-            :param property: str:  initial_permeability, resistivity, max_flux_density, weight_density
+        Returns a a dict of the manufacturer datasheet.
+        All dicts can be accessed under 'manufacturer_datasheet'. See example below.
+
+        :param material_name: str: N95,N87.....
+        :param property: str:  initial_permeability, resistivity, max_flux_density, weight_density
+
+        :Example to get the initial permeability:
+        >>> import materialdatabase as mdb
+        >>> material_db = mdb.MaterialDatabase(is_silent=True)
+        >>> initial_u_r = material_db.get_material_property(material_name="N95", property="initial_permeability")
         """
         value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{property}"]
         mdb_print(f'value=', value)
         return value
+
+    def get_saturation_flux_density(self, material_name: str):
+        """
+        get the saturation flux density for 'material'.
+
+        Function description:
+         * searches for the maximium given temperature in b-h-curve
+         * uses the maximum given flux density given in max. temperature b-h-curve
+         * substracts 10% from max. flux density and returns value
+
+        :param material_name: material name, e.g. "N95" or "N97" ...
+        :type material_name: str
+
+        :Example:
+        >>> import materialdatabase as mdb
+        >>> material_db = mdb.MaterialDatabase(is_silent=True)
+        >>> saturation_flux_density_1 = material_db.get_saturation_flux_density('N87')
+        """
+        b_h_curve_list = self.get_material_property(material_name=material_name, property="b_h_curve")
+
+        b_h_curve_max_temperature = max([b_h_curve["temperature"] for b_h_curve in b_h_curve_list])
+        [saturation_flux_density] = [max(b_h_curve["b"]) for b_h_curve in b_h_curve_list if
+                                     b_h_curve["temperature"] == b_h_curve_max_temperature]
+
+        # substract 10% from saturatio flux density
+        saturation_flux_density = 0.9 * saturation_flux_density
+
+        return saturation_flux_density
 
     # ----------to get steinmetz data from database file-----------------------
     def get_steinmetz_data(self, material_name: str, type: str, datasource: str):
