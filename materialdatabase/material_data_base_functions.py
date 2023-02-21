@@ -129,7 +129,7 @@ def rect(radius_or_amplitude: float, theta_deg: float):
 # ---
 # Load Permeability
 
-def check_input_permeability_data(datasource: str, material_name: str, T: float, f: float) -> None:
+def check_input_permeability_data(datasource: str, material_name: str, temperature: float, frequency: float) -> None:
     """
     Checks input permeability data for correct input parameters.
      * datasource must be 'measurements' or 'manufacturer_datasheet'
@@ -139,29 +139,29 @@ def check_input_permeability_data(datasource: str, material_name: str, T: float,
     :type datasource: str
     :param material_name: material name as a string
     :type material_name: str
-    :param T: temperature in degree
-    :type T: float
-    :param f: frequency in Hz
-    :type f: float
+    :param temperature: temperature in degree
+    :type temperature: float
+    :param frequency: frequency in Hz
+    :type frequency: float
     :returns: None
     :rtype: None
     """
     if datasource != MaterialDataSource.Measurement and datasource != MaterialDataSource.ManufacturerDatasheet:
         raise Exception("'datasource' must be 'manufacturer_datasheet' or 'measurements'.")
 
-    if material_name is None or T is None or f is None:
-        raise Exception(f"Failure in selecting data from materialdatabase. {material_name = }, {T = }, {f =}.")
+    if material_name is None or temperature is None or frequency is None:
+        raise Exception(f"Failure in selecting data from materialdatabase. {material_name = }, {temperature = }, {frequency =}.")
 
 
-def getdata_datasheet(permeability, variable, F, t_1, t_2):
+def getdata_datasheet(permeability, variable, frequency, temperature_1, temperature_2):
     for k in range(len(permeability)):
-        if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_1:
+        if permeability[k]["frequency"] == frequency and permeability[k]["temperature"] == temperature_1:
             b_1 = permeability[k]["flux_density"]
             mu_real_1 = permeability[k]["mu_r_real"]
             mu_imag_1 = permeability[k]["mu_r_imag"]
             t_mu_imag_1 = interp1d(b_1, mu_imag_1)
             t_mu_real_1 = interp1d(b_1, mu_real_1)
-        if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_2:
+        if permeability[k]["frequency"] == frequency and permeability[k]["temperature"] == temperature_2:
             b_2 = permeability[k]["flux_density"]
             mu_real_2 = permeability[k]["mu_r_real"]
             mu_imag_2 = permeability[k]["mu_r_imag"]
@@ -174,17 +174,17 @@ def getdata_datasheet(permeability, variable, F, t_1, t_2):
 
     for y in range(len(b_1)):
         mu_r.append(t_mu_real_1(b_1[y]) + (t_mu_real_2(b_1[y]) - t_mu_real_1(b_1[y])) / (
-                t_2 - t_1) * (variable - t_1))
+                temperature_2 - temperature_1) * (variable - temperature_1))
         mu_i.append(t_mu_imag_1(b_1[y]) + (t_mu_imag_2(b_1[y]) - t_mu_imag_1(b_1[y])) / (
-                t_2 - t_1) * (variable - t_1))
+                temperature_2 - temperature_1) * (variable - temperature_1))
     return b_1, mu_r, mu_i
 
 
-def create_permeability_neighbourhood_datasheet(T, f, list_of_permeability_dicts):
+def create_permeability_neighbourhood_datasheet(temperature, frequency, list_of_permeability_dicts):
     """
 
-    :param T:
-    :param f:
+    :param temperature:
+    :param frequency:
     :param list_of_permeability_dicts:
     :return:
     """
@@ -229,7 +229,7 @@ def create_permeability_neighbourhood_datasheet(T, f, list_of_permeability_dicts
     }
 
     # In permeability data: find values of nearest neighbours
-    T_value_low, T_value_high, f_value_low, f_value_high = find_nearest_neighbour_values_permeability(list_of_permeability_dicts, T, f)
+    T_value_low, T_value_high, f_value_low, f_value_high = find_nearest_neighbour_values_permeability(list_of_permeability_dicts, temperature, frequency)
 
     nbh["T_low_f_low"]["temperature"], nbh["T_low_f_high"]["temperature"] = T_value_low, T_value_low
     nbh["T_high_f_low"]["temperature"], nbh["T_high_f_high"]["temperature"] = T_value_high, T_value_high
@@ -266,11 +266,11 @@ def create_permeability_neighbourhood_datasheet(T, f, list_of_permeability_dicts
     return nbh
 
 
-def create_permeability_neighbourhood_measurement(T, f, list_of_permeability_dicts):
+def create_permeability_neighbourhood_measurement(temperature, frequency, list_of_permeability_dicts):
     """
 
-    :param T:
-    :param f:
+    :param temperature:
+    :param frequency:
     :param list_of_permeability_dicts:
     :return:
     """
@@ -315,7 +315,7 @@ def create_permeability_neighbourhood_measurement(T, f, list_of_permeability_dic
     }
 
     # In permeability data: find values of nearest neighbours
-    T_value_low, T_value_high, f_value_low, f_value_high = find_nearest_neighbour_values_permeability(list_of_permeability_dicts, T, f)
+    T_value_low, T_value_high, f_value_low, f_value_high = find_nearest_neighbour_values_permeability(list_of_permeability_dicts, temperature, frequency)
 
     nbh["T_low_f_low"]["temperature"], nbh["T_low_f_high"]["temperature"] = T_value_low, T_value_low
     nbh["T_high_f_low"]["temperature"], nbh["T_high_f_high"]["temperature"] = T_value_high, T_value_high
@@ -352,7 +352,7 @@ def create_permeability_neighbourhood_measurement(T, f, list_of_permeability_dic
     return nbh
 
 
-def find_nearest_neighbour_values_permeability(permeability_data, T, f):
+def find_nearest_neighbour_values_permeability(permeability_data, temperature, frequency):
     temperatures = []
     frequencies = []
     for permeability_set in permeability_data:
@@ -363,13 +363,13 @@ def find_nearest_neighbour_values_permeability(permeability_data, T, f):
     temperatures_sorted_without_duplicates = sorted(set(temperatures))
     frequencies_sorted_without_duplicates = sorted(set(frequencies))
 
-    T_index_sorted_low, T_value_low, T_index_sorted_high, T_value_high = find_nearest_neighbours(T, temperatures_sorted_without_duplicates)
-    f_index_sorted_low, f_value_low, f_index_sorted_high, f_value_high = find_nearest_neighbours(f, frequencies_sorted_without_duplicates)
+    T_index_sorted_low, T_value_low, T_index_sorted_high, T_value_high = find_nearest_neighbours(temperature, temperatures_sorted_without_duplicates)
+    f_index_sorted_low, f_value_low, f_index_sorted_high, f_value_high = find_nearest_neighbours(frequency, frequencies_sorted_without_duplicates)
 
     return T_value_low, T_value_high, f_value_low, f_value_high
 
 
-def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T_high, f_low, f_high,
+def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency, T_low, T_high, f_low, f_high,
                                                                   b_T_low_f_low, f_b_T_low_f_low,
                                                                   b_T_high_f_low, f_b_T_high_f_low,
                                                                   b_T_low_f_high, f_b_T_low_f_high,
@@ -379,8 +379,8 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
     """
 
     :param y_label:
-    :param T:
-    :param f:
+    :param temperature:
+    :param frequency:
     :param T_low:
     :param T_high:
     :param f_low:
@@ -435,15 +435,15 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
         f_T_f_low_common = f_T_low_f_low_common  # at f_low
         f_T_f_high_common = f_T_low_f_high_common  # at f_high
     else:
-        f_T_f_low_common = f_T_low_f_low_common + (f_T_high_f_low_common - f_T_low_f_low_common) / (T_high - T_low) * (T - T_low)  # at f_low
-        f_T_f_high_common = f_T_low_f_high_common + (f_T_high_f_high_common - f_T_low_f_high_common) / (T_high - T_low) * (T - T_low)  # at f_high
+        f_T_f_low_common = f_T_low_f_low_common + (f_T_high_f_low_common - f_T_low_f_low_common) / (T_high - T_low) * (temperature - T_low)  # at f_low
+        f_T_f_high_common = f_T_low_f_high_common + (f_T_high_f_high_common - f_T_low_f_high_common) / (T_high - T_low) * (temperature - T_low)  # at f_high
 
     # Second interpolate in frequency:
     # mdb_print(f"{f_high, f_low = }")
     if f_low == f_high:
         f_T_f_common = f_T_f_low_common
     else:
-        f_T_f_common = f_T_f_low_common + (f_T_f_high_common - f_T_f_low_common) / (f_high - f_low) * (f - f_low)
+        f_T_f_common = f_T_f_low_common + (f_T_f_high_common - f_T_f_low_common) / (f_high - f_low) * (frequency - f_low)
 
     if plot:
         scale = 1000
@@ -453,9 +453,9 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
         plt.plot(b_common * scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=r"$T_\mathregular{high}$" + f"={T_high} and " + r"$f_\mathregular{low}$" + f"={f_low}")
         plt.plot(b_common * scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=r"$T_\mathregular{high}$" + f"={T_high} and " + r"$f_\mathregular{high}$" + f"={f_high}")
 
-        plt.plot(b_common * scale, f_T_f_low_common, color="tab:blue", label=r"$T$" + f"={T} and " + r"$f_\mathregular{low}$" + f"={f_low}")
-        plt.plot(b_common * scale, f_T_f_high_common, color="tab:red", label=r"$T$" + f"={T} and " + r"$f_\mathregular{high}$" + f"={f_high}")
-        plt.plot(b_common * scale, f_T_f_common, color="tab:orange", label=r"$T$" + f"={T} and " + r"$f$" + f"={f}")
+        plt.plot(b_common * scale, f_T_f_low_common, color="tab:blue", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{low}$" + f"={f_low}")
+        plt.plot(b_common * scale, f_T_f_high_common, color="tab:red", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{high}$" + f"={f_high}")
+        plt.plot(b_common * scale, f_T_f_common, color="tab:orange", label=r"$T$" + f"={temperature} and " + r"$f$" + f"={frequency}")
         plt.xlabel("amplitude of magnetic flux density in mT")
         plt.ylabel(f"{y_label}")
         plt.title(f"Interpolation in temperature and frequency")
@@ -466,17 +466,17 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(T, f, T_low, T
     return b_common, f_T_f_common
 
 
-def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, f, b_peak, p_hyst):
+def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, frequency, b_peak, p_hyst):
     """
 
     :param mu_phi_deg:
-    :param f: frequency
+    :param frequency: frequency
     :param b_peak: peak flux density
     :param p_hyst: hysteresis losses
     :return:
     """
     b_peak = np.array(b_peak)
-    return b_peak ** 2 * np.pi * f * np.sin(np.deg2rad(mu_phi_deg)) / p_hyst / mu_0
+    return b_peak ** 2 * np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) / p_hyst / mu_0
 
 
 def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
@@ -587,11 +587,11 @@ def find_nearest_neighbours(value, list_to_search_in):
         return index_low, value_low, index_high, value_high
 
 
-def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
+def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivity_dicts):
     """
     
-    :param T: 
-    :param f: 
+    :param temperature: 
+    :param frequency: 
     :param list_of_permittivity_dicts: 
     :return: 
     """
@@ -657,7 +657,7 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
     for permittivity_dict in list_of_permittivity_dicts:
         temperatures.append(permittivity_dict["temperature"])  # store them in a list
     index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = \
-        find_nearest_neighbours(T, temperatures)
+        find_nearest_neighbours(temperature, temperatures)
 
     nbh["T_low_f_low"]["temperature"]["value"], nbh["T_low_f_high"]["temperature"]["value"] = value_T_low_neighbour, value_T_low_neighbour
     nbh["T_low_f_low"]["temperature"]["index"], nbh["T_low_f_high"]["temperature"]["index"] = index_T_low_neighbour, index_T_low_neighbour
@@ -667,7 +667,7 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
     # T low
     nbh["T_low_f_low"]["frequency"]["index"], nbh["T_low_f_low"]["frequency"]["value"], \
     nbh["T_low_f_high"]["frequency"]["index"], nbh["T_low_f_high"]["frequency"]["value"] = \
-        find_nearest_neighbours(f, list_of_permittivity_dicts[index_T_low_neighbour]["frequencies"])
+        find_nearest_neighbours(frequency, list_of_permittivity_dicts[index_T_low_neighbour]["frequencies"])
 
     nbh["T_low_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]]["epsilon_r"][nbh["T_low_f_low"]["frequency"]["index"]]
     nbh["T_low_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_low_f_low"]["frequency"]["index"]]
@@ -677,7 +677,7 @@ def create_permittivity_neighbourhood(T, f, list_of_permittivity_dicts):
     # T high
     nbh["T_high_f_low"]["frequency"]["index"], nbh["T_high_f_low"]["frequency"]["value"], \
     nbh["T_high_f_high"]["frequency"]["index"], nbh["T_high_f_high"]["frequency"]["value"] = \
-        find_nearest_neighbours(f, list_of_permittivity_dicts[index_T_high_neighbour]["frequencies"])
+        find_nearest_neighbours(frequency, list_of_permittivity_dicts[index_T_high_neighbour]["frequencies"])
 
     nbh["T_high_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]]["epsilon_r"][nbh["T_high_f_low"]["frequency"]["index"]]
     nbh["T_high_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_high_f_low"]["frequency"]["index"]]
@@ -724,11 +724,11 @@ def my_polate_linear(a, b, f_a, f_b, x):
     return f_x
 
 
-def interpolate_neighbours_linear(T, f, neighbours):
+def interpolate_neighbours_linear(temperature, frequency, neighbours):
     """
 
-    :param T:
-    :param f:
+    :param temperature:
+    :param frequency:
     :param neighbours:
     :return:
     """
@@ -736,27 +736,27 @@ def interpolate_neighbours_linear(T, f, neighbours):
     # in temperature at f_low
     epsilon_r_at_T_f_low = my_polate_linear(a=neighbours["T_low_f_low"]["temperature"]["value"], b=neighbours["T_high_f_low"]["temperature"]["value"],
                                             f_a=neighbours["T_low_f_low"]["epsilon_r"], f_b=neighbours["T_high_f_low"]["epsilon_r"],
-                                            x=T)
+                                            x=temperature)
     # in temperature at f_high
     epsilon_r_at_T_f_high = my_polate_linear(a=neighbours["T_low_f_high"]["temperature"]["value"], b=neighbours["T_high_f_high"]["temperature"]["value"],
                                              f_a=neighbours["T_low_f_high"]["epsilon_r"], f_b=neighbours["T_high_f_high"]["epsilon_r"],
-                                             x=T)
+                                             x=temperature)
     # between f_low and f_high
     epsilon_r = my_polate_linear(a=neighbours["T_low_f_low"]["frequency"]["value"], b=neighbours["T_low_f_high"]["frequency"]["value"],
-                                 f_a=epsilon_r_at_T_f_low, f_b=epsilon_r_at_T_f_high, x=f)
+                                 f_a=epsilon_r_at_T_f_low, f_b=epsilon_r_at_T_f_high, x=frequency)
 
     # Interpolation of Phase
     # in temperature at f_low
     epsilon_phi_deg_at_T_f_low = my_polate_linear(a=neighbours["T_low_f_low"]["temperature"]["value"], b=neighbours["T_high_f_low"]["temperature"]["value"],
                                                   f_a=neighbours["T_low_f_low"]["epsilon_phi_deg"], f_b=neighbours["T_high_f_low"]["epsilon_phi_deg"],
-                                                  x=T)
+                                                  x=temperature)
     # in temperature at f_high
     epsilon_phi_deg_at_T_f_high = my_polate_linear(a=neighbours["T_low_f_high"]["temperature"]["value"], b=neighbours["T_high_f_high"]["temperature"]["value"],
                                                    f_a=neighbours["T_low_f_high"]["epsilon_phi_deg"], f_b=neighbours["T_high_f_high"]["epsilon_phi_deg"],
-                                                   x=T)
+                                                   x=temperature)
     # between f_low and f_high
     epsilon_phi_deg = my_polate_linear(a=neighbours["T_low_f_low"]["frequency"]["value"], b=neighbours["T_low_f_high"]["frequency"]["value"],
-                                       f_a=epsilon_phi_deg_at_T_f_low, f_b=epsilon_phi_deg_at_T_f_high, x=f)
+                                       f_a=epsilon_phi_deg_at_T_f_low, f_b=epsilon_phi_deg_at_T_f_high, x=frequency)
 
     return epsilon_r, epsilon_phi_deg
 
@@ -808,15 +808,15 @@ def clear_permeability_measurement_data_in_database(material_name, measurement_s
         json.dump(data, jsonFile, indent=2)
 
 
-def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, material_name, measurement_setup):
+def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_abs, mu_phi_deg, material_name, measurement_setup):
     """
     CAUTION: This method only adds the given measurement series to the permeability data
     without checking duplicates!
-    :param T:
-    :param f:
+    :param temperature:
+    :param frequency:
     :param measurement_setup:
     :param b_ref:
-    :param mu_r:
+    :param mu_r_abs:
     :param mu_phi_deg:
     :param material_name:
     :return:
@@ -829,10 +829,10 @@ def write_permeability_data_into_database(f, T, b_ref, mu_r, mu_phi_deg, materia
 
     data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"].append(
         {
-            "temperature": T,
-            "frequency": f,
+            "temperature": temperature,
+            "frequency": frequency,
             "flux_density": list(b_ref),
-            "mu_r_abs": list(mu_r),
+            "mu_r_abs": list(mu_r_abs),
             "mu_phi_deg": list(mu_phi_deg)
         }
     )
@@ -885,7 +885,7 @@ def clear_permittivity_measurement_data_in_database(material_name, measurement_s
         json.dump(data, jsonFile, indent=2)
 
 
-def write_permittivity_data_into_database(T, frequencies, epsilon_r, epsilon_phi_deg, material_name, measurement_setup):
+def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, epsilon_phi_deg, material_name, measurement_setup):
     # load data
 
     # mean of data
@@ -899,7 +899,7 @@ def write_permittivity_data_into_database(T, frequencies, epsilon_r, epsilon_phi
 
     data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"].append(
         {
-            "temperature": T,
+            "temperature": temperature,
             "frequencies": frequencies,
             "epsilon_r": epsilon_r,
             "epsilon_phi_deg": epsilon_phi_deg
@@ -912,11 +912,11 @@ def write_permittivity_data_into_database(T, frequencies, epsilon_r, epsilon_phi
 
 # LEA_LK
 # Permeability
-def get_permeability_data_from_LEA_LK(location: str, f, T, material_name, no_interpolation_values: int = 10):
+def get_permeability_data_from_LEA_LK(location: str, frequency, temperature, material_name, no_interpolation_values: int = 10):
     b_hys, p_hys = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="Core_Loss",
-                                                         quantity="p_hys", f=f, material_name=material_name, T=T)
+                                                         quantity="p_hys", frequency=frequency, material_name=material_name, temperature=temperature)
     b_phi, mu_phi_deg = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
-                                                              quantity="mu_phi", f=f, material_name=material_name, T=T)
+                                                              quantity="mu_phi", frequency=frequency, material_name=material_name, temperature=temperature)
 
     # Find the border of the common magnetic flux density values
     b_max_min = max(min(b_hys), min(b_phi), min(b_hys), min(b_phi))
@@ -932,16 +932,16 @@ def get_permeability_data_from_LEA_LK(location: str, f, T, material_name, no_int
 
     # mdb_print(f"{b_common, f_p_hys_interpol_common, f_b_phi_interpol_common = }")
 
-    return b_common, mu_r__from_p_hyst_and_mu_phi_deg(f_b_phi_interpol_common, f, b_common, f_p_hys_interpol_common), f_b_phi_interpol_common
+    return b_common, mu_r__from_p_hyst_and_mu_phi_deg(f_b_phi_interpol_common, frequency, b_common, f_p_hys_interpol_common), f_b_phi_interpol_common
 
 
-def create_permeability_file_name_LEA_LK(quantity: str = "p_hys", f: int = 100000, material_name: str = "N49", T: int = 30):
-    return "_".join([quantity, f"{int(f / 1000)}kHz", material_name, f"{T}C.txt"])
+def create_permeability_file_name_LEA_LK(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", T: int = 30):
+    return "_".join([quantity, f"{int(frequency / 1000)}kHz", material_name, f"{T}C.txt"])
 
 
-def get_permeability_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
-                                          material_name: str, T: int, sub_folder_name: str = "Core_Loss"):
-    filename = create_permeability_file_name_LEA_LK(quantity, f, material_name, T)
+def get_permeability_property_from_LEA_LK(path_to_parent_folder, quantity: str, frequency: int,
+                                          material_name: str, temperature: int, sub_folder_name: str = "Core_Loss"):
+    filename = create_permeability_file_name_LEA_LK(quantity, frequency, material_name, temperature)
     complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
     # mdb_print(complete_path)
 
@@ -951,24 +951,24 @@ def get_permeability_property_from_LEA_LK(path_to_parent_folder, quantity: str, 
 
 
 # Permittivity
-def get_permittivity_data_from_LEA_LK(location, T, f, material_name):
+def get_permittivity_data_from_LEA_LK(location, temperature, frequency, material_name):
     e_amplitude, epsilon_r_tilde = get_permittivity_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="eps_r_Plot",
-                                                                         quantity="eps_r_tilde", f=f, material_name=material_name, T=T)
+                                                                         quantity="eps_r_tilde", frequency=frequency, material_name=material_name, temperature=temperature)
 
     e_phi, epsilon_phi_deg = get_permittivity_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="eps_phi_Plot",
-                                                                   quantity="eps_phi_tilde", f=f, material_name=material_name, T=T)
+                                                                   quantity="eps_phi_tilde", frequency=frequency, material_name=material_name, temperature=temperature)
 
     return epsilon_r_tilde, epsilon_phi_deg
 
 
-def create_permittivity_file_name_LEA_LK(quantity: str = "p_hys", f: int = 100000, material_name: str = "N49", T: int = 30):
-    return "_".join([quantity, material_name, f"{T}C", f"{int(f / 1000)}kHz.txt"])
+def create_permittivity_file_name_LEA_LK(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", temperature: int = 30):
+    return "_".join([quantity, material_name, f"{temperature}C", f"{int(frequency / 1000)}kHz.txt"])
 
 
 
-def get_permittivity_property_from_LEA_LK(path_to_parent_folder, quantity: str, f: int,
-                                          material_name: str, T: int, sub_folder_name: str = "Core_Loss"):
-    filename = create_permittivity_file_name_LEA_LK(quantity, f, material_name, T)
+def get_permittivity_property_from_LEA_LK(path_to_parent_folder, quantity: str, frequency: int,
+                                          material_name: str, temperature: int, sub_folder_name: str = "Core_Loss"):
+    filename = create_permittivity_file_name_LEA_LK(quantity, frequency, material_name, temperature)
     complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
     # mdb_print(complete_path)
 
@@ -980,7 +980,7 @@ def get_permittivity_property_from_LEA_LK(path_to_parent_folder, quantity: str, 
 # ---
 # unused or externally used
 
-def find_nearest_frequencies(permeability, f):
+def find_nearest_frequencies(permeability, frequency):
     freq_list = []
     # mdb_print(f"{freq_list = }")
     for j in range(len(permeability)):
@@ -990,12 +990,12 @@ def find_nearest_frequencies(permeability, f):
     freq_list = list(remove(freq_list, len(freq_list)))
     # mdb_print(f"{freq_list = }")
 
-    result = find_nearest(freq_list, f)
+    result = find_nearest(freq_list, frequency)
 
     return result[0], result[1]
 
 
-def find_nearest_temperatures(permeability, f_l, f_h, T):
+def find_nearest_temperatures(permeability, f_l, f_h, temperature):
     # ------find nearby temperature------
     temp_list_l = []
     temp_list_h = []
@@ -1007,16 +1007,16 @@ def find_nearest_temperatures(permeability, f_l, f_h, T):
         if permeability[i]["frequency"] == f_h:
             temp_list_h.append(permeability[i]["temperature"])
 
-    return find_nearest(temp_list_l, T), find_nearest(temp_list_h, T)
+    return find_nearest(temp_list_l, temperature), find_nearest(temp_list_h, temperature)
 
 
-def getdata_measurements(permeability, variable, F, t_1, t_2, b_t):
+def getdata_measurements(permeability, variable, frequency, temperature_1, temperature_2, b_t):
     for k in range(len(permeability)):
-        if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_1:
+        if permeability[k]["frequency"] == frequency and permeability[k]["temperature"] == temperature_1:
             t_mu_phi_1 = interp1d(permeability[k]["flux_density"], permeability[k]["mu_phi_deg"])
             t_mu_r_1 = interp1d(permeability[k]["mu_r_abs"], permeability[k]["mu_r_abs"])
 
-        if permeability[k]["frequency"] == F and permeability[k]["temperature"] == t_2:
+        if permeability[k]["frequency"] == frequency and permeability[k]["temperature"] == temperature_2:
             t_mu_phi_2 = interp1d(permeability[k]["flux_density"], permeability[k]["mu_phi_deg"])
             t_mu_r_2 = interp1d(permeability[k]["mu_r_abs"], permeability[k]["mu_r_abs"])
     # --------linear interpolation at constant freq-------------
@@ -1024,13 +1024,13 @@ def getdata_measurements(permeability, variable, F, t_1, t_2, b_t):
     mu_r = []
 
     for y in range(len(b_t)):
-        mu_r.append(t_mu_r_1(b_t[y]) + (t_mu_r_2(b_t[y]) - t_mu_r_1(b_t[y])) / (t_2 - t_1) * (variable - t_1))
-        mu_phi.append(t_mu_phi_1(b_t[y]) + (t_mu_phi_2(b_t[y]) - t_mu_phi_1(b_t[y])) / (t_2 - t_1) * (variable - t_1))
+        mu_r.append(t_mu_r_1(b_t[y]) + (t_mu_r_2(b_t[y]) - t_mu_r_1(b_t[y])) / (temperature_2 - temperature_1) * (variable - temperature_1))
+        mu_phi.append(t_mu_phi_1(b_t[y]) + (t_mu_phi_2(b_t[y]) - t_mu_phi_1(b_t[y])) / (temperature_2 - temperature_1) * (variable - temperature_1))
     return mu_r, mu_phi
 
 
 def export_data(parent_directory: str = "", file_format: str = None,
-                b_ref: list = None, mu_real: list = None, mu_imag: list = None):
+                b_ref: list = None, mu_r_real: list = None, mu_r_imag: list = None):
     """
     Method is used to export data from the material database in a certain file format.
     :param b_ref:
@@ -1045,8 +1045,8 @@ def export_data(parent_directory: str = "", file_format: str = None,
         with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
             file.write(f'Include "Parameter.pro";\n')
             file.write(
-                f"Function{{\n  b = {str(b_ref).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(mu_real).replace('[', '{').replace(']', '}')} ;"
-                f"\n  mu_imag = {str(mu_imag).replace('[', '{').replace(']', '}')} ;\n  "
+                f"Function{{\n  b = {str(b_ref).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(mu_r_real).replace('[', '{').replace(']', '}')} ;"
+                f"\n  mu_imag = {str(mu_r_imag).replace('[', '{').replace(']', '}')} ;\n  "
                 f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
                 f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
                 f"f_mu_imag_d[] = InterpolationLinear[Norm[$1]]{{List[mu_imag_couples]}};\n  "
@@ -1061,7 +1061,7 @@ def export_data(parent_directory: str = "", file_format: str = None,
 
 
 def plot_data(material_name: str = None, properties: str = None,
-              b_ref: list = None, mu_real=None, mu_imag: list = None):
+              b_ref: list = None, mu_r_real=None, mu_r_imag: list = None):
     """
     Method is used to plot certain material properties of materials.
     :param b_ref: TODO: parameter is new and will probably cause problems when plotting data, but previous implementation was very static...
@@ -1070,13 +1070,13 @@ def plot_data(material_name: str = None, properties: str = None,
     :return:
     """
     if properties == "mu_r_real":
-        plt.plot(b_ref, mu_real)
+        plt.plot(b_ref, mu_r_real)
         plt.ylabel(properties)
         plt.xlabel('B in T')
         plt.title("Real part of permeability")
         plt.show()
     elif properties == "mu_r_imag":
-        plt.plot(b_ref, mu_imag)
+        plt.plot(b_ref, mu_r_imag)
         plt.ylabel(properties)
         plt.xlabel('B in T')
         plt.title("Imaginary part of permeability")

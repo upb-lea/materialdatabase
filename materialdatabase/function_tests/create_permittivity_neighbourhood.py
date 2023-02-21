@@ -7,5 +7,5 @@ list_of_permittivity_dicts = mdb.load_permittivity_measurement(material_name="N4
 
 print(list_of_permittivity_dicts)
 
-print(create_permittivity_neighbourhood(T=60, f=1e5, list_of_permittivity_dicts=list_of_permittivity_dicts))
+print(create_permittivity_neighbourhood(temperature=60, frequency=1e5, list_of_permittivity_dicts=list_of_permittivity_dicts))
 

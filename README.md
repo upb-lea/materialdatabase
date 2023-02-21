@@ -15,19 +15,19 @@ pip install materialdatabase
 Material properties:
 ```
 material_db = mdb.MaterialDatabase()
-initial_u_r = material_db.get_material_property(material_name="N95", property="initial_permeability")
-resistivity = material_db.get_material_property(material_name="N95", property="resistivity")
-Steinmetz_data = material_db.get_steinmetz_data(material_name="N95", type="Steinmetz", datasource="measurements")
+initial_u_r_abs = material_db.get_material_property(material_name="N95", property="initial_permeability")
+core_material_resistivity = material_db.get_material_property(material_name="N95", property="resistivity")
+steinmetz_data = material_db.get_steinmetz_data(material_name="N95", type="Steinmetz", datasource="measurements")
 ```
 ![image 1](/images/database_json.png)
 
 Interpolated permeability and permittivity data of a Material:
 ```
-permeability_data = permeability_data_to_pro_file(self, T=25, f=150000, material_name = "N95", datatype = "complex_permeability",
-                                      datasource = "manufacturer_datasheet", measurement_setup = str, parent_directory = "")
+b_ref, mu_r_real, mu_r_imag = material_db.permeability_data_to_pro_file(temperature=25, frequency=150000, material_name = "N95", datatype = "complex_permeability",
+                                      datasource = mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory = "")
 
-permittivity_data = get_permittivity(self, T= 25, f=150000, material_name = "N95", datasource = "measurements", 
-                                      datatype = "complex_permittivity", measurement_setup = str,interpolation_type = "linear")
+epsilon_r, epsilon_phi_deg = material_db.get_permittivity(temperature= 25, frequency=150000, material_name = "N95", datasource = "measurements",
+                                      datatype = mdb.MeasurementDataType.ComplexPermittivity, measurement_setup = "LEA_LK",interpolation_type = "linear")
 ```
 These function return complex permittivity and permeability for a certain operation point defined by temperature and frequency.
 ## GUI (FEMMT)

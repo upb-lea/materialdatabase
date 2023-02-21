@@ -9,9 +9,9 @@ filename = create_permeability_file_name_LEA_LK()
 print(filename)
 for f in [200000, 300000]:
     b_hys, p_hys = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="Core_Loss",
-                                                         quantity="p_hys", f=f, material_name="N49", T=30)
+                                                         quantity="p_hys", frequency=f, material_name="N49", temperature=30)
     b_phi, mu_phi_deg = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
-                                                              quantity="mu_phi", f=f, material_name="N49", T=30)
+                                                              quantity="mu_phi", frequency=f, material_name="N49", temperature=30)
     if len(b_phi) != len(b_hys):
         print("invalid")
         break
