@@ -1,6 +1,5 @@
 import pytest
 import materialdatabase as mdb
-import os
 import numpy as np
 import deepdiff
 
@@ -161,32 +160,32 @@ def test_mypolate():
 
 
 def test_find_nearest_neighbours():
-    list = [10]
+    list_to_search_in = [10]
 
     print("Case 0")
-    value = "Banane"
+    value = "computer"
     with pytest.raises(TypeError):
-        result = mdb.find_nearest_neighbours(value, list)
+        mdb.find_nearest_neighbours(value, list_to_search_in)
 
 
-    list = [10, 20, 30, 40, 60]
+    list_to_search_in = [10, 20, 30, 40, 60]
 
     print("Case 1")
-    value = 10
-    result = mdb.find_nearest_neighbours(value, list)
+    value = 10.0
+    result = mdb.find_nearest_neighbours(value, list_to_search_in)
     assert (0, 10, 0, 10) == result
 
     print("Case 2")
     value = 25
-    result = mdb.find_nearest_neighbours(value, list)
+    result = mdb.find_nearest_neighbours(value, list_to_search_in)
     assert (1, 20, 2, 30) == result
 
     print("Case 3a")
     value = 5
-    result = mdb.find_nearest_neighbours(value, list)
+    result = mdb.find_nearest_neighbours(value, list_to_search_in)
     assert (0, 10, 1, 20) == result
 
     print("Case 3b")
     value = 80
-    result = mdb.find_nearest_neighbours(value, list)
+    result = mdb.find_nearest_neighbours(value, list_to_search_in)
     assert (3, 40, 4, 60) == result

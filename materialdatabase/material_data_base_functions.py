@@ -556,8 +556,8 @@ def find_nearest_neighbours(value, list_to_search_in):
     :param list_to_search_in:
     :return:
     """
-    if type(value) is not (int or float):
-        raise TypeError("value must be int or float")
+    if isinstance(value, str):
+        raise TypeError("value must be int or float or list")
 
     if len(list_to_search_in) == 1:  # Case 0
         return 0, list_to_search_in[0], 0, list_to_search_in[0]
