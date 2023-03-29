@@ -15,9 +15,9 @@ pip install materialdatabase
 Material properties:
 ```
 material_db = mdb.MaterialDatabase()
+materials = material_db.material_list_in_database()
 initial_u_r_abs = material_db.get_material_property(material_name="N95", property="initial_permeability")
 core_material_resistivity = material_db.get_material_property(material_name="N95", property="resistivity")
-steinmetz_data = material_db.get_steinmetz_data(material_name="N95", type="Steinmetz", datasource="measurements")
 ```
 ![image 1](/images/database_json.png)
 

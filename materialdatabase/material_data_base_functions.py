@@ -24,7 +24,7 @@ relative_path_to_db = "../data/material_data_base.json"
 
 def remove(arr, n):
     """
-    Remove Duplicate from freq array
+    Remove Duplicate from array
     :param arr:
     :param n:
     :return:
@@ -536,6 +536,7 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
         plt.show()
 
     return b_ref, mu_r, mu_phi_deg
+
 
 
 # ---
