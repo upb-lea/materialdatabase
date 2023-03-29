@@ -113,7 +113,7 @@ def mdb_print(text: str, end='\n') -> None:
 
 def rect(radius_or_amplitude: float, theta_deg: float):
     """
-    converts polar coordinates [degree] kartesian coordinates
+    converts polar coordinates [degree] cartesian coordinates
     theta in degrees
     :param radius_or_amplitude: radius or amplitude
     :type radius_or_amplitude: float
@@ -369,8 +369,8 @@ def find_nearest_neighbour_values_permeability(permeability_data, temperature, f
     return T_value_low, T_value_high, f_value_low, f_value_high
 
 
-def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency, T_low, T_high, f_low, f_high,
-                                                                  b_T_low_f_low, f_b_T_low_f_low,
+def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency, temperature_low, temperature_high, frequency_low, frequency_high,
+                                                                  b_t_low_f_low, f_b_T_low_f_low,
                                                                   b_T_high_f_low, f_b_T_high_f_low,
                                                                   b_T_low_f_high, f_b_T_low_f_high,
                                                                   b_T_high_f_high, f_b_T_high_f_high,
@@ -380,12 +380,12 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
 
     :param y_label:
     :param temperature:
-    :param frequency:
-    :param T_low:
-    :param T_high:
-    :param f_low:
-    :param f_high:
-    :param b_T_low_f_low:
+    :param frequency:b_ref_vec
+    :param temperature_low:
+    :param temperature_high:
+    :param frequency_low:
+    :param frequency_high:
+    :param b_t_low_f_low:
     :param f_b_T_low_f_low:
     :param b_T_high_f_low:
     :param f_b_T_high_f_low:
@@ -397,20 +397,20 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
     :param plot:
     :return:
     """
-    if len(b_T_low_f_low) != len(f_b_T_low_f_low):
+    if len(b_t_low_f_low) != len(f_b_T_low_f_low):
         raise ValueError(f"b_T_low_f_low and f_b_T_low_f_low must have the same lengths: \n"
-                         f"is {len(b_T_low_f_low), len(f_b_T_low_f_low)}")
+                         f"is {len(b_t_low_f_low), len(f_b_T_low_f_low)}")
 
     # Interpolate functions of input data
-    f_T_low_f_low_interpol = interp1d(b_T_low_f_low, f_b_T_low_f_low)
+    f_T_low_f_low_interpol = interp1d(b_t_low_f_low, f_b_T_low_f_low)
     f_T_high_f_low_interpol = interp1d(b_T_high_f_low, f_b_T_high_f_low)
     f_T_low_f_high_interpol = interp1d(b_T_low_f_high, f_b_T_low_f_high)
     f_T_high_f_high_interpol = interp1d(b_T_high_f_high, f_b_T_high_f_high)
     # mdb_print(f_T_low_f_low_interpol(1.5))
 
     # Find the border of the common magnetic flux density values
-    b_max_min = max(min(b_T_low_f_low), min(b_T_high_f_low), min(b_T_low_f_high), min(b_T_high_f_high))
-    b_min_max = min(max(b_T_low_f_low), max(b_T_high_f_low), max(b_T_low_f_high), max(b_T_high_f_high))
+    b_max_min = max(min(b_t_low_f_low), min(b_T_high_f_low), min(b_T_low_f_high), min(b_T_high_f_high))
+    b_min_max = min(max(b_t_low_f_low), max(b_T_high_f_low), max(b_T_low_f_high), max(b_T_high_f_high))
     # mdb_print(f"{b_max_min, b_min_max = }")
 
     # Create the magnetic flux density vector that is used for later interpolation actions
@@ -431,30 +431,30 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
     # Manual linear interpolation:
 
     # First interpolate in temperature:
-    if T_high == T_low:
+    if temperature_high == temperature_low:
         f_T_f_low_common = f_T_low_f_low_common  # at f_low
         f_T_f_high_common = f_T_low_f_high_common  # at f_high
     else:
-        f_T_f_low_common = f_T_low_f_low_common + (f_T_high_f_low_common - f_T_low_f_low_common) / (T_high - T_low) * (temperature - T_low)  # at f_low
-        f_T_f_high_common = f_T_low_f_high_common + (f_T_high_f_high_common - f_T_low_f_high_common) / (T_high - T_low) * (temperature - T_low)  # at f_high
+        f_T_f_low_common = f_T_low_f_low_common + (f_T_high_f_low_common - f_T_low_f_low_common) / (temperature_high - temperature_low) * (temperature - temperature_low)  # at f_low
+        f_T_f_high_common = f_T_low_f_high_common + (f_T_high_f_high_common - f_T_low_f_high_common) / (temperature_high - temperature_low) * (temperature - temperature_low)  # at f_high
 
     # Second interpolate in frequency:
     # mdb_print(f"{f_high, f_low = }")
-    if f_low == f_high:
+    if frequency_low == frequency_high:
         f_T_f_common = f_T_f_low_common
     else:
-        f_T_f_common = f_T_f_low_common + (f_T_f_high_common - f_T_f_low_common) / (f_high - f_low) * (frequency - f_low)
+        f_T_f_common = f_T_f_low_common + (f_T_f_high_common - f_T_f_low_common) / (frequency_high - frequency_low) * (frequency - frequency_low)
 
     if plot:
         scale = 1000
-        plt.plot(b_common * scale, f_T_low_f_low_common, linestyle='dashed', color="tab:blue", label=r"$T_\mathregular{low}$" + f"={T_low} and " + r"$f_\mathregular{low}$" + f"={f_low}")
-        plt.plot(b_common * scale, f_T_low_f_high_common, linestyle='dashed', color="tab:red", label=r"$T_\mathregular{low}$" + f"={T_low} and " + r"$f_\mathregular{high}$" + f"={f_high}")
+        plt.plot(b_common * scale, f_T_low_f_low_common, linestyle='dashed', color="tab:blue", label=r"$T_\mathregular{low}$" + f"={temperature_low} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
+        plt.plot(b_common * scale, f_T_low_f_high_common, linestyle='dashed', color="tab:red", label=r"$T_\mathregular{low}$" + f"={temperature_low} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
 
-        plt.plot(b_common * scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=r"$T_\mathregular{high}$" + f"={T_high} and " + r"$f_\mathregular{low}$" + f"={f_low}")
-        plt.plot(b_common * scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=r"$T_\mathregular{high}$" + f"={T_high} and " + r"$f_\mathregular{high}$" + f"={f_high}")
+        plt.plot(b_common * scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=r"$T_\mathregular{high}$" + f"={temperature_high} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
+        plt.plot(b_common * scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=r"$T_\mathregular{high}$" + f"={temperature_high} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
 
-        plt.plot(b_common * scale, f_T_f_low_common, color="tab:blue", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{low}$" + f"={f_low}")
-        plt.plot(b_common * scale, f_T_f_high_common, color="tab:red", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{high}$" + f"={f_high}")
+        plt.plot(b_common * scale, f_T_f_low_common, color="tab:blue", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
+        plt.plot(b_common * scale, f_T_f_high_common, color="tab:red", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
         plt.plot(b_common * scale, f_T_f_common, color="tab:orange", label=r"$T$" + f"={temperature} and " + r"$f$" + f"={frequency}")
         plt.xlabel("amplitude of magnetic flux density in mT")
         plt.ylabel(f"{y_label}")
@@ -557,6 +557,9 @@ def find_nearest_neighbours(value, list_to_search_in):
     :param list_to_search_in:
     :return:
     """
+    if isinstance(value, str):
+        raise TypeError("value must be int or float or list")
+
     if len(list_to_search_in) == 1:  # Case 0
         return 0, list_to_search_in[0], 0, list_to_search_in[0]
     else:
@@ -913,10 +916,10 @@ def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, e
 
 # LEA_LK
 # Permeability
-def get_permeability_data_from_LEA_LK(location: str, frequency, temperature, material_name, no_interpolation_values: int = 10):
-    b_hys, p_hys = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="Core_Loss",
+def get_permeability_data_from_lea_lk(location: str, frequency, temperature, material_name, no_interpolation_values: int = 10):
+    b_hys, p_hys = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="Core_Loss",
                                                          quantity="p_hys", frequency=frequency, material_name=material_name, temperature=temperature)
-    b_phi, mu_phi_deg = get_permeability_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
+    b_phi, mu_phi_deg = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
                                                               quantity="mu_phi", frequency=frequency, material_name=material_name, temperature=temperature)
 
     # Find the border of the common magnetic flux density values
@@ -936,13 +939,13 @@ def get_permeability_data_from_LEA_LK(location: str, frequency, temperature, mat
     return b_common, mu_r__from_p_hyst_and_mu_phi_deg(f_b_phi_interpol_common, frequency, b_common, f_p_hys_interpol_common), f_b_phi_interpol_common
 
 
-def create_permeability_file_name_LEA_LK(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", T: int = 30):
-    return "_".join([quantity, f"{int(frequency / 1000)}kHz", material_name, f"{T}C.txt"])
+def create_permeability_file_name_lea_lk(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", temperature: int = 30):
+    return "_".join([quantity, f"{int(frequency / 1000)}kHz", material_name, f"{temperature}C.txt"])
 
 
-def get_permeability_property_from_LEA_LK(path_to_parent_folder, quantity: str, frequency: int,
+def get_permeability_property_from_lea_lk(path_to_parent_folder, quantity: str, frequency: int,
                                           material_name: str, temperature: int, sub_folder_name: str = "Core_Loss"):
-    filename = create_permeability_file_name_LEA_LK(quantity, frequency, material_name, temperature)
+    filename = create_permeability_file_name_lea_lk(quantity, frequency, material_name, temperature)
     complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
     # mdb_print(complete_path)
 
@@ -952,24 +955,24 @@ def get_permeability_property_from_LEA_LK(path_to_parent_folder, quantity: str, 
 
 
 # Permittivity
-def get_permittivity_data_from_LEA_LK(location, temperature, frequency, material_name):
-    e_amplitude, epsilon_r_tilde = get_permittivity_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="eps_r_Plot",
+def get_permittivity_data_from_lea_lk(location, temperature, frequency, material_name):
+    e_amplitude, epsilon_r_tilde = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_r_Plot",
                                                                          quantity="eps_r_tilde", frequency=frequency, material_name=material_name, temperature=temperature)
 
-    e_phi, epsilon_phi_deg = get_permittivity_property_from_LEA_LK(path_to_parent_folder=location, sub_folder_name="eps_phi_Plot",
+    e_phi, epsilon_phi_deg = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_phi_Plot",
                                                                    quantity="eps_phi_tilde", frequency=frequency, material_name=material_name, temperature=temperature)
 
     return epsilon_r_tilde, epsilon_phi_deg
 
 
-def create_permittivity_file_name_LEA_LK(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", temperature: int = 30):
+def create_permittivity_file_name_lea_lk(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", temperature: int = 30):
     return "_".join([quantity, material_name, f"{temperature}C", f"{int(frequency / 1000)}kHz.txt"])
 
 
 
-def get_permittivity_property_from_LEA_LK(path_to_parent_folder, quantity: str, frequency: int,
+def get_permittivity_property_from_lea_lk(path_to_parent_folder, quantity: str, frequency: int,
                                           material_name: str, temperature: int, sub_folder_name: str = "Core_Loss"):
-    filename = create_permittivity_file_name_LEA_LK(quantity, frequency, material_name, temperature)
+    filename = create_permittivity_file_name_lea_lk(quantity, frequency, material_name, temperature)
     complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
     # mdb_print(complete_path)
 
@@ -1031,23 +1034,22 @@ def getdata_measurements(permeability, variable, frequency, temperature_1, tempe
 
 
 def export_data(parent_directory: str = "", file_format: str = None,
-                b_ref: list = None, mu_r_real: list = None, mu_r_imag: list = None):
+                b_ref_vec: list = None, mu_r_real_vec: list = None, mu_r_imag_vec: list = None):
     """
     Method is used to export data from the material database in a certain file format.
-    :param b_ref:
-    :param mu_imag:
-    :param mu_real:
-    :param file_format: export format
+
+    :param b_ref_vec: reference vector for mu_r_real and mu_r_imag
+    :param mu_r_imag_vec: imaginary part of mu_r_abs as a vector
+    :param mu_r_real_vec: real part of mu_r_abs as a vector
+    :param file_format: export format, e.g. 'pro' to export a .pro-file
     :parent_directory:
-    @param file_format:
-    @param parent_directory:
     """
     if file_format == "pro":
         with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
             file.write(f'Include "Parameter.pro";\n')
             file.write(
-                f"Function{{\n  b = {str(b_ref).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(mu_r_real).replace('[', '{').replace(']', '}')} ;"
-                f"\n  mu_imag = {str(mu_r_imag).replace('[', '{').replace(']', '}')} ;\n  "
+                f"Function{{\n  b = {str(b_ref_vec).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(mu_r_real_vec).replace('[', '{').replace(']', '}')} ;"
+                f"\n  mu_imag = {str(mu_r_imag_vec).replace('[', '{').replace(']', '}')} ;\n  "
                 f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
                 f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
                 f"f_mu_imag_d[] = InterpolationLinear[Norm[$1]]{{List[mu_imag_couples]}};\n  "

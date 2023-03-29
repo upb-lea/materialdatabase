@@ -27,7 +27,7 @@ create_permeability_measurement_in_database("N95", "LEA_LK", company="Paderborn 
 for f in [100000, 200000, 300000, 400000, 500000]:
     for T in [30, 60, 80, 100]:
         print(f"{f, T =}")
-        b_ref, mu_r, mu_phi_deg = get_permeability_data_from_LEA_LK(location, f, T, "N95")
+        b_ref, mu_r, mu_phi_deg = get_permeability_data_from_lea_lk(location, f, T, "N95")
 
         b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg, smooth_data=True, crop_data=False, plot_data=True)
 

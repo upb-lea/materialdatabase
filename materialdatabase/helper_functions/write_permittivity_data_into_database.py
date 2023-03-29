@@ -28,7 +28,7 @@ for T in [60, 100]:
     epsilon_r_tilde_list = []
     epsilon_phi_deg_list = []
     for f in frequency_list:
-        epsilon_r_tilde, epsilon_phi_deg = get_permittivity_data_from_LEA_LK(location, T, f, "N95")
+        epsilon_r_tilde, epsilon_phi_deg = get_permittivity_data_from_lea_lk(location, T, f, "N95")
         epsilon_r_tilde_list.append(np.mean(epsilon_r_tilde))
         epsilon_phi_deg_list.append(np.mean(epsilon_phi_deg))
 

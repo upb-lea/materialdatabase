@@ -58,6 +58,7 @@ setup(
                       'matplotlib>=3.3.4',
                       'pytest>=6.2.4',
                       'mplcursors',
+                      'deepdiff',
 ],
     license="GNU General Public License v3",
 

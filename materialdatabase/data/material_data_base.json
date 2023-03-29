@@ -9,7 +9,7 @@
       "b_h_curve": [
         {
           "temperature": 25,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             -13.40996169,
             -13.40996169,
             -10.72796935,
@@ -106,7 +106,7 @@
         },
         {
           "temperature": 100,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             -5.293005671,
             -2.646502836,
             2.646502836,
@@ -2067,7 +2067,7 @@
       "b_h_curve": [
         {
           "temperature": 25,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             24,
             34.66666667,
             45.33333333,
@@ -2116,7 +2116,7 @@
         },
         {
           "temperature": 100,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             17.44966443,
             33.55704698,
             49.66442953,
@@ -3531,7 +3531,7 @@
       "b_h_curve": [
         {
           "temperature": 25,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             -45.08856683,
             -18.03542673,
             4.508856683,
@@ -3580,7 +3580,7 @@
         },
         {
           "temperature": 100,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             -34.35363268,
             -8.226692762,
             22.1903346,
@@ -5824,7 +5824,7 @@
         "b_h_curve": [
           {
                 "temperature": 25,
-                "magnetic_field_strenght":[1.142857143,
+                "magnetic_field_strength":[1.142857143,
                     24,
                     40,
                     58.28571429,
@@ -5881,7 +5881,7 @@
            },
           {
                 "temperature": 100,
-                "magnetic_field_strenght": [2.285714286,
+                "magnetic_field_strength": [2.285714286,
                       33.14285714,
                       60.57142857,
                       115.4285714,
@@ -6544,7 +6544,7 @@
       "b_h_curve": [
         {
           "temperature": 25,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             4.65,
             7.032,
             20.795,
@@ -6627,7 +6627,7 @@
         },
         {
           "temperature": 100,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             5.876,
             16.177,
             25.355,
@@ -8211,7 +8211,7 @@
       "b_h_curve": [
         {
           "temperature": 0,
-          "magnetic_field_strenght": [
+          "magnetic_field_strength": [
             0
           ],
           "flux_density": [

@@ -118,7 +118,7 @@ class MaterialDatabase:
             mdb_print(f"{b_ref, mu_r_real, mu_r_imag = }")
 
         # Write the .pro-file
-        export_data(parent_directory=parent_directory, file_format="pro", b_ref=list(b_ref), mu_r_real=list(mu_r_real), mu_r_imag=list(mu_r_imag))
+        export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref), mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag))
 
         mdb_print(f"Material properties of {material_name} are loaded at {temperature} °C and {frequency} Hz.")
 
@@ -165,7 +165,7 @@ class MaterialDatabase:
         [saturation_flux_density] = [max(b_h_curve["flux_density"]) for b_h_curve in b_h_curve_list if
                                      b_h_curve["temperature"] == b_h_curve_max_temperature]
 
-        # substract 10% from saturatio flux density
+        # subtract 10% from saturation flux density
         saturation_flux_density = 0.9 * saturation_flux_density
 
         return saturation_flux_density
@@ -402,7 +402,7 @@ class MaterialDatabase:
             for m in range(len(curve_data_material)):
                 if curve_data_material[m]["temperature"] == temperature:
                     b.append(curve_data_material[m]["flux_density"])
-                    h.append(curve_data_material[m]["magnetic_field_strenght"])
+                    h.append(curve_data_material[m]["magnetic_field_strength"])
             for j in range(len(b)):
                 line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                               (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]

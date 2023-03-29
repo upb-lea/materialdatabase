@@ -10,8 +10,9 @@ tests/temp/
 .eggs/
 build/
 dist/
+gpgit/
 
 # Files
-
+tests/core_materials_temp.pro
 
 # General File Types
