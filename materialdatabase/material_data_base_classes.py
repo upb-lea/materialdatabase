@@ -201,6 +201,7 @@ class MaterialDatabase:
         @param frequency: to get freq list
         @param material_name:
         @param temperature: to get temp list
+        @param temperature: to get temp list
         @param flux_density: to get flux list
         @param datatype: needed for load measurement readings
         @param measurement_name: test setup name, of which data is to be plotted
@@ -502,7 +503,7 @@ class MaterialDatabase:
                       (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
 
         curve_data_material_datasheet = self.data[f"{material}"]["manufacturer_datasheet"]["relative_core_loss_flux_density"]
-        curve_data_material_measurement = self.data[f"{material}"]["measurements"]["complex_permeability"][measurement_name[i]]["measurement_data"]
+        curve_data_material = self.data[f"{material}"]["measurements"]["complex_permeability"][measurement_name]["measurement_data"]
         temperature_datasheet = temperature_list[0]
         temperature_measurement = temperature_list[1]
         b_d = []
@@ -523,20 +524,22 @@ class MaterialDatabase:
             mplcursors.cursor(lines)
             # plt.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
             # plt.legend()
-        for j in range(len(curve_data_material_measurement)):
-            if curve_data_material_measurement[j]["data_type"] == "complex_permeability_data":
-                curve_data_material_measurement_new = curve_data_material_measurement[j]["core_loss_flux_density"]
-                for j in range(len(curve_data_material_measurement_new)):
-                    if curve_data_material_measurement_new[j]["temperature"] == temperature_measurement:
-                        b_m.append(curve_data_material_measurement_new[j]["flux_density"])
-                        frequency_m.append(curve_data_material_measurement_new[j]["frequency"])
-                        power_loss_m.append(curve_data_material_measurement_new[j]["power_loss"])
-                for j in range(len(b_m)):
-                    label = f"{material}", f"F={frequency_m[j]}Hz", f"T={temperature_measurement}°C", f"Measurements"
-                    lines = matplotlib_widget.axis.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
-                    mplcursors.cursor(lines)
-                    # plt.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
-                    # plt.legend()
+        for j, list_item in enumerate(curve_data_material):
+            mdb_print(j, list_item)
+            if list_item["temperature"] == temperature_measurement:
+                b_m.append(list_item["flux_density"])
+                frequency_m.append(list_item["frequency"])
+                power_loss_m.append(
+                    p_hyst__from_mu_r_and_mu_phi_deg(list_item["frequency"],
+                                                     list_item["flux_density"],
+                                                     list_item["mu_r_abs"],
+                                                     list_item["mu_phi_deg"]))
+        for j in range(len(b_m)):
+            label = f"{material}", f"F={frequency_m[j]}Hz", f"T={temperature_measurement}°C", f"Measurements"
+            lines = matplotlib_widget.axis.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
+            mplcursors.cursor(lines)
+            # plt.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
+            # plt.legend()
         matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log', xscale='log')
         # plt.yscale('log')
         # plt.xscale('log')

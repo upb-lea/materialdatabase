@@ -479,6 +479,19 @@ def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, frequency, b_peak, p_hyst):
     return b_peak ** 2 * np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) / p_hyst / mu_0
 
 
+def p_hyst__from_mu_r_and_mu_phi_deg(frequency, b_peak, mu_r, mu_phi_deg):
+    """
+
+    :param mu_phi_deg:
+    :param frequency: frequency
+    :param b_peak: peak flux density
+    :param p_hyst: hysteresis losses
+    :return:
+    """
+    b_peak = np.array(b_peak)
+    return np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) * mu_0 * mu_r * (b_peak / mu_0 / mu_r) ** 2
+
+
 def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
                               smooth_data: bool = False, crop_data: bool = False,
                               plot_data: bool = False):

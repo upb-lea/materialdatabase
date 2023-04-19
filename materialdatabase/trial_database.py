@@ -23,6 +23,6 @@ database = mdb.MaterialDatabase()
 # database.compare_permeability_measurement_data(material_list=["N87", "N95"],measurement_name=['LEA_LK','LEA_LK'], frequency_list=[300000,300000], temperature_list=[30,30],plot_real_part=True)
 # print(database.drop_down_list(material_name="N49",datatype=None, measurement_name=None ,temperature=False, flux_density=True, frequency= False, comparison_type="dvd"))
 # print(database.material_list_in_database())
-# database.compare_core_loss_flux_datasheet_measurement(material="N49", temperature_list = [ 25, 60])
+# database.compare_core_loss_flux_datasheet_measurement(material="N49", measurement_name='LEA_LK', temperature_list = [ 25, 60])
 # print(database.find_measurement_names(material_name="N95", datatype="complex_permeability"))
 
