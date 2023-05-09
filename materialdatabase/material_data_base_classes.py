@@ -28,8 +28,8 @@ class MaterialDatabase:
         set_silent_status(is_silent)
         mdb_print("The material database is now initialized")
 
-
-    def material_data_interpolation_to_dto(self, material_name: str, fundamental_frequency: float, temperature: float) -> MaterialCurve:
+    def material_data_interpolation_to_dto(self, material_name: str, fundamental_frequency: float,
+                                           temperature: float) -> MaterialCurve:
         """
         Returns interpolated material data packed into a single DTO for a certain operating point.
 
@@ -45,14 +45,19 @@ class MaterialDatabase:
             temperature, fundamental_frequency, material_name,
             datasource=MaterialDataSource.ManufacturerDatasheet,
             datatype='permeability_data', plot_interpolation=False)
-        material_mu_r_initial = self.get_material_attribute(material_name=material_name, attribute="initial_permeability")
+        material_mu_r_initial = self.get_material_attribute(material_name=material_name,
+                                                            attribute="initial_permeability")
         saturation_flux_density = self.get_saturation_flux_density(material_name=material_name)
 
-        return MaterialCurve(material_name, material_mu_r_initial, material_flux_density_vec, material_mu_r_imag_vec, material_mu_r_real_vec,
-                      saturation_flux_density, boundary_frequency=fundamental_frequency, boundary_temperature=temperature)
+        return MaterialCurve(material_name, material_mu_r_initial, material_flux_density_vec, material_mu_r_imag_vec,
+                             material_mu_r_real_vec,
+                             saturation_flux_density, boundary_frequency=fundamental_frequency,
+                             boundary_temperature=temperature)
 
-    def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str, datatype: MaterialDataSource,
-                                      datasource: MaterialDataSource = None, measurement_setup: str = None, parent_directory: str = "",
+    def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str,
+                                      datatype: MaterialDataSource,
+                                      datasource: MaterialDataSource = None, measurement_setup: str = None,
+                                      parent_directory: str = "",
                                       plot_interpolation: bool = False):
         """
         Method is used to read permeability data from the material database.
@@ -75,7 +80,8 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"]["measurement_data"]
+            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"][
+                "measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
 
@@ -85,22 +91,56 @@ class MaterialDatabase:
             # mdb_print(f"{len(nbh['T_low_f_low']['b']), len(nbh['T_low_f_low']['mu_r']) = }")
 
             b_ref, mu_r = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                        nbh["T_low_f_low"]["temperature"], nbh["T_high_f_low"]["temperature"],
-                                                                                        nbh["T_low_f_low"]["frequency"], nbh["T_low_f_high"]["frequency"],
-                                                                                        nbh["T_low_f_low"]["flux_density"], nbh["T_low_f_low"]["mu_r_abs"],
-                                                                                        nbh["T_high_f_low"]["flux_density"], nbh["T_high_f_low"]["mu_r_abs"],
-                                                                                        nbh["T_low_f_high"]["flux_density"], nbh["T_low_f_high"]["mu_r_abs"],
-                                                                                        nbh["T_high_f_high"]["flux_density"], nbh["T_high_f_high"]["mu_r_abs"],
-                                                                                        y_label="rel. amplitude permeability", plot=plot_interpolation)
+                                                                                        nbh["T_low_f_low"][
+                                                                                            "temperature"],
+                                                                                        nbh["T_high_f_low"][
+                                                                                            "temperature"],
+                                                                                        nbh["T_low_f_low"]["frequency"],
+                                                                                        nbh["T_low_f_high"][
+                                                                                            "frequency"],
+                                                                                        nbh["T_low_f_low"][
+                                                                                            "flux_density"],
+                                                                                        nbh["T_low_f_low"]["mu_r_abs"],
+                                                                                        nbh["T_high_f_low"][
+                                                                                            "flux_density"],
+                                                                                        nbh["T_high_f_low"]["mu_r_abs"],
+                                                                                        nbh["T_low_f_high"][
+                                                                                            "flux_density"],
+                                                                                        nbh["T_low_f_high"]["mu_r_abs"],
+                                                                                        nbh["T_high_f_high"][
+                                                                                            "flux_density"],
+                                                                                        nbh["T_high_f_high"][
+                                                                                            "mu_r_abs"],
+                                                                                        y_label="rel. amplitude permeability",
+                                                                                        plot=plot_interpolation)
 
             b_ref, mu_phi_deg = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                              nbh["T_low_f_low"]["temperature"], nbh["T_high_f_low"]["temperature"],
-                                                                                              nbh["T_low_f_low"]["frequency"], nbh["T_low_f_high"]["frequency"],
-                                                                                              nbh["T_low_f_low"]["flux_density"], nbh["T_low_f_low"]["mu_phi_deg"],
-                                                                                              nbh["T_high_f_low"]["flux_density"], nbh["T_high_f_low"]["mu_phi_deg"],
-                                                                                              nbh["T_low_f_high"]["flux_density"], nbh["T_low_f_high"]["mu_phi_deg"],
-                                                                                              nbh["T_high_f_high"]["flux_density"], nbh["T_high_f_high"]["mu_phi_deg"],
-                                                                                              y_label="hyst. loss angle in deg", plot=plot_interpolation)
+                                                                                              nbh["T_low_f_low"][
+                                                                                                  "temperature"],
+                                                                                              nbh["T_high_f_low"][
+                                                                                                  "temperature"],
+                                                                                              nbh["T_low_f_low"][
+                                                                                                  "frequency"],
+                                                                                              nbh["T_low_f_high"][
+                                                                                                  "frequency"],
+                                                                                              nbh["T_low_f_low"][
+                                                                                                  "flux_density"],
+                                                                                              nbh["T_low_f_low"][
+                                                                                                  "mu_phi_deg"],
+                                                                                              nbh["T_high_f_low"][
+                                                                                                  "flux_density"],
+                                                                                              nbh["T_high_f_low"][
+                                                                                                  "mu_phi_deg"],
+                                                                                              nbh["T_low_f_high"][
+                                                                                                  "flux_density"],
+                                                                                              nbh["T_low_f_high"][
+                                                                                                  "mu_phi_deg"],
+                                                                                              nbh["T_high_f_high"][
+                                                                                                  "flux_density"],
+                                                                                              nbh["T_high_f_high"][
+                                                                                                  "mu_phi_deg"],
+                                                                                              y_label="hyst. loss angle in deg",
+                                                                                              plot=plot_interpolation)
 
             # mdb_print(f"{b_ref, mu_r, mu_phi_deg = }")
 
@@ -122,27 +162,64 @@ class MaterialDatabase:
             # mdb_print(f"{nbh = }")
 
             b_ref, mu_r_real = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                           nbh["T_low_f_low"]["temperature"], nbh["T_high_f_low"]["temperature"],
-                                                                                           nbh["T_low_f_low"]["frequency"], nbh["T_low_f_high"]["frequency"],
-                                                                                           nbh["T_low_f_low"]["flux_density"], nbh["T_low_f_low"]["mu_r_real"],
-                                                                                           nbh["T_high_f_low"]["flux_density"], nbh["T_high_f_low"]["mu_r_real"],
-                                                                                           nbh["T_low_f_high"]["flux_density"], nbh["T_low_f_high"]["mu_r_real"],
-                                                                                           nbh["T_high_f_high"]["flux_density"], nbh["T_high_f_high"]["mu_r_real"],
-                                                                                           plot=plot_interpolation)
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "temperature"],
+                                                                                             nbh["T_high_f_low"][
+                                                                                                 "temperature"],
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "frequency"],
+                                                                                             nbh["T_low_f_high"][
+                                                                                                 "frequency"],
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "mu_r_real"],
+                                                                                             nbh["T_high_f_low"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_high_f_low"][
+                                                                                                 "mu_r_real"],
+                                                                                             nbh["T_low_f_high"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_low_f_high"][
+                                                                                                 "mu_r_real"],
+                                                                                             nbh["T_high_f_high"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_high_f_high"][
+                                                                                                 "mu_r_real"],
+                                                                                             plot=plot_interpolation)
 
             b_ref, mu_r_imag = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                           nbh["T_low_f_low"]["temperature"], nbh["T_high_f_low"]["temperature"],
-                                                                                           nbh["T_low_f_low"]["frequency"], nbh["T_low_f_high"]["frequency"],
-                                                                                           nbh["T_low_f_low"]["flux_density"], nbh["T_low_f_low"]["mu_r_imag"],
-                                                                                           nbh["T_high_f_low"]["flux_density"], nbh["T_high_f_low"]["mu_r_imag"],
-                                                                                           nbh["T_low_f_high"]["flux_density"], nbh["T_low_f_high"]["mu_r_imag"],
-                                                                                           nbh["T_high_f_high"]["flux_density"], nbh["T_high_f_high"]["mu_r_imag"],
-                                                                                           plot=plot_interpolation)
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "temperature"],
+                                                                                             nbh["T_high_f_low"][
+                                                                                                 "temperature"],
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "frequency"],
+                                                                                             nbh["T_low_f_high"][
+                                                                                                 "frequency"],
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_low_f_low"][
+                                                                                                 "mu_r_imag"],
+                                                                                             nbh["T_high_f_low"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_high_f_low"][
+                                                                                                 "mu_r_imag"],
+                                                                                             nbh["T_low_f_high"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_low_f_high"][
+                                                                                                 "mu_r_imag"],
+                                                                                             nbh["T_high_f_high"][
+                                                                                                 "flux_density"],
+                                                                                             nbh["T_high_f_high"][
+                                                                                                 "mu_r_imag"],
+                                                                                             plot=plot_interpolation)
 
             mdb_print(f"{b_ref, mu_r_real, mu_r_imag = }")
 
         # Write the .pro-file
-        export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref), mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag))
+        export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref),
+                    mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag))
 
         mdb_print(f"Material properties of {material_name} are loaded at {temperature} °C and {frequency} Hz.")
 
@@ -168,7 +245,7 @@ class MaterialDatabase:
 
     def get_saturation_flux_density(self, material_name: str):
         """
-        get the saturation flux density for 'material'.
+        get the saturation flux density for 'material' from datasheet.
 
         Function description:
          * searches for the maximium given temperature in b-h-curve
@@ -197,7 +274,7 @@ class MaterialDatabase:
     # ----------to get steinmetz data from database file-----------------------
     def get_steinmetz_data(self, material_name: str, loss_type: str, datasource: str):
         """
-        :param material_name:
+        :param material_name: material name, e.g. "N95"
         :param datasource: measurement or datasheet
         :param loss_type: steinmetz or generalized steinmetz
         """
@@ -218,19 +295,20 @@ class MaterialDatabase:
         with open(self.data_file_path, 'r') as database:
             return json.load(database)
 
-    def drop_down_list(self, material_name: str, comparison_type: str, datatype: str,measurement_name: str, temperature: bool = False, flux_density: bool = False,
+    def drop_down_list(self, material_name: str, comparison_type: str, datatype: str, measurement_name: str,
+                       temperature: bool = False, flux_density: bool = False,
                        frequency: bool = False):
         """
-        This function return a list temp, frq nad flux to GUI from database to used as dropdown list
+        This function return a list temp, freq and flux to GUI from database to used as dropdown list
         @param frequency: to get freq list
-        @param material_name:
-        @param temperature: to get temp list
-        @param temperature: to get temp list
-        @param flux_density: to get flux list
+        @param material_name: material name, e.g. "N95"
+        @param temperature: boolean to get temp list
+        @param temperature: boolean to get temp list
+        @param flux_density: boolean to get flux list
         @param datatype: needed for load measurement readings
         @param measurement_name: test setup name, of which data is to be plotted
         @param comparison_type: datasheet vs datasheet ="dvd", measurement vs measurement = "mvm", datasheet vs measurement = "dvm"
-        @return:
+        @return: temp_list or freq_list or flux_list
         """
         global temp_list, flux_list, freq_list_new, temp_list_new, flux_list_new
 
@@ -258,7 +336,8 @@ class MaterialDatabase:
 
         # ------- measurement vs measurement------
         if comparison_type == "mvm":
-            curve_data_material = self.data[f"{material_name}"]["measurements"][datatype][measurement_name]["measurement_data"]
+            curve_data_material = self.data[f"{material_name}"]["measurements"][datatype][measurement_name][
+                "measurement_data"]
             temp_list = []
             freq_list = []
             for j in range(len(curve_data_material)):
@@ -281,7 +360,7 @@ class MaterialDatabase:
 
     def material_list_in_database(self):
         """
-        @return: materials present in database in form of list.
+        @return: list of materials present in database in form of list to GUI.
         """
         materials = []
         for i in self.data:
@@ -289,12 +368,14 @@ class MaterialDatabase:
         materials.remove('custom_material')
         return materials
 
-    def compare_core_loss_flux_density_data(self, matplotlib_widget, material_list: list, temperature_list: list = None):
+    def compare_core_loss_flux_density_data(self, matplotlib_widget, material_list: list,
+                                            temperature_list: list = None):
         """
-        Method is used to compare material properties.
-        :param material_list:[material1, material2, .....]
-        :param temperature_list
-        :return:
+        Method is used to compare material properties from datasheet.
+        @param matplotlib_widget: plotting parameter for GUI
+        @param material_list:[material1, material2, .....]
+        @param temperature_list: [temp1, temp2,..]
+        @return: return plotting data in two list, power_loss and flux
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         # mdb_print(material_list)
@@ -317,11 +398,13 @@ class MaterialDatabase:
                 line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                               (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
                 label = f"{material}", f"F={frequency[j]}Hz", f"T={temperature}°C"
-                lines = matplotlib_widget.axis.plot(b[j], power_loss[j], label=label, color=color, linestyle=line_style[j])
+                lines = matplotlib_widget.axis.plot(b[j], power_loss[j], label=label, color=color,
+                                                    linestyle=line_style[j])
                 mplcursors.cursor(lines)
                 # plt.plot(b[j], power_loss[j], label=label, color=color, linestyle=line_style[j])
                 # plt.legend()
-        matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log', xscale='log')
+        matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log',
+                                   xscale='log')
         # plt.yscale('log')
         # plt.xscale('log')
         # plt.xlabel("B in T")
@@ -333,10 +416,11 @@ class MaterialDatabase:
 
     def compare_core_loss_temperature(self, matplotlib_widget, material_list: list, flux_density_list: list = None):
         """
-            Method is used to compare material properties.
-            :param material_list:[material1, material2, ....]
-            :param flux_density_list
-            :return:
+            Method is used to compare material properties from datasheet.
+            @param matplotlib_widget: plot parameter for GUI
+            @param material_list:[material1, material2, ....]
+            @param flux_density_list: [flux1, flux2,..]
+            @return: return plotting data in two list, power_loss and temperature
             """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         # mdb_print(material_list)
@@ -375,11 +459,12 @@ class MaterialDatabase:
     def compare_core_loss_frequency(self, matplotlib_widget, material_list: list, temperature_list: list = None,
                                     flux_density_list: list = None):
         """
-                Method is used to compare material properties.
-                :param material_list:[material1, material2, ....]
-                :param flux_density_list
-                :param temperature_list
-                :return:
+                Method is used to compare material properties from datasheet.
+                @param matplotlib_widget: plot parameter for GUI
+                @param material_list:[material1, material2, ....]
+                @param flux_density_list: [flux1, flux2, ....]
+                @param temperature_list: [temp1, temp2, ....]
+                @return: return plotting data in two list, power_loss and frequency
                 """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
 
@@ -393,7 +478,8 @@ class MaterialDatabase:
             power_loss = []
             color = color_list[i]
             for m in range(len(curve_data_material)):
-                if curve_data_material[m]["temperature"] == temperature and curve_data_material[m]["flux_density"] == flux:
+                if curve_data_material[m]["temperature"] == temperature and curve_data_material[m][
+                    "flux_density"] == flux:
                     frequency.append(curve_data_material[m]["frequency"])
                     power_loss.append(curve_data_material[m]["power_loss"])
 
@@ -413,6 +499,13 @@ class MaterialDatabase:
         mdb_print(f"Material properties of {material_list} are compared.")
 
     def compare_b_h_curve(self, matplotlib_widget, material_list: list, temperature_list: list = None):
+        """
+        Method to compare B-H curve of different materials from datasheet
+        @param matplotlib_widget: plot parameter for GUI
+        @param material_list: [material1, material2, ...]
+        @param temperature_list: [temp1, temp2, ...]
+        @return plotting data two vector,B and H
+        """
         # -------B_H Curve-------
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
 
@@ -444,16 +537,18 @@ class MaterialDatabase:
         # plt.show()
         mdb_print(f"Material properties of {material_list} are compared.")
 
-    def compare_permeability_measurement_data(self, matplotlib_widget, material_list: list,measurement_name: list, frequency_list: list = None,
+    def compare_permeability_measurement_data(self, matplotlib_widget, material_list: list, measurement_name: list,
+                                              frequency_list: list = None,
                                               temperature_list: list = None, plot_real_part: bool = False):
         """
-            Method is used to compare material properties.
-            :param material_list:[material1, material2, .....]
-            @param plot_real_part: True plot real part of mu/ False plots imaginary part of mu
-            @type temperature_list: object
-            @param material_list:
-            @param frequency_list:
-            :return:
+            Method is used to compare material properties from measurement data.
+            @param matplotlib_widget: plotting parameter for GUI
+            @param material_list:[material1, material2, .....]
+            @param plot_real_part: True for plot real part of mu/ False for plots imaginary part of mu
+            @type temperature_list: [temp1, temp2, ...]
+            @param measurement_name: Name from database
+            @param frequency_list: [freq1, freq2, ...]
+            :return: Plotting data list for GUI
             """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
 
@@ -461,7 +556,9 @@ class MaterialDatabase:
         # axs[0].grid()
         # axs[1].grid()
         for i in range(len(material_list)):
-            curve_data_material = self.data[f"{material_list[i]}"]["measurements"]["complex_permeability"][measurement_name[i]]["measurement_data"]
+            curve_data_material = \
+            self.data[f"{material_list[i]}"]["measurements"]["complex_permeability"][measurement_name[i]][
+                "measurement_data"]
             material = material_list[i]
             temperature = temperature_list[i]
             frequency = frequency_list[i]
@@ -515,19 +612,24 @@ class MaterialDatabase:
         # plt.show()
         mdb_print(f"Material properties of {material_list} are compared.")
 
-    def compare_core_loss_flux_datasheet_measurement(self, matplotlib_widget, material: str, measurement_name: list, temperature_list: list = None):
+    def compare_core_loss_flux_datasheet_measurement(self, matplotlib_widget, material: str, measurement_name: list,
+                                                     temperature_list: list = None):
         """
-        Method is used to compare material properties in datasheet and measurement.
-        @param material_list:
+        Method is used to compare material properties between datasheet and measurement.
+        @param matplotlib_widget: For GUI plot
+        @param material: [material1, material2, ...]
+        @param measurement_name: Name from database
         @param temperature_list:
-        @return:
+        @return: Plotting data for GUI
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
                       (0, ()), (0, (3, 10, 1, 10, 1, 10)), (0, (5, 5)), (0, (1, 10)), (0, (3, 10, 1, 10))]
 
-        curve_data_material_datasheet = self.data[f"{material}"]["manufacturer_datasheet"]["relative_core_loss_flux_density"]
-        curve_data_material = self.data[f"{material}"]["measurements"]["complex_permeability"][measurement_name]["measurement_data"]
+        curve_data_material_datasheet = self.data[f"{material}"]["manufacturer_datasheet"][
+            "relative_core_loss_flux_density"]
+        curve_data_material = self.data[f"{material}"]["measurements"]["complex_permeability"][measurement_name][
+            "measurement_data"]
         temperature_datasheet = temperature_list[0]
         temperature_measurement = temperature_list[1]
         b_d = []
@@ -544,7 +646,8 @@ class MaterialDatabase:
                 power_loss_d.append(curve_data_material_datasheet[j]["power_loss"])
         for j in range(len(b_d)):
             label = f"{material}", f"F={frequency_d[j]}Hz", f"T={temperature_datasheet}°C", f"Datasheet"
-            lines = matplotlib_widget.axis.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
+            lines = matplotlib_widget.axis.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0],
+                                                linestyle=line_style[0])
             mplcursors.cursor(lines)
             # plt.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
             # plt.legend()
@@ -560,11 +663,13 @@ class MaterialDatabase:
                                                      list_item["mu_phi_deg"]))
         for j in range(len(b_m)):
             label = f"{material}", f"F={frequency_m[j]}Hz", f"T={temperature_measurement}°C", f"Measurements"
-            lines = matplotlib_widget.axis.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
+            lines = matplotlib_widget.axis.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1],
+                                                linestyle=line_style[1])
             mplcursors.cursor(lines)
             # plt.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1], linestyle=line_style[1])
             # plt.legend()
-        matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log', xscale='log')
+        matplotlib_widget.axis.set(xlabel="B in T", ylabel="Relative power loss in W/m\u00b3", yscale='log',
+                                   xscale='log')
         # plt.yscale('log')
         # plt.xscale('log')
         # plt.xlabel("B in T")
@@ -575,14 +680,15 @@ class MaterialDatabase:
 
     # Permittivity Data
     def load_permittivity_measurement(self, material_name: str, datasource: str = "measurements",
-                                      datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity, measurement_setup: str = None):
+                                      datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity,
+                                      measurement_setup: str = None):
         """
-
-        :param material_name:
-        :param datasource:
+        Method to load permittivity data
+        :param material_name: name of material of which data to be loaded
+        :param datasource: "measurement"
         :param datatype: MeasurementDataType
-        :param measurement_setup:
-        :return:
+        :param measurement_setup: "complex_permittivity"
+        :return: dictionary of required data
         """
         # Load all available permittivity data from datasource
         mdb_print(f"{material_name = }"
@@ -592,7 +698,9 @@ class MaterialDatabase:
         return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
 
     def get_permittivity(self, temperature: float, frequency: float, material_name: str,
-                         datasource: str = "measurements", datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity, measurement_setup: str = None,
+                         datasource: str = "measurements",
+                         datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity,
+                         measurement_setup: str = None,
                          interpolation_type: str = "linear"):
         """
         Returns the complex permittivity for a certain operation point defined by temperature and frequency.
@@ -620,23 +728,30 @@ class MaterialDatabase:
 
         """
         # Load the chosen permittivity data from the database
-        list_of_permittivity_dicts = self.load_permittivity_measurement(material_name, datasource, datatype, measurement_setup)
+        list_of_permittivity_dicts = self.load_permittivity_measurement(material_name, datasource, datatype,
+                                                                        measurement_setup)
 
         # Find the data, that is closest to the given operation point (T, f)
-        neighbourhood = create_permittivity_neighbourhood(temperature=temperature, frequency=frequency, list_of_permittivity_dicts=list_of_permittivity_dicts)
+        neighbourhood = create_permittivity_neighbourhood(temperature=temperature, frequency=frequency,
+                                                          list_of_permittivity_dicts=list_of_permittivity_dicts)
 
         # Interpolate/Extrapolate the permittivity according to the given operation point
         if interpolation_type == "linear":
-            epsilon_r, epsilon_phi_deg = interpolate_neighbours_linear(temperature=temperature, frequency=frequency, neighbours=neighbourhood)
+            epsilon_r, epsilon_phi_deg = interpolate_neighbours_linear(temperature=temperature, frequency=frequency,
+                                                                       neighbours=neighbourhood)
         else:
             raise NotImplementedError
 
         return epsilon_r, epsilon_phi_deg
 
-
-    def find_measurement_names(self, material_name: str, datatype:str):
+    def find_measurement_names(self, material_name: str, datatype: str):
+        """
+        Method to make a list of available measurements in database
+        @param material_name: "N95"
+        @param datatype: complex_permittivity or complex_permeability
+        return: Names of measurement in database
+        """
         names = []
         for i in self.data[material_name]["measurements"][datatype]:
             names.append(i)
         return names
-

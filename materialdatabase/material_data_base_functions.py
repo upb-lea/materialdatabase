@@ -154,6 +154,9 @@ def check_input_permeability_data(datasource: str, material_name: str, temperatu
 
 
 def getdata_datasheet(permeability, variable, frequency, temperature_1, temperature_2):
+    """
+    interpolation function
+    """
     for k in range(len(permeability)):
         if permeability[k]["frequency"] == frequency and permeability[k]["temperature"] == temperature_1:
             b_1 = permeability[k]["flux_density"]
