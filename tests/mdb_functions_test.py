@@ -7,10 +7,10 @@ mdb_instance = mdb.MaterialDatabase()
 
 def test_get_material_property():
 
-    initial_mu_r_abs = mdb_instance.get_material_property(material_name="N95", property="initial_permeability")
+    initial_mu_r_abs = mdb_instance.get_material_attribute(material_name="N95", attribute="initial_permeability")
     assert initial_mu_r_abs == pytest.approx(3000, rel=1e-3)
 
-    core_material_resistivity = mdb_instance.get_material_property(material_name="N95", property="resistivity")
+    core_material_resistivity = mdb_instance.get_material_attribute(material_name="N95", attribute="resistivity")
     assert core_material_resistivity == pytest.approx(6, rel=1e-3)
 
 

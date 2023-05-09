@@ -1,4 +1,4 @@
-from enum import IntEnum, Enum
+from enum import Enum
 
 
 # Following Enums must always be consistent with the FEM Magnetics Toolbox (FEMMT)

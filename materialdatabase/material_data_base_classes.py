@@ -6,6 +6,7 @@ import mplcursors
 # local libraries
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.enumerations import *
+from materialdatabase.dtos import *
 
 
 class MaterialDatabase:
@@ -26,6 +27,29 @@ class MaterialDatabase:
 
         set_silent_status(is_silent)
         mdb_print("The material database is now initialized")
+
+
+    def material_data_interpolation_to_dto(self, material_name: str, fundamental_frequency: float, temperature: float) -> MaterialCurve:
+        """
+        Returns interpolated material data packed into a single DTO for a certain operating point.
+
+        :param material_name: material name, e.g. "N95"
+        :type material_name: str
+        :param fundamental_frequency: fundamental frequency in Hz
+        :type fundamental_frequency: float
+        :param temperature: temperature in °C
+        :type temperature: float
+
+        """
+        material_flux_density_vec, material_mu_r_imag_vec, material_mu_r_real_vec = self.permeability_data_to_pro_file(
+            temperature, fundamental_frequency, material_name,
+            datasource=MaterialDataSource.ManufacturerDatasheet,
+            datatype='permeability_data', plot_interpolation=False)
+        material_mu_r_initial = self.get_material_attribute(material_name=material_name, attribute="initial_permeability")
+        saturation_flux_density = self.get_saturation_flux_density(material_name=material_name)
+
+        return MaterialCurve(material_name, material_mu_r_initial, material_flux_density_vec, material_mu_r_imag_vec, material_mu_r_real_vec,
+                      saturation_flux_density, boundary_frequency=fundamental_frequency, boundary_temperature=temperature)
 
     def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str, datatype: MaterialDataSource,
                                       datasource: MaterialDataSource = None, measurement_setup: str = None, parent_directory: str = "",
@@ -125,20 +149,20 @@ class MaterialDatabase:
         return b_ref, mu_r_imag, mu_r_real
 
     # --------to get different material property from database file---------
-    def get_material_property(self, material_name: str, property: str):
+    def get_material_attribute(self, material_name: str, attribute: str):
         """
-        Returns a a dict of the manufacturer datasheet.
+        Returns a dict of the manufacturer datasheet.
         All dicts can be accessed under 'manufacturer_datasheet'. See example below.
 
         :param material_name: str: N95,N87.....
-        :param property: str:  initial_permeability, resistivity, max_flux_density, weight_density
+        :param attribute: str:  initial_permeability, resistivity, max_flux_density, weight_density
 
         :Example to get the initial permeability:
         >>> import materialdatabase as mdb
         >>> material_db = mdb.MaterialDatabase(is_silent=True)
-        >>> initial_u_r = material_db.get_material_property(material_name="N95", property="initial_permeability")
+        >>> initial_u_r = material_db.get_material_attribute(material_name="N95", attribute="initial_permeability")
         """
-        value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{property}"]
+        value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{attribute}"]
         mdb_print(f'value=', value)
         return value
 
@@ -159,7 +183,7 @@ class MaterialDatabase:
         >>> material_db = mdb.MaterialDatabase(is_silent=True)
         >>> saturation_flux_density_1 = material_db.get_saturation_flux_density('N87')
         """
-        b_h_curve_list = self.get_material_property(material_name=material_name, property="b_h_curve")
+        b_h_curve_list = self.get_material_attribute(material_name=material_name, attribute="b_h_curve")
 
         b_h_curve_max_temperature = max([b_h_curve["temperature"] for b_h_curve in b_h_curve_list])
         [saturation_flux_density] = [max(b_h_curve["flux_density"]) for b_h_curve in b_h_curve_list if
@@ -171,14 +195,14 @@ class MaterialDatabase:
         return saturation_flux_density
 
     # ----------to get steinmetz data from database file-----------------------
-    def get_steinmetz_data(self, material_name: str, type: str, datasource: str):
+    def get_steinmetz_data(self, material_name: str, loss_type: str, datasource: str):
         """
         :param material_name:
         :param datasource: measurement or datasheet
-        :param type: steinmetz or generalized steinmetz
+        :param loss_type: steinmetz or generalized steinmetz
         """
         s_data = self.data[f"{material_name}"][f"{datasource}"]
-        if type == "Steinmetz":
+        if loss_type == "Steinmetz":
             for i in range(len(s_data)):
                 if s_data[i]["data_type"] == "steinmetz_data":
                     coefficient = dict(s_data[i]["data"])
