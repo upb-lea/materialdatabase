@@ -16,17 +16,33 @@ class MaterialDatabase:
     so that it can easily be interfaced by tools like the FEM Magnetic Toolbox.
     """
 
+    silent: bool = False
+
     def __init__(self, is_silent: bool = False):
 
         self.database_file_directory = 'data/'
         self.database_file_name = 'material_data_base.json'
         self.data_folder_path = os.path.join(os.path.dirname(__file__), self.database_file_directory)
         self.data_file_path = os.path.join(self.data_folder_path, self.database_file_name)
+        self.silent = is_silent
 
         self.data = self.load_database()
 
-        set_silent_status(is_silent)
-        mdb_print("The material database is now initialized")
+        self.mdb_print("The material database is now initialized")
+
+    def mdb_print(self, text: str, end='\n') -> None:
+        """
+        Print function what checks the silent-mode-flag.
+        Print only in case of no-silent-mode.
+
+        :param text: Text to print
+        :type text: str
+        :param end: command for end of line, e.g. '\n' or '\t'
+        :type end: str
+
+        """
+        if not self.silent:
+            print(text, end)
 
     def material_data_interpolation_to_dto(self, material_name: str, fundamental_frequency: float,
                                            temperature: float) -> MaterialCurve:
@@ -215,13 +231,13 @@ class MaterialDatabase:
                                                                                                  "mu_r_imag"],
                                                                                              plot=plot_interpolation)
 
-            mdb_print(f"{b_ref, mu_r_real, mu_r_imag = }")
+            self.mdb_print(f"{b_ref, mu_r_real, mu_r_imag = }")
 
         # Write the .pro-file
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref),
-                    mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag))
+                    mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag), silent=self.silent)
 
-        mdb_print(f"Material properties of {material_name} are loaded at {temperature} °C and {frequency} Hz.")
+        self.mdb_print(f"Material properties of {material_name} are loaded at {temperature} °C and {frequency} Hz.")
 
         return b_ref, mu_r_imag, mu_r_real
 
@@ -240,7 +256,7 @@ class MaterialDatabase:
         >>> initial_u_r = material_db.get_material_attribute(material_name="N95", attribute="initial_permeability")
         """
         value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{attribute}"]
-        mdb_print(f'value=', value)
+        self.mdb_print(f'value=', value)
         return value
 
     def get_saturation_flux_density(self, material_name: str):
@@ -412,7 +428,7 @@ class MaterialDatabase:
         # plt.grid()
         # plt.show()
 
-        mdb_print(f"Material properties of {material_list} are compared.")
+        self.mdb_print(f"Material properties of {material_list} are compared.")
 
     def compare_core_loss_temperature(self, matplotlib_widget, material_list: list, flux_density_list: list = None):
         """
@@ -454,7 +470,7 @@ class MaterialDatabase:
         # plt.ylabel("Relative power loss in W/m\u00b3")
         # plt.grid()
         # plt.show()
-        mdb_print(f"Material properties of {material_list} are compared.")
+        self.mdb_print(f"Material properties of {material_list} are compared.")
 
     def compare_core_loss_frequency(self, matplotlib_widget, material_list: list, temperature_list: list = None,
                                     flux_density_list: list = None):
@@ -496,7 +512,7 @@ class MaterialDatabase:
                                    xscale='log')
         # plt.grid()
         # plt.show()
-        mdb_print(f"Material properties of {material_list} are compared.")
+        self.mdb_print(f"Material properties of {material_list} are compared.")
 
     def compare_b_h_curve(self, matplotlib_widget, material_list: list, temperature_list: list = None):
         """
@@ -535,7 +551,7 @@ class MaterialDatabase:
         # plt.title(f"B_H curve")
         # plt.grid()
         # plt.show()
-        mdb_print(f"Material properties of {material_list} are compared.")
+        self.mdb_print(f"Material properties of {material_list} are compared.")
 
     def compare_permeability_measurement_data(self, matplotlib_widget, material_list: list, measurement_name: list,
                                               frequency_list: list = None,
@@ -610,7 +626,7 @@ class MaterialDatabase:
                     matplotlib_widget.axis.set(xlabel=r"B in T", ylabel=r"$\mu_\mathrm{r}  /  \mu_0$")
 
         # plt.show()
-        mdb_print(f"Material properties of {material_list} are compared.")
+        self.mdb_print(f"Material properties of {material_list} are compared.")
 
     def compare_core_loss_flux_datasheet_measurement(self, matplotlib_widget, material: str, measurement_name: list,
                                                      temperature_list: list = None):
@@ -652,7 +668,7 @@ class MaterialDatabase:
             # plt.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0], linestyle=line_style[0])
             # plt.legend()
         for j, list_item in enumerate(curve_data_material):
-            mdb_print(j, list_item)
+            self.mdb_print(j, list_item)
             if list_item["temperature"] == temperature_measurement:
                 b_m.append(list_item["flux_density"])
                 frequency_m.append(list_item["frequency"])
@@ -676,7 +692,7 @@ class MaterialDatabase:
         # plt.ylabel("Relative power loss in W/m\u00b3")
         # plt.grid()
         # plt.show()
-        mdb_print(f"Material properties of {material} are compared.")
+        self.mdb_print(f"Material properties of {material} are compared.")
 
     # Permittivity Data
     def load_permittivity_measurement(self, material_name: str, datasource: str = "measurements",
@@ -691,7 +707,7 @@ class MaterialDatabase:
         :return: dictionary of required data
         """
         # Load all available permittivity data from datasource
-        mdb_print(f"{material_name = }"
+        self.mdb_print(f"{material_name = }"
                   f"{datasource = }"
                   f"{datatype = }"
                   f"{measurement_setup =}")

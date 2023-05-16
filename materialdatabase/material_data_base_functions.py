@@ -63,7 +63,7 @@ def store_data(material_name: str, data_to_be_stored: dict) -> None:
     """
     with open('material_data_base.json', 'w') as outfile:
         json.dump(data_to_be_stored, outfile, indent=4)
-    mdb_print(f"Material properties of {material_name} are stored in the material database.")
+    print(f"Material properties of {material_name} are stored in the material database.")
 
 
 def find_nearest(array, value):
@@ -83,32 +83,6 @@ def find_nearest(array, value):
             return array[idx - 1], array[idx]
         else:
             return array[idx], array[idx + 1]
-
-
-def set_silent_status(is_silent: bool) -> None:
-    """
-    Silent mode global variable.
-
-    :param is_silent: True for silent mode, False for mode with print outputs
-    :type is_silent: bool
-    """
-    global silent
-    silent = is_silent
-
-
-def mdb_print(text: str, end='\n') -> None:
-    """
-    Print function what checks the silent-mode-flag.
-    Print only in case of no-silent-mode.
-
-    :param text: Text to print
-    :type text: str
-    :param end: command for end of line, e.g. '\n' or '\t'
-    :type end: str
-
-    """
-    if not silent:
-        print(text, end)
 
 
 def rect(radius_or_amplitude: float, theta_deg: float):
@@ -1050,7 +1024,7 @@ def getdata_measurements(permeability, variable, frequency, temperature_1, tempe
 
 
 def export_data(parent_directory: str = "", file_format: str = None,
-                b_ref_vec: list = None, mu_r_real_vec: list = None, mu_r_imag_vec: list = None):
+                b_ref_vec: list = None, mu_r_real_vec: list = None, mu_r_imag_vec: list = None, silent: bool = False):
     """
     Method is used to export data from the material database in a certain file format.
 
@@ -1076,7 +1050,8 @@ def export_data(parent_directory: str = "", file_format: str = None,
     else:
         raise Exception("No valid file format is given!")
 
-    mdb_print(f"Data is exported to {parent_directory} in a {file_format}-file.")
+    if not silent:
+        print(f"Data is exported to {parent_directory} in a {file_format}-file.")
 
 
 def plot_data(material_name: str = None, properties: str = None,
@@ -1101,4 +1076,4 @@ def plot_data(material_name: str = None, properties: str = None,
         plt.title("Imaginary part of permeability")
         plt.show()
 
-    mdb_print(f"Material properties {properties} of {material_name} are plotted.")
+    print(f"Material properties {properties} of {material_name} are plotted.")
