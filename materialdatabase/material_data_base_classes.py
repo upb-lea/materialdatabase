@@ -71,7 +71,7 @@ class MaterialDatabase:
                              boundary_temperature=temperature)
 
     def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str,
-                                      datatype: MaterialDataSource,
+                                      datatype: MeasurementDataType,
                                       datasource: MaterialDataSource = None, measurement_setup: str = None,
                                       parent_directory: str = "",
                                       plot_interpolation: bool = False):
@@ -96,7 +96,7 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"][
+            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup}"][
                 "measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
@@ -170,7 +170,7 @@ class MaterialDatabase:
             mu_r_imag = mu_imag_from_polar
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["permeability_data"]
+            permeability_data = self.data[f"{material_name}"][f"{datasource.value}"]["permeability_data"]
             # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
