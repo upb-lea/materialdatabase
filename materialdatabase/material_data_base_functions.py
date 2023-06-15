@@ -7,6 +7,7 @@ import json
 import os
 
 from matplotlib import pyplot as plt
+import matplotlib
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
 
@@ -64,6 +65,21 @@ def store_data(material_name: str, data_to_be_stored: dict) -> None:
     with open('material_data_base.json', 'w') as outfile:
         json.dump(data_to_be_stored, outfile, indent=4)
     print(f"Material properties of {material_name} are stored in the material database.")
+
+def load_material_from_db(material_name: str) -> None:
+    """
+    Method is used to load data from material database.
+    :param material_name: Material name
+    :type material_name: str
+    :param data_to_be_stored: data to be stored
+    :type data_to_be_stored: dict
+    :return: None
+    :rtype: None
+    """
+    with open(relative_path_to_db, 'r') as database:
+        print("Read data from the data base.")
+        data_dict = json.load(database)
+    return data_dict[material_name]
 
 
 def find_nearest(array, value):
@@ -833,6 +849,45 @@ def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_ab
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+
+
+def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_name, measurement_setup):
+    """
+    CAUTION: This method only adds the given measurement series to the steinmetz data
+    without checking duplicates!
+
+    :param temperature:
+    :param k:
+    :param beta:
+    :param alpha:
+    :param material_name:
+    :param measurement_setup:
+    :return:
+    """
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if measurement_setup not in data[material_name]["measurements"]["Steinmetz"]:
+        data[material_name]["measurements"]["Steinmetz"][measurement_setup] = {
+            "data_type": "steinmetz_data",
+            "name": measurement_setup,
+            "data": []
+        }
+
+    data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
+        {
+            "temperature": temperature,
+            "k": k,
+            "alpha": alpha,
+            "beta": beta,
+        }
+    )
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+# TODO: A function, that can refractor in the .json db
 
 
 # General
