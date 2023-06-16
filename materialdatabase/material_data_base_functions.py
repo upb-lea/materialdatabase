@@ -696,6 +696,50 @@ def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivi
 
     return nbh
 
+def create_steinmetz_neighbourhood(temperature, list_of_steinmetz_dicts):
+    """
+
+    :param temperature:
+    :param list_of_steinmetz_dicts:
+    :return:
+    """
+    # Initialize dicts for the certain operation point its neighbourhood
+    nbh = {
+        "T_low":
+            {
+                "temperature": {
+                    "value": None,
+                    "index": None
+                },
+                "k": None,
+                "alpha": None,
+                "beta": None
+            },
+        "T_high":
+            {
+                "temperature": {
+                    "value": None,
+                    "index": None
+                },
+                "k": None,
+                "alpha": None,
+                "beta": None
+            }
+    }
+
+    # In permittivity data:
+    # find two temperatures at which were measured that are closest to given T
+    temperatures = []
+    for steinmetz_dict in list_of_steinmetz_dicts:
+        temperatures.append(steinmetz_dict["temperature"])  # store them in a list
+    index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = \
+        find_nearest_neighbours(temperature, temperatures)
+
+    nbh["T_low"]["temperature"]["value"], nbh["T_low"]["temperature"]["index"] = value_T_low_neighbour, index_T_low_neighbour
+    nbh["T_high"]["temperature"]["value"], nbh["T_high"]["temperature"]["index"] = value_T_high_neighbour, index_T_high_neighbour
+
+    return nbh
+
 
 def my_interpolate_linear(a, b, f_a, f_b, x):
     """
@@ -876,7 +920,7 @@ def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_nam
 
     data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
         {
-            "temperature": temperature,
+            "temperature": float(temperature),
             "k": k,
             "alpha": alpha,
             "beta": beta,

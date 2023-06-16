@@ -760,6 +760,47 @@ class MaterialDatabase:
 
         return epsilon_r, epsilon_phi_deg
 
+    def get_steinmetz(self, temperature: float, material_name: str, datasource: str = "measurements",
+                         datatype: MeasurementDataType = MeasurementDataType.Steinmetz, measurement_setup: str = None,
+                         interpolation_type: str = "linear"):
+        """
+        Returns the complex permittivity for a certain operation point defined by temperature and frequency.
+        :param temperature:
+        :param material_name:
+        :param datasource:
+        :param datatype:
+        :param measurement_setup:
+        :param interpolation_type:
+        :return:
+        :Example:
+        >>> import materialdatabase as mdb
+        >>> material_db = mdb.MaterialDatabase()
+        >>> epsilon_r, epsilon_phi_deg = material_db.get_permittivity(temperature= 25, material_name = "N95", datasource = "measurements",
+        >>>                                      datatype = mdb.MeasurementDataType.Steinmetz, measurement_setup = "LEA_LK",interpolation_type = "linear")
+        """
+        # Load the chosen Steinmetz data from the database
+        list_of_steinmetz_dicts = self.data[material_name][datasource][datatype][measurement_setup]["data"]
+
+        # Find the data, that is closest to the given operation point (T, f)
+        neighbourhood = create_steinmetz_neighbourhood(temperature=temperature, list_of_steinmetz_dicts=list_of_steinmetz_dicts)
+        # Interpolate/Extrapolate the permittivity according to the given operation point
+        if interpolation_type == "linear":
+            """
+            A linear interpolation in fact is not really a good ideal for a non-linear function like Steinmetz equation!
+            """
+            # TODO: Find a better interpolation method
+            t_low = neighbourhood["T_low"]["temperature"]["value"]
+            t_index_low = neighbourhood["T_low"]["temperature"]["index"]
+            t_high = neighbourhood["T_high"]["temperature"]["value"]
+            t_index_high = neighbourhood["T_high"]["temperature"]["index"]
+            alpha = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["alpha"], f_b=list_of_steinmetz_dicts[t_index_high]["alpha"], x=temperature)
+            beta = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["beta"], f_b=list_of_steinmetz_dicts[t_index_high]["beta"], x=temperature)
+            k = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["k"], f_b=list_of_steinmetz_dicts[t_index_high]["k"], x=temperature)
+        else:
+            raise NotImplementedError
+
+        return alpha, beta, k
+
     def find_measurement_names(self, material_name: str, datatype: str):
         """
         Method to make a list of available measurements in database
