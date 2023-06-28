@@ -96,8 +96,7 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = \
-            self.data[f"{material_name}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup}"][
+            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup}"][
                 "measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
