@@ -7,6 +7,7 @@ import json
 import os
 
 from matplotlib import pyplot as plt
+import matplotlib
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
 
@@ -64,6 +65,21 @@ def store_data(material_name: str, data_to_be_stored: dict) -> None:
     with open('material_data_base.json', 'w') as outfile:
         json.dump(data_to_be_stored, outfile, indent=4)
     print(f"Material properties of {material_name} are stored in the material database.")
+
+def load_material_from_db(material_name: str) -> None:
+    """
+    Method is used to load data from material database.
+    :param material_name: Material name
+    :type material_name: str
+    :param data_to_be_stored: data to be stored
+    :type data_to_be_stored: dict
+    :return: None
+    :rtype: None
+    """
+    with open(relative_path_to_db, 'r') as database:
+        print("Read data from the data base.")
+        data_dict = json.load(database)
+    return data_dict[material_name]
 
 
 def find_nearest(array, value):
@@ -680,6 +696,50 @@ def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivi
 
     return nbh
 
+def create_steinmetz_neighbourhood(temperature, list_of_steinmetz_dicts):
+    """
+
+    :param temperature:
+    :param list_of_steinmetz_dicts:
+    :return:
+    """
+    # Initialize dicts for the certain operation point its neighbourhood
+    nbh = {
+        "T_low":
+            {
+                "temperature": {
+                    "value": None,
+                    "index": None
+                },
+                "k": None,
+                "alpha": None,
+                "beta": None
+            },
+        "T_high":
+            {
+                "temperature": {
+                    "value": None,
+                    "index": None
+                },
+                "k": None,
+                "alpha": None,
+                "beta": None
+            }
+    }
+
+    # In permittivity data:
+    # find two temperatures at which were measured that are closest to given T
+    temperatures = []
+    for steinmetz_dict in list_of_steinmetz_dicts:
+        temperatures.append(steinmetz_dict["temperature"])  # store them in a list
+    index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = \
+        find_nearest_neighbours(temperature, temperatures)
+
+    nbh["T_low"]["temperature"]["value"], nbh["T_low"]["temperature"]["index"] = value_T_low_neighbour, index_T_low_neighbour
+    nbh["T_high"]["temperature"]["value"], nbh["T_high"]["temperature"]["index"] = value_T_high_neighbour, index_T_high_neighbour
+
+    return nbh
+
 
 def my_interpolate_linear(a, b, f_a, f_b, x):
     """
@@ -833,6 +893,45 @@ def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_ab
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+
+
+def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_name, measurement_setup):
+    """
+    CAUTION: This method only adds the given measurement series to the steinmetz data
+    without checking duplicates!
+
+    :param temperature:
+    :param k:
+    :param beta:
+    :param alpha:
+    :param material_name:
+    :param measurement_setup:
+    :return:
+    """
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if measurement_setup not in data[material_name]["measurements"]["Steinmetz"]:
+        data[material_name]["measurements"]["Steinmetz"][measurement_setup] = {
+            "data_type": "steinmetz_data",
+            "name": measurement_setup,
+            "data": []
+        }
+
+    data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
+        {
+            "temperature": float(temperature),
+            "k": k,
+            "alpha": alpha,
+            "beta": beta,
+        }
+    )
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+# TODO: A function, that can refractor in the .json db
 
 
 # General
