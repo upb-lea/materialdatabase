@@ -96,7 +96,8 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup}"][
+            permeability_data = \
+            self.data[f"{material_name}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup}"][
                 "measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
@@ -256,7 +257,7 @@ class MaterialDatabase:
         >>> initial_u_r = material_db.get_material_attribute(material_name="N95", attribute="initial_permeability")
         """
         value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{attribute}"]
-        self.mdb_print(f'value=', value)
+        # self.mdb_print(f'value=', value)
         return value
 
     def get_saturation_flux_density(self, material_name: str):
@@ -288,24 +289,26 @@ class MaterialDatabase:
         return saturation_flux_density
 
     # ----------to get steinmetz data from database file-----------------------
-    def get_steinmetz_data(self, material_name: str, loss_type: str, datasource: str):
+    def get_steinmetz_data(self, material_name: str, loss_type: str, datasource: str, setup_name: str,
+                           temperature: str):
         """
         :param material_name: material name, e.g. "N95"
         :param datasource: measurement or datasheet
         :param loss_type: steinmetz or generalized steinmetz
+        :param setup_name: setup name e.g ANSYS or LEA_LK
+        :param temperature: temperature for data needed
         """
-        s_data = self.data[f"{material_name}"][f"{datasource}"]
-        if loss_type == "Steinmetz":
-            for i in range(len(s_data)):
-                if s_data[i]["data_type"] == "steinmetz_data":
-                    coefficient = dict(s_data[i]["data"])
+
+        s_data = self.data[f"{material_name}"][f"{datasource}"][f'{loss_type}'][f'{setup_name}']["data"]
+        for i in range(len(s_data)):
+            if s_data[i]["temperature"] == temperature:
+                return dict(s_data[i])
         else:
             raise Exception(
                 "Error in selecting loss data. 'type' must be 'Steinmetz' or others (will be implemented in future).")
         # elif type == "Generalized_Steinmetz":
         #     coefficient = dict(s_data[f"{material_name}"]["generalized_steinmetz_data"])
         # mdb_print(coefficient)
-        return coefficient
 
     def load_database(self):
         with open(self.data_file_path, 'r') as database:
@@ -573,8 +576,8 @@ class MaterialDatabase:
         # axs[1].grid()
         for i in range(len(material_list)):
             curve_data_material = \
-            self.data[f"{material_list[i]}"]["measurements"]["complex_permeability"][measurement_name[i]][
-                "measurement_data"]
+                self.data[f"{material_list[i]}"]["measurements"]["complex_permeability"][measurement_name[i]][
+                    "measurement_data"]
             material = material_list[i]
             temperature = temperature_list[i]
             frequency = frequency_list[i]
@@ -708,9 +711,9 @@ class MaterialDatabase:
         """
         # Load all available permittivity data from datasource
         self.mdb_print(f"{material_name = }"
-                  f"{datasource = }"
-                  f"{datatype = }"
-                  f"{measurement_setup =}")
+                       f"{datasource = }"
+                       f"{datatype = }"
+                       f"{measurement_setup =}")
         return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
 
     def get_permittivity(self, temperature: float, frequency: float, material_name: str,

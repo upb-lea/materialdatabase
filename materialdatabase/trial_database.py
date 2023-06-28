@@ -11,7 +11,7 @@ database = mdb.MaterialDatabase()
 # database.plot_data(material_name="N95", properties="b_h_curve")
 # -------Enter the file format to export the data-----
 # database.export_data(file_format="pro")
-# database.get_steinmetz_data(material_name="N95", type="Steinmetz", datasource="measurements")
+# database.get_steinmetz_data(material_name="N95", loss_type="Steinmetz", datasource="measurements", setup_name="LEA_LK", temperature='60')
 # database.get_material_property(material_name="N49", property="initial_permeability")
 
 # --------------compare-----------
