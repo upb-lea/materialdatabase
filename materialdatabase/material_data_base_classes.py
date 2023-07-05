@@ -289,13 +289,18 @@ class MaterialDatabase:
 
     # ----------to get steinmetz data from database file-----------------------
     def get_steinmetz_data(self, material_name: str, loss_type: str, datasource: str, setup_name: str,
-                           temperature: str):
+                           temperature: float):
         """
         :param material_name: material name, e.g. "N95"
+        :type material_name: str
         :param datasource: measurement or datasheet
+        :type datasource: str
         :param loss_type: steinmetz or generalized steinmetz
+        :type loss_type: str
         :param setup_name: setup name e.g ANSYS or LEA_LK
+        :type setup_name: str
         :param temperature: temperature for data needed
+        :type temperature: float
         """
 
         s_data = self.data[f"{material_name}"][f"{datasource}"][f'{loss_type}'][f'{setup_name}']["data"]
@@ -766,18 +771,24 @@ class MaterialDatabase:
                          datatype: MeasurementDataType = MeasurementDataType.Steinmetz, measurement_setup: str = None,
                          interpolation_type: str = "linear"):
         """
-        Returns the complex permittivity for a certain operation point defined by temperature and frequency.
-        :param temperature:
-        :param material_name:
-        :param datasource:
-        :param datatype:
-        :param measurement_setup:
-        :param interpolation_type:
-        :return:
+        Returns the Steinmetz data for a certain operation point defined by temperature and frequency.
+        :param temperature: temperature
+        :param temperature: float
+        :param material_name:material name, e.g. "N95"
+        :param material_name: str
+        :param datasource: eg: "measurements" or "datasheet'
+        :param datasource: str
+        :param datatype:e.g. MeasurementDataType.ComplexPermittivity
+        :type datatype: MeasurementDataType
+        :param measurement_setup: Name of the test-setup, e.g. "LEA_LK"
+        :type measurement_setup: str
+        :param interpolation_type: "linear" (as of now, this is the only supported type)
+        :type interpolation_type: str
+        :return: alpha, beta , k
         :Example:
         >>> import materialdatabase as mdb
         >>> material_db = mdb.MaterialDatabase()
-        >>> epsilon_r, epsilon_phi_deg = material_db.get_permittivity(temperature= 25, material_name = "N95", datasource = "measurements",
+        >>> alpha, beta , k = material_db.get_steinmetz(temperature= 25, material_name = "N95", datasource = "measurements",
         >>>                                      datatype = mdb.MeasurementDataType.Steinmetz, measurement_setup = "LEA_LK",interpolation_type = "linear")
         """
         # Load the chosen Steinmetz data from the database

@@ -698,9 +698,11 @@ def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivi
 
 def create_steinmetz_neighbourhood(temperature, list_of_steinmetz_dicts):
     """
-
-    :param temperature:
-    :param list_of_steinmetz_dicts:
+    find the Steinmetz data for nearby temperature from database of desired temperature
+    :param temperature: temperature
+    :type temperature: float
+    :param list_of_steinmetz_dicts: Steinmetz data
+    :type list_of_steinmetz_dicts: dict
     :return:
     """
     # Initialize dicts for the certain operation point its neighbourhood
@@ -920,7 +922,7 @@ def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_nam
 
     data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
         {
-            "temperature": float(temperature),
+            "temperature": temperature,
             "k": k,
             "alpha": alpha,
             "beta": beta,
