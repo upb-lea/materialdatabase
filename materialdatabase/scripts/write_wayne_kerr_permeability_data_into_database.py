@@ -2,6 +2,7 @@ from scipy import constants
 from materialdatabase.utils import L_from_Z, get_closest
 from materialdatabase.paths import my_wayne_kerr_measurements_path
 from materialdatabase.material_data_base_classes import *
+from datetime import date
 
 # Control
 write_data = True
@@ -112,8 +113,9 @@ if write_data:
 
     flag_overwrite = True
     create_empty_material(material_name, manufacturer)
-    create_permeability_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal, company="", date="", test_setup_name="",
-                                                toroid_dimensions=core_name, measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.WayneKerr, comment="")
+    create_permeability_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal, company=Company.UPB, date=str(date.today()),
+                                                test_setup_name=MeasurementSetup.LEA_MTB_small_signal, toroid_dimensions=core_name,
+                                                measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.WayneKerr, comment="")
 
     for i, f in enumerate(f[indices]):
 

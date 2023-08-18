@@ -1,22 +1,23 @@
 from materialdatabase.material_data_base_classes import *
 from materialdatabase.paths import my_MTB_measurements_path
+from datetime import date
 
-# Initialize materialdatabase
-mdb = MaterialDatabase()
+
+# Control
+write_data = True
+
+# Set parameters
+measurement_device = MeasurementDevice.ZESZimmer
+material_name = Material.DMR96A2
+toroid_name = ToroidDirectoryName.DMR96A_2
+create_permeability_measurement_in_database(Material.DMR96A2, MeasurementSetup.LEA_MTB, company=Company.UPB, date=str(date.today()), test_setup_name=MeasurementSetup.LEA_MTB,
+                                            toroid_dimensions=toroid_name, measurement_method=MeasurementMethod.Electric, equipment_names=MeasurementDevice.ZESZimmer)
+
 
 # General Path to measurements destination
 mtb_post_pro_path = os.path.join(my_MTB_measurements_path, "post_processing_data")
-
-# General options
-measurement_device = MeasurementDevice.ZESZimmer
-material_name = Material.DMR96A
-toroid_name = ToroidDirectoryName.DMR96A_2
-
-# create_permeability_measurement_in_database(Material.DMR96A2, "LEA_MTB", company="Paderborn University", date="2023-08-08", test_setup_name="LEA_MTB",
-#                                             toroid_dimensions=toroid_name, measurement_method="Electrical", equipment_names="Zimmer LMG640")
-
-
 material_path = os.path.join(mtb_post_pro_path, measurement_device, "permeability", material_name)
+print(material_path)
 frequencies = get_all_frequencies_for_material(material_path)
 
 fig, ax = plt.subplots(3)
@@ -33,6 +34,7 @@ for frequency in frequencies:
 
         b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg, smooth_data=True, crop_data=True, plot_data=True, ax=ax, f=frequency, T=T)
 
-        # write_permeability_data_into_database(frequency, T, b_ref, mu_r, mu_phi_deg, "N87", "LEA_MTB")
+        if write_data:
+            write_permeability_data_into_database(frequency, T, b_ref, mu_r, mu_phi_deg, material_name, MeasurementSetup.LEA_MTB)
 
 plt.show()

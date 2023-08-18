@@ -23,7 +23,14 @@ class MeasurementMethod(str, Enum):
     """
     ImpedanceAnalyzer = "Impedance Analyzer"
     Calorimetric = "Calorimetric"
-    PrimaryCurrentSecondaryVoltage = "Primary Current and Secondary Voltage"
+    Electric = "Electric"
+
+
+class Company(str, Enum):
+    """Sets the source from where data is taken.
+    """
+    UPB = "Paderborn University"
+
 
 
 class Manufacturer(str, Enum):
