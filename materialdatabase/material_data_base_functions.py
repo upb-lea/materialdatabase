@@ -23,6 +23,7 @@ relative_path_to_db = "../data/material_data_base.json"
 
 # ---
 # Auxiliary functions
+j = complex(0, 1)
 
 def remove(arr, n):
     """
@@ -550,11 +551,12 @@ def mu_phi_deg__from_mu_r_and_p_hyst(frequency, b_peak, mu_r, p_hyst):
     return np.rad2deg(np.arcsin(p_hyst * mu_r * mu_0 / (np.pi * frequency * b_peak ** 2)))
 
 
-def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float = 0.01, b_max: float = 0.20,
+def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float = 0.05, b_max: float = 0.3,
                               smooth_data: bool = False, crop_data: bool = False,
-                              plot_data: bool = False, ax=None, f=None):
+                              plot_data: bool = False, ax=None, f=None, T=None):
     """
 
+    :param T:
     :param f:
     :param ax:
     :param b_max:
@@ -591,24 +593,31 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float 
     mu_phi_deg[mu_phi_deg < 0] = 0
 
     if plot_data:
-        # fig, ax = plt.subplots(2)
+        # fig, ax = plt.subplots(3)
 
         # Amplitude Plot
         # ax[0].plot(b_ref_raw, mu_r_raw, label=f)
-        ax[0].plot(b_ref, mu_r, "-x", label=f)
-        ax[0].grid()
+        ax[0].plot(1000*b_ref, mu_r, "-x", label=f"{f=}, {T=}")
+        ax[0].grid(True)
+        ax[0].set_ylabel("rel. permeability")
 
         # Phase Plot
         # ax[1].plot(b_ref_raw, mu_phi_deg_raw)
         if smooth_data:
-            ax[1].plot(b_ref, mu_phi_deg, "-x")
-        ax[1].grid()
-        ax[0].legend()
+            ax[1].plot(1000*b_ref, mu_phi_deg, "-x", label=f"{f=}, {T=}")
+        ax[1].grid(True)
+        ax[1].legend()
+
+        ax[1].set_ylabel("loss angle in deg")
 
         # Loss Plot
         loss_density = p_hyst__from_mu_r_and_mu_phi_deg(frequency=f, b_peak=b_ref, mu_r=mu_r, mu_phi_deg=mu_phi_deg)
-        ax[2].plot(b_ref * 1000, loss_density / 1000)
-        ax[2].grid()
+        ax[2].loglog(1000*b_ref, loss_density/1000, label=f"{f=}, {T=}")
+        ax[2].grid(which="both", ls="-")
+        ax[2].set_xlabel("magnetic flux density in mT")
+        ax[2].set_ylabel("loss density in kW/m^3")
+        # ax[2].legend()
+        # plt.show()
 
     return b_ref, mu_r, mu_phi_deg
 
@@ -894,6 +903,13 @@ def create_permeability_measurement_in_database(material_name, measurement_setup
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
+    if material_name not in data:
+        print(f"Material {material_name} does not exist in materialdatabase.")
+    else:
+        if "complex_permeability" not in data[material_name]["measurements"]:
+            print("Create complex permeability measurement.")
+            data[material_name]["measurements"]["complex_permeability"] = {}
+
     data[material_name]["measurements"]["complex_permeability"][measurement_setup] = {
         "data_type": "complex_permeability_data",
         "name": measurement_setup,
@@ -1009,7 +1025,26 @@ def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_nam
         json.dump(data, jsonFile, indent=2)
 
 
-# TODO: A function, that can refractor in the .json db
+def create_empty_material(material_name: Material, manufacturer: Manufacturer):
+
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if material_name in data:
+        print(f"Material {material_name} already exists in materialdatabase.")
+    else:
+        data[material_name] = {
+            "Manufacturer": manufacturer,
+            "manufacturer_datasheet": {},
+            "measurements": {}
+        }
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+
+    # TODO: A function, that can refractor in the .json db
 
 
 # General
@@ -1019,7 +1054,13 @@ def create_permittivity_measurement_in_database(material_name, measurement_setup
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    data[material_name]["measurements"]["complex_permittivity"][measurement_setup] = {
+    if material_name not in data:
+        print(f"Material {material_name} does not exist in materialdatabase.")
+    else:
+        if not "complex_permittivity" in data[material_name]["measurements"]:
+            print("Create complex permittivity measurement.")
+            data[material_name]["measurements"]["complex_permittivity"] = {}
+        data[material_name]["measurements"]["complex_permittivity"][measurement_setup] = {
         "data_type": "complex_permittivity_data",
         "name": measurement_setup,
         "company": company,
@@ -1165,9 +1206,28 @@ def get_all_frequencies_for_material(material_path):
     print(frequencies_str)
     frequencies = []
     for f_str in frequencies_str:
-        frequencies.append(int(f_str[0:-3]) * 1000)
+        if "kHz" in f_str:
+            frequencies.append(int(f_str[0:-3]) * 1000)
     print(frequencies)
     return frequencies
+
+
+def get_all_temperatures_for_directory(toroid_path):
+    temperatures_str = os.listdir(toroid_path)
+    print(temperatures_str)
+    temperatures = []
+    for f_str in temperatures_str:
+        try:
+            temperatures.append(int(f_str))
+        except:
+            pass
+    # print(temperatures)
+    return temperatures
+
+
+def sigma_from_permittivity(amplitude_relative_equivalent_permittivity, phi_deg_relative_equivalent_permittivity, frequency):
+    return 2 * np.pi * frequency * amplitude_relative_equivalent_permittivity * \
+           (np.cos(np.deg2rad(phi_deg_relative_equivalent_permittivity)) + complex(0, 1) * np.sin(np.deg2rad(phi_deg_relative_equivalent_permittivity)) ) * epsilon_0 * complex(0, 1)
 
 
 # ---
