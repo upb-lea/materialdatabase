@@ -58,9 +58,15 @@ class MeasurementDevice(str, Enum):
 
 
 class Material(str, Enum):
-    """Sets the type of Measurement Device
     """
+    Sets the name of the core material as enums.
+    """
+
+    N49 = "N49"
     N87 = "N87"
+    N95 = "N95"
+    PC200 = "PC200"
+    custom_material = "custom_material"
     DMR96A = "DMR96A"
     DMR96A2 = "DMR96A2"
     DMR96A2_test = "DMR96A2_test"
