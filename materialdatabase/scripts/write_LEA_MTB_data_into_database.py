@@ -9,13 +9,15 @@ write_data = True
 # Set parameters
 measurement_device = MeasurementDevice.ZESZimmer
 material_name = Material.DMR96A2
+print(material_name)
+print(type(material_name))
 toroid_name = ToroidDirectoryName.DMR96A_2
 create_permeability_measurement_in_database(Material.DMR96A2, MeasurementSetup.LEA_MTB, company=Company.UPB, date=str(date.today()), test_setup_name=MeasurementSetup.LEA_MTB,
                                             toroid_dimensions=toroid_name, measurement_method=MeasurementMethod.Electric, equipment_names=MeasurementDevice.ZESZimmer)
 
 
 # General Path to measurements destination
-mtb_post_pro_path = os.path.join(my_MTB_measurements_path, "post_processing_data")
+mtb_post_pro_path = os.path.join(my_MTB_measurements_path, "post_processing_data_17_08_2023")
 material_path = os.path.join(mtb_post_pro_path, measurement_device, "permeability", material_name)
 print(material_path)
 frequencies = get_all_frequencies_for_material(material_path)
