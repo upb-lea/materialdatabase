@@ -14,5 +14,6 @@ gpgit/
 
 # Files
 tests/core_materials_temp.pro
+materialdatabase/paths.py
 
 # General File Types
