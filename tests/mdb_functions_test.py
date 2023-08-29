@@ -7,13 +7,13 @@ mdb_instance = mdb.MaterialDatabase()
 
 def test_get_material_property():
 
-    initial_mu_r_abs = mdb_instance.get_material_attribute(material_name="N95", attribute="initial_permeability")
+    initial_mu_r_abs = mdb_instance.get_material_attribute(material_name=mdb.Material.N95, attribute="initial_permeability")
     assert initial_mu_r_abs == pytest.approx(3000, rel=1e-3)
 
-    core_material_resistivity = mdb_instance.get_material_attribute(material_name="N95", attribute="resistivity")
+    core_material_resistivity = mdb_instance.get_material_attribute(material_name=mdb.Material.N95, attribute="resistivity")
     assert core_material_resistivity == pytest.approx(6, rel=1e-3)
 
-    b_ref, mu_r_real, mu_r_imag = mdb_instance.permeability_data_to_pro_file(temperature=25, frequency=150000, material_name ="N95", datatype =mdb.MeasurementDataType.ComplexPermeability,
+    b_ref, mu_r_real, mu_r_imag = mdb_instance.permeability_data_to_pro_file(temperature=25, frequency=150000, material_name =mdb.Material.N95, datatype =mdb.MeasurementDataType.ComplexPermeability,
                                                                              datasource=mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory="")
 
     b_ref = np.array(b_ref)
@@ -27,8 +27,8 @@ def test_get_material_property():
     assert mu_r_real == pytest.approx(mu_r_real_test_ref, rel=1e-3)
     assert mu_r_imag == pytest.approx(mu_r_imag_test_ref, rel=1e-3)
 
-    epsilon_r, epsilon_phi_deg = mdb_instance.get_permittivity(temperature=25, frequency=150000, material_name="N95", datasource =mdb.MaterialDataSource.Measurement,
-                                                               datatype=mdb.MeasurementDataType.ComplexPermittivity, measurement_setup="LEA_LK", interpolation_type="linear")
+    epsilon_r, epsilon_phi_deg = mdb_instance.get_permittivity(temperature=25, frequency=150000, material_name=mdb.Material.N95, datasource =mdb.MaterialDataSource.Measurement,
+                                                               datatype=mdb.MeasurementDataType.ComplexPermittivity, measurement_setup=mdb.MeasurementSetup.LEA_LK, interpolation_type="linear")
     assert epsilon_r == pytest.approx(89591, rel=1e-3)
     assert epsilon_phi_deg == pytest.approx(19.6, rel=1e-3)
 

@@ -96,7 +96,7 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup}"][
+            permeability_data = self.data[f"{material_name.value}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup.value}"][
                 "measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
@@ -170,7 +170,7 @@ class MaterialDatabase:
             mu_r_imag = mu_imag_from_polar
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name}"][f"{datasource.value}"]["permeability_data"]
+            permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
             # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
@@ -237,7 +237,7 @@ class MaterialDatabase:
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref),
                     mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag), silent=self.silent)
 
-        self.mdb_print(f"Material properties of {material_name} are loaded at {temperature} °C and {frequency} Hz.")
+        self.mdb_print(f"Material properties of {material_name.value} are loaded at {temperature} °C and {frequency} Hz.")
 
         return b_ref, mu_r_imag, mu_r_real
 
@@ -255,7 +255,8 @@ class MaterialDatabase:
         >>> material_db = mdb.MaterialDatabase(is_silent=True)
         >>> initial_u_r = material_db.get_material_attribute(material_name="N95", attribute="initial_permeability")
         """
-        value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{attribute}"]
+
+        value = self.data[f"{material_name.value}"]["manufacturer_datasheet"][f"{attribute}"]
         self.mdb_print(f'value=', value)
         return value
 
@@ -294,7 +295,7 @@ class MaterialDatabase:
         :param datasource: measurement or datasheet
         :param loss_type: steinmetz or generalized steinmetz
         """
-        s_data = self.data[f"{material_name}"][f"{datasource}"]
+        s_data = self.data[f"{material_name.value}"][f"{datasource}"]
         if loss_type == "Steinmetz":
             for i in range(len(s_data)):
                 if s_data[i]["data_type"] == "steinmetz_data":
@@ -303,7 +304,7 @@ class MaterialDatabase:
             raise Exception(
                 "Error in selecting loss data. 'type' must be 'Steinmetz' or others (will be implemented in future).")
         # elif type == "Generalized_Steinmetz":
-        #     coefficient = dict(s_data[f"{material_name}"]["generalized_steinmetz_data"])
+        #     coefficient = dict(s_data[f"{material_name.value}"]["generalized_steinmetz_data"])
         # mdb_print(coefficient)
         return coefficient
 
@@ -331,7 +332,7 @@ class MaterialDatabase:
         # ------looking for temperatures and flux values in database----
         # ------ datasheet vs datasheet-----------
         if comparison_type == "dvd":
-            curve_data_material = self.data[f"{material_name}"]["manufacturer_datasheet"]
+            curve_data_material = self.data[f"{material_name.value}"]["manufacturer_datasheet"]
             temp_list = []
             for i in range(len(curve_data_material["b_h_curve"])):
                 temp_list.append(curve_data_material["b_h_curve"][i]["temperature"])
@@ -352,7 +353,7 @@ class MaterialDatabase:
 
         # ------- measurement vs measurement------
         if comparison_type == "mvm":
-            curve_data_material = self.data[f"{material_name}"]["measurements"][datatype][measurement_name][
+            curve_data_material = self.data[f"{material_name.value}"]["measurements"][datatype][measurement_name][
                 "measurement_data"]
             temp_list = []
             freq_list = []
