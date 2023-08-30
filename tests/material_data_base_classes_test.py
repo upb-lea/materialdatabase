@@ -39,7 +39,7 @@ def test(temp_folder):
 
     T = 100
     f = 100000
-    material_name = "N95"
+    material_name = mdb.Material.N95
     datasource = mdb.MaterialDataSource.ManufacturerDatasheet
     parent_directory  = temp_folder
     pro_filepath = os.path.join(temp_folder, "core_materials_temp.pro")

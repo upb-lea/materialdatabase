@@ -83,7 +83,7 @@ class MaterialDatabase:
                              boundary_temperature=temperature)
 
     def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str,
-                                      datatype: MaterialDataSource,
+                                      datatype: MeasurementDataType,
                                       datasource: MaterialDataSource = None, measurement_setup: str = None,
                                       parent_directory: str = "",
                                       plot_interpolation: bool = False):
@@ -108,7 +108,7 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype}"][f"{measurement_setup}"][
+            permeability_data = self.data[f"{material_name.value}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup.value}"][
                 "measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
@@ -182,7 +182,7 @@ class MaterialDatabase:
             mu_r_imag = mu_imag_from_polar
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name}"][f"{datasource}"]["permeability_data"]
+            permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
             # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
@@ -249,7 +249,7 @@ class MaterialDatabase:
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref),
                     mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag), silent=self.silent)
 
-        self.mdb_print(f"Material properties of {material_name} are loaded at {temperature} °C and {frequency} Hz.")
+        self.mdb_print(f"Material properties of {material_name.value} are loaded at {temperature} °C and {frequency} Hz.")
 
         return b_ref, mu_r_imag, mu_r_real
 
@@ -267,7 +267,8 @@ class MaterialDatabase:
         >>> material_db = mdb.MaterialDatabase(is_silent=True)
         >>> initial_u_r = material_db.get_material_attribute(material_name="N95", attribute="initial_permeability")
         """
-        value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{attribute}"]
+
+        value = self.data[f"{material_name.value}"]["manufacturer_datasheet"][f"{attribute}"]
         self.mdb_print(f'value=', value)
         return value
 
@@ -306,7 +307,7 @@ class MaterialDatabase:
         :param datasource: measurement or datasheet
         :param loss_type: steinmetz or generalized steinmetz
         """
-        s_data = self.data[f"{material_name}"][f"{datasource}"]
+        s_data = self.data[f"{material_name.value}"][f"{datasource}"]
         if loss_type == "Steinmetz":
             for i in range(len(s_data)):
                 if s_data[i]["data_type"] == "steinmetz_data":
@@ -315,7 +316,7 @@ class MaterialDatabase:
             raise Exception(
                 "Error in selecting loss data. 'type' must be 'Steinmetz' or others (will be implemented in future).")
         # elif type == "Generalized_Steinmetz":
-        #     coefficient = dict(s_data[f"{material_name}"]["generalized_steinmetz_data"])
+        #     coefficient = dict(s_data[f"{material_name.value}"]["generalized_steinmetz_data"])
         # mdb_print(coefficient)
         return coefficient
 
@@ -343,7 +344,7 @@ class MaterialDatabase:
         # ------looking for temperatures and flux values in database----
         # ------ datasheet vs datasheet-----------
         if comparison_type == "dvd":
-            curve_data_material = self.data[f"{material_name}"]["manufacturer_datasheet"]
+            curve_data_material = self.data[f"{material_name.value}"]["manufacturer_datasheet"]
             temp_list = []
             for i in range(len(curve_data_material["b_h_curve"])):
                 temp_list.append(curve_data_material["b_h_curve"][i]["temperature"])
@@ -364,7 +365,7 @@ class MaterialDatabase:
 
         # ------- measurement vs measurement------
         if comparison_type == "mvm":
-            curve_data_material = self.data[f"{material_name}"]["measurements"][datatype][measurement_name][
+            curve_data_material = self.data[f"{material_name.value}"]["measurements"][datatype][measurement_name][
                 "measurement_data"]
             temp_list = []
             freq_list = []
@@ -771,6 +772,47 @@ class MaterialDatabase:
             raise NotImplementedError
 
         return epsilon_r, epsilon_phi_deg
+
+    def get_steinmetz(self, temperature: float, material_name: str, datasource: str = "measurements",
+                         datatype: MeasurementDataType = MeasurementDataType.Steinmetz, measurement_setup: str = None,
+                         interpolation_type: str = "linear"):
+        """
+        Returns the complex permittivity for a certain operation point defined by temperature and frequency.
+        :param temperature:
+        :param material_name:
+        :param datasource:
+        :param datatype:
+        :param measurement_setup:
+        :param interpolation_type:
+        :return:
+        :Example:
+        >>> import materialdatabase as mdb
+        >>> material_db = mdb.MaterialDatabase()
+        >>> epsilon_r, epsilon_phi_deg = material_db.get_permittivity(temperature= 25, material_name = "N95", datasource = "measurements",
+        >>>                                      datatype = mdb.MeasurementDataType.Steinmetz, measurement_setup = "LEA_LK",interpolation_type = "linear")
+        """
+        # Load the chosen Steinmetz data from the database
+        list_of_steinmetz_dicts = self.data[material_name][datasource][datatype][measurement_setup]["data"]
+
+        # Find the data, that is closest to the given operation point (T, f)
+        neighbourhood = create_steinmetz_neighbourhood(temperature=temperature, list_of_steinmetz_dicts=list_of_steinmetz_dicts)
+        # Interpolate/Extrapolate the permittivity according to the given operation point
+        if interpolation_type == "linear":
+            """
+            A linear interpolation in fact is not really a good ideal for a non-linear function like Steinmetz equation!
+            """
+            # TODO: Find a better interpolation method
+            t_low = neighbourhood["T_low"]["temperature"]["value"]
+            t_index_low = neighbourhood["T_low"]["temperature"]["index"]
+            t_high = neighbourhood["T_high"]["temperature"]["value"]
+            t_index_high = neighbourhood["T_high"]["temperature"]["index"]
+            alpha = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["alpha"], f_b=list_of_steinmetz_dicts[t_index_high]["alpha"], x=temperature)
+            beta = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["beta"], f_b=list_of_steinmetz_dicts[t_index_high]["beta"], x=temperature)
+            k = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["k"], f_b=list_of_steinmetz_dicts[t_index_high]["k"], x=temperature)
+        else:
+            raise NotImplementedError
+
+        return alpha, beta, k
 
     def find_measurement_names(self, material_name: str, datatype: str):
         """

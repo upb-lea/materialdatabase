@@ -6,13 +6,15 @@ import json
 # 3rd party libraries
 import os
 
+import numpy as np
 from matplotlib import pyplot as plt
+import matplotlib
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
 
 # local libraries
-from .constants import *
-from .enumerations import *
+from materialdatabase.constants import *
+from materialdatabase.enumerations import *
 
 # Relative path to the database json file
 global relative_path_to_db
@@ -21,6 +23,7 @@ relative_path_to_db = "../data/material_data_base.json"
 
 # ---
 # Auxiliary functions
+j = complex(0, 1)
 
 def remove(arr, n):
     """
@@ -37,6 +40,8 @@ def remove(arr, n):
 
 
 def crop_data_fixed(x, pre_cropped_values: int = 0, post_cropped_values: int = 0):
+    if post_cropped_values == 0:
+        post_cropped_values = -len(x)
     return x[pre_cropped_values:-post_cropped_values]
 
 
@@ -49,6 +54,21 @@ def crop_data_variable_length(x):
     relative_rolling_average_change = 0
     while relative_rolling_average_change < 1:
         relative_rolling_average_change
+
+
+def crop_3_with_1(x, y, z, xa, xb):
+    x_copy = np.array(x)
+    y_copy = np.array(y)
+    z_copy = np.array(z)
+    filter_bool = [True] * x_copy.shape[0]
+
+    statements = [list(x_copy > xa),
+                  list(x_copy < xb)]
+
+    for statement in statements:
+        filter_bool = [a and zr for a, zr in zip(filter_bool, statement)]
+
+    return x_copy[filter_bool], y_copy[filter_bool], z_copy[filter_bool]
 
 
 def store_data(material_name: str, data_to_be_stored: dict) -> None:
@@ -64,6 +84,22 @@ def store_data(material_name: str, data_to_be_stored: dict) -> None:
     with open('material_data_base.json', 'w') as outfile:
         json.dump(data_to_be_stored, outfile, indent=4)
     print(f"Material properties of {material_name} are stored in the material database.")
+
+
+def load_material_from_db(material_name: str) -> None:
+    """
+    Method is used to load data from material database.
+    :param material_name: Material name
+    :type material_name: str
+    :param data_to_be_stored: data to be stored
+    :type data_to_be_stored: dict
+    :return: None
+    :rtype: None
+    """
+    with open(relative_path_to_db, 'r') as database:
+        print("Read data from the data base.")
+        data_dict = json.load(database)
+    return data_dict[material_name]
 
 
 def find_nearest(array, value):
@@ -99,6 +135,35 @@ def rect(radius_or_amplitude: float, theta_deg: float):
     abscissa_x = radius_or_amplitude * np.cos(np.radians(theta_deg))
     ordinate_y = radius_or_amplitude * np.sin(np.radians(theta_deg))
     return abscissa_x, ordinate_y
+
+
+def sort_data(a, b, c):
+    """sorts three lists according to a
+
+    :param a:
+    :param b:
+    :param c:
+    :return:
+    """
+    sorted_list_of_lists = [list(x) for x in list(zip(*sorted(zip(a, b, c), key=lambda a: a)))]
+    return np.array(sorted_list_of_lists[0]), np.array(sorted_list_of_lists[1]), np.array(sorted_list_of_lists[2])
+
+
+def interpolate_a_b_c(a, b, c, no_interpolation_values=20):
+    # Find the border of the common magnetic flux density values
+    b_min = min(a)
+    b_max = max(a)
+    # mdb_print(f"{b_max_min, b_min_max = }")
+    # Create the magnetic flux density vector that is used for later interpolation actions
+
+    a_reduced = np.linspace(b_min, b_max, no_interpolation_values)
+
+    f_b_interpol = interp1d(a, b)
+    f_c_interpol = interp1d(a, c)
+    b_interpol_common = f_b_interpol(a_reduced)
+    c_interpol_common = f_c_interpol(a_reduced)
+    return a_reduced, b_interpol_common, c_interpol_common
+
 
 # ---
 # Load Permeability
@@ -424,11 +489,15 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
 
     if plot:
         scale = 1000
-        plt.plot(b_common * scale, f_T_low_f_low_common, linestyle='dashed', color="tab:blue", label=r"$T_\mathregular{low}$" + f"={temperature_low} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
-        plt.plot(b_common * scale, f_T_low_f_high_common, linestyle='dashed', color="tab:red", label=r"$T_\mathregular{low}$" + f"={temperature_low} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
+        plt.plot(b_common * scale, f_T_low_f_low_common, linestyle='dashed', color="tab:blue",
+                 label=r"$T_\mathregular{low}$" + f"={temperature_low} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
+        plt.plot(b_common * scale, f_T_low_f_high_common, linestyle='dashed', color="tab:red",
+                 label=r"$T_\mathregular{low}$" + f"={temperature_low} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
 
-        plt.plot(b_common * scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue", label=r"$T_\mathregular{high}$" + f"={temperature_high} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
-        plt.plot(b_common * scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red", label=r"$T_\mathregular{high}$" + f"={temperature_high} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
+        plt.plot(b_common * scale, f_T_high_f_low_common, linestyle='dotted', color="tab:blue",
+                 label=r"$T_\mathregular{high}$" + f"={temperature_high} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
+        plt.plot(b_common * scale, f_T_high_f_high_common, linestyle='dotted', color="tab:red",
+                 label=r"$T_\mathregular{high}$" + f"={temperature_high} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
 
         plt.plot(b_common * scale, f_T_f_low_common, color="tab:blue", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{low}$" + f"={frequency_low}")
         plt.plot(b_common * scale, f_T_f_high_common, color="tab:red", label=r"$T$" + f"={temperature} and " + r"$f_\mathregular{high}$" + f"={frequency_high}")
@@ -469,11 +538,29 @@ def p_hyst__from_mu_r_and_mu_phi_deg(frequency, b_peak, mu_r, mu_phi_deg):
     return np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) * mu_0 * mu_r * (b_peak / mu_0 / mu_r) ** 2
 
 
-def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
-                              smooth_data: bool = False, crop_data: bool = False,
-                              plot_data: bool = False):
+def mu_phi_deg__from_mu_r_and_p_hyst(frequency, b_peak, mu_r, p_hyst):
     """
 
+    :param mu_phi_deg:
+    :param frequency: frequency
+    :param b_peak: peak flux density
+    :param p_hyst: hysteresis losses
+    :return:
+    """
+    b_peak = np.array(b_peak)
+    return np.rad2deg(np.arcsin(p_hyst * mu_r * mu_0 / (np.pi * frequency * b_peak ** 2)))
+
+
+def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float = 0.05, b_max: float = 0.3,
+                              smooth_data: bool = False, crop_data: bool = False,
+                              plot_data: bool = False, ax=None, f=None, T=None):
+    """
+
+    :param T:
+    :param f:
+    :param ax:
+    :param b_max:
+    :param b_min:
     :param b_ref_raw:
     :param mu_r_raw:
     :param mu_phi_deg_raw:
@@ -483,16 +570,13 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
     :return:
     """
     if crop_data:
-        pre, end = 10, 5
-        b_ref = crop_data_fixed(b_ref_raw, pre, end)
-        mu_r = crop_data_fixed(mu_r_raw, pre, end)
-        mu_phi_deg = crop_data_fixed(mu_phi_deg_raw, pre, end)
+        b_ref, mu_r, mu_phi_deg = crop_3_with_1(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min, b_max)
     else:
         b_ref, mu_r, mu_phi_deg = b_ref_raw, mu_r_raw, mu_phi_deg_raw
 
     if smooth_data:
-        mu_r = savgol(x=mu_r, window_length=10, polyorder=2)
-        mu_phi_deg = savgol(x=mu_phi_deg, window_length=10, polyorder=2)
+        mu_r = savgol(x=mu_r, window_length=int(len(b_ref) / 1), polyorder=2)
+        mu_phi_deg = savgol(x=mu_phi_deg, window_length=int(len(b_ref) / 1), polyorder=2)
 
     # Extrapolate until b = 0
     # use linear extrapolation
@@ -505,28 +589,37 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw,
     b_ref = np.insert(b_ref, 0, 0)
     mu_r = np.insert(mu_r, 0, mu_r_0)
     mu_phi_deg = np.insert(mu_phi_deg, 0, mu_phi_deg_0)
-
     # Check for negative values and correct them to be zero (can occur for phi at b close to zero)
     mu_phi_deg[mu_phi_deg < 0] = 0
 
     if plot_data:
-        fig, ax = plt.subplots(2)
+        # fig, ax = plt.subplots(3)
 
         # Amplitude Plot
-        ax[0].plot(b_ref_raw, mu_r_raw)
-        ax[0].plot(b_ref, mu_r)
-        ax[0].grid()
+        # ax[0].plot(b_ref_raw, mu_r_raw, label=f)
+        ax[0].plot(1000*b_ref, mu_r, "-x", label=f"{f=}, {T=}")
+        ax[0].grid(True)
+        ax[0].set_ylabel("rel. permeability")
 
         # Phase Plot
-        ax[1].plot(b_ref_raw, mu_phi_deg_raw)
+        # ax[1].plot(b_ref_raw, mu_phi_deg_raw)
         if smooth_data:
-            ax[1].plot(b_ref, mu_phi_deg)
-        ax[1].grid()
+            ax[1].plot(1000*b_ref, mu_phi_deg, "-x", label=f"{f=}, {T=}")
+        ax[1].grid(True)
+        ax[1].legend()
 
-        plt.show()
+        ax[1].set_ylabel("loss angle in deg")
+
+        # Loss Plot
+        loss_density = p_hyst__from_mu_r_and_mu_phi_deg(frequency=f, b_peak=b_ref, mu_r=mu_r, mu_phi_deg=mu_phi_deg)
+        ax[2].loglog(1000*b_ref, loss_density/1000, label=f"{f=}, {T=}")
+        ax[2].grid(which="both", ls="-")
+        ax[2].set_xlabel("magnetic flux density in mT")
+        ax[2].set_ylabel("loss density in kW/m^3")
+        # ax[2].legend()
+        # plt.show()
 
     return b_ref, mu_r, mu_phi_deg
-
 
 
 # ---
@@ -681,6 +774,51 @@ def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivi
     return nbh
 
 
+def create_steinmetz_neighbourhood(temperature, list_of_steinmetz_dicts):
+    """
+
+    :param temperature:
+    :param list_of_steinmetz_dicts:
+    :return:
+    """
+    # Initialize dicts for the certain operation point its neighbourhood
+    nbh = {
+        "T_low":
+            {
+                "temperature": {
+                    "value": None,
+                    "index": None
+                },
+                "k": None,
+                "alpha": None,
+                "beta": None
+            },
+        "T_high":
+            {
+                "temperature": {
+                    "value": None,
+                    "index": None
+                },
+                "k": None,
+                "alpha": None,
+                "beta": None
+            }
+    }
+
+    # In permittivity data:
+    # find two temperatures at which were measured that are closest to given T
+    temperatures = []
+    for steinmetz_dict in list_of_steinmetz_dicts:
+        temperatures.append(steinmetz_dict["temperature"])  # store them in a list
+    index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = \
+        find_nearest_neighbours(temperature, temperatures)
+
+    nbh["T_low"]["temperature"]["value"], nbh["T_low"]["temperature"]["index"] = value_T_low_neighbour, index_T_low_neighbour
+    nbh["T_high"]["temperature"]["value"], nbh["T_high"]["temperature"]["index"] = value_T_high_neighbour, index_T_high_neighbour
+
+    return nbh
+
+
 def my_interpolate_linear(a, b, f_a, f_b, x):
     """
     interpolates linear between to points 'a' and 'b'.
@@ -765,21 +903,26 @@ def create_permeability_measurement_in_database(material_name, measurement_setup
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    data[material_name]["measurements"]["complex_permeability"] = {
-        measurement_setup: {
-            "data_type": "complex_permeability_data",
-            "name": measurement_setup,
-            "company": company,
-            "date": date,
-            "test_setup": {
-                "name": test_setup_name,
-                "Toroid": toroid_dimensions,
-                "Measurement_Method": measurement_method,
-                "Equipment": equipment_names,
-                "comment": comment
-            },
-            "measurement_data": []
-        }
+    if material_name not in data:
+        print(f"Material {material_name} does not exist in materialdatabase.")
+    else:
+        if "complex_permeability" not in data[material_name]["measurements"]:
+            print("Create complex permeability measurement.")
+            data[material_name]["measurements"]["complex_permeability"] = {}
+
+    data[material_name]["measurements"]["complex_permeability"][measurement_setup] = {
+        "data_type": "complex_permeability_data",
+        "name": measurement_setup,
+        "company": company,
+        "date": date,
+        "test_setup": {
+            "name": test_setup_name,
+            "Toroid": toroid_dimensions,
+            "Measurement_Method": measurement_method,
+            "Equipment": equipment_names,
+            "comment": comment
+        },
+        "measurement_data": []
     }
 
     with open(relative_path_to_db, "w") as jsonFile:
@@ -802,7 +945,7 @@ def clear_permeability_measurement_data_in_database(material_name, measurement_s
         json.dump(data, jsonFile, indent=2)
 
 
-def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_abs, mu_phi_deg, material_name, measurement_setup):
+def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_abs, mu_phi_deg, material_name, measurement_setup, overwrite=False):
     """
     CAUTION: This method only adds the given measurement series to the permeability data
     without checking duplicates!
@@ -813,13 +956,22 @@ def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_ab
     :param mu_r_abs:
     :param mu_phi_deg:
     :param material_name:
+    :param overwrite:
     :return:
     """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    if type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"]) is not list:
+    if "measurement_data" not in data[material_name]["measurements"]["complex_permeability"][measurement_setup]:
         data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
+
+    elif type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"]) is not list:
+        data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
+
+    if overwrite:
+        # check if list is empty
+        if len(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"]) > 0:
+            data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
 
     data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"].append(
         {
@@ -836,14 +988,75 @@ def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_ab
 
 
 # General
+# Steinmetz
+def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_name, measurement_setup):
+    """
+    CAUTION: This method only adds the given measurement series to the steinmetz data
+    without checking duplicates!
+
+    :param temperature:
+    :param k:
+    :param beta:
+    :param alpha:
+    :param material_name:
+    :param measurement_setup:
+    :return:
+    """
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if measurement_setup not in data[material_name]["measurements"]["Steinmetz"]:
+        data[material_name]["measurements"]["Steinmetz"][measurement_setup] = {
+            "data_type": "steinmetz_data",
+            "name": measurement_setup,
+            "data": []
+        }
+
+    data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
+        {
+            "temperature": float(temperature),
+            "k": k,
+            "alpha": alpha,
+            "beta": beta,
+        }
+    )
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+def create_empty_material(material_name: Material, manufacturer: Manufacturer):
+
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if material_name in data:
+        print(f"Material {material_name} already exists in materialdatabase.")
+    else:
+        data[material_name] = {
+            "Manufacturer": manufacturer,
+            "manufacturer_datasheet": {},
+            "measurements": {}
+        }
+
+    with open(relative_path_to_db, "w") as jsonFile:
+        json.dump(data, jsonFile, indent=2)
+
+
+# General
 # Permittivity
 def create_permittivity_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="",
                                                 probe_dimensions="", measurement_method="", equipment_names="", comment=""):
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    data[material_name]["measurements"]["complex_permittivity"] = {
-        measurement_setup: {
+    if material_name not in data:
+        print(f"Material {material_name} does not exist in materialdatabase.")
+    else:
+        if not "complex_permittivity" in data[material_name]["measurements"]:
+            print("Create complex permittivity measurement.")
+            data[material_name]["measurements"]["complex_permittivity"] = {}
+            data[material_name]["measurements"]["complex_permittivity"][measurement_setup] = {
             "data_type": "complex_permittivity_data",
             "name": measurement_setup,
             "company": company,
@@ -857,7 +1070,6 @@ def create_permittivity_measurement_in_database(material_name, measurement_setup
             },
             "measurement_data": []
         }
-    }
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
@@ -888,17 +1100,22 @@ def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, e
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    if type(data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"]) is not list:
-        data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"] = []
+    # if type(data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"]) is not list:
+    #     data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"] = []
 
-    data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"].append(
-        {
-            "temperature": temperature,
-            "frequencies": frequencies,
-            "epsilon_r": epsilon_r,
-            "epsilon_phi_deg": epsilon_phi_deg
-        }
-    )
+    if temperature in set([element["temperature"] for element in
+                           data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"]]):
+        print(f"Temperature {temperature} C is already in database!")
+    else:
+        data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"].append(
+            {
+                "temperature": temperature,
+                "frequencies": frequencies,
+                "epsilon_r": epsilon_r,
+                "epsilon_phi_deg": epsilon_phi_deg
+            }
+        )
+
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
@@ -906,7 +1123,7 @@ def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, e
 
 # LEA_LK
 # Permeability
-def get_permeability_data_from_lea_lk(location: str, frequency, temperature, material_name, no_interpolation_values: int = 10):
+def get_permeability_data_from_lea_lk(location: str, frequency, temperature, material_name, no_interpolation_values: int = 20):
     b_hys, p_hys = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="Core_Loss",
                                                          quantity="p_hys", frequency=frequency, material_name=material_name, temperature=temperature)
     b_phi, mu_phi_deg = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
@@ -959,7 +1176,6 @@ def create_permittivity_file_name_lea_lk(quantity: str = "p_hys", frequency: int
     return "_".join([quantity, material_name, f"{temperature}C", f"{int(frequency / 1000)}kHz.txt"])
 
 
-
 def get_permittivity_property_from_lea_lk(path_to_parent_folder, quantity: str, frequency: int,
                                           material_name: str, temperature: int, sub_folder_name: str = "Core_Loss"):
     filename = create_permittivity_file_name_lea_lk(quantity, frequency, material_name, temperature)
@@ -969,6 +1185,50 @@ def get_permittivity_property_from_lea_lk(path_to_parent_folder, quantity: str, 
     data = np.loadtxt(complete_path)
     # mdb_print(data)
     return data[:, 0], data[:, 1]
+
+
+# LEA_MTB
+def get_permeability_property_from_lea_mtb(path_to_parent_folder):
+    # hardcode: select the first file available in the directory
+    # TODO: find a better solution
+    new_list = [lis for lis in os.listdir(path_to_parent_folder) if '.csv' in lis]
+    data = np.genfromtxt(os.path.join(path_to_parent_folder, new_list[0]), delimiter=',', skip_header=True)
+    return data[:, 4], abs(data[:, 2]), abs(data[:, 3])
+
+
+def get_permeability_data_from_lea_mtb(location: str, no_interpolation_values: int = 20):
+    b_hys, mu_r_abs, mu_phi_deg = get_permeability_property_from_lea_mtb(path_to_parent_folder=location)
+
+    return b_hys, mu_r_abs, mu_phi_deg
+
+
+def get_all_frequencies_for_material(material_path):
+    frequencies_str = os.listdir(material_path)
+    print(frequencies_str)
+    frequencies = []
+    for f_str in frequencies_str:
+        if "kHz" in f_str:
+            frequencies.append(int(f_str[0:-3]) * 1000)
+    print(frequencies)
+    return frequencies
+
+
+def get_all_temperatures_for_directory(toroid_path):
+    temperatures_str = os.listdir(toroid_path)
+    print(temperatures_str)
+    temperatures = []
+    for f_str in temperatures_str:
+        try:
+            temperatures.append(int(f_str))
+        except:
+            pass
+    # print(temperatures)
+    return temperatures
+
+
+def sigma_from_permittivity(amplitude_relative_equivalent_permittivity, phi_deg_relative_equivalent_permittivity, frequency):
+    return 2 * np.pi * frequency * amplitude_relative_equivalent_permittivity * \
+           (np.cos(np.deg2rad(phi_deg_relative_equivalent_permittivity)) + complex(0, 1) * np.sin(np.deg2rad(phi_deg_relative_equivalent_permittivity)) ) * epsilon_0 * complex(0, 1)
 
 
 # ---
@@ -1077,3 +1337,4 @@ def plot_data(material_name: str = None, properties: str = None,
         plt.show()
 
     print(f"Material properties {properties} of {material_name} are plotted.")
+
