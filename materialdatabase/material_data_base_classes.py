@@ -712,7 +712,10 @@ class MaterialDatabase:
                   f"{datasource = }"
                   f"{datatype = }"
                   f"{measurement_setup =}")
-        return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
+        try:
+            return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
+        except:
+            raise ValueError("Requested measurement data not available.")
 
     def get_permittivity(self, temperature: float, frequency: float, material_name: str,
                          datasource: str = "measurements",
