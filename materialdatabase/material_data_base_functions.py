@@ -1043,10 +1043,6 @@ def create_empty_material(material_name: Material, manufacturer: Manufacturer):
         json.dump(data, jsonFile, indent=2)
 
 
-
-    # TODO: A function, that can refractor in the .json db
-
-
 # General
 # Permittivity
 def create_permittivity_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="",
@@ -1060,20 +1056,20 @@ def create_permittivity_measurement_in_database(material_name, measurement_setup
         if not "complex_permittivity" in data[material_name]["measurements"]:
             print("Create complex permittivity measurement.")
             data[material_name]["measurements"]["complex_permittivity"] = {}
-        data[material_name]["measurements"]["complex_permittivity"][measurement_setup] = {
-        "data_type": "complex_permittivity_data",
-        "name": measurement_setup,
-        "company": company,
-        "date": date,
-        "test_setup": {
-            "name": test_setup_name,
-            "Probe": probe_dimensions,
-            "Measurement_Method": measurement_method,
-            "Equipment": equipment_names,
-            "comment": comment
-        },
-        "measurement_data": []
-    }
+            data[material_name]["measurements"]["complex_permittivity"][measurement_setup] = {
+            "data_type": "complex_permittivity_data",
+            "name": measurement_setup,
+            "company": company,
+            "date": date,
+            "test_setup": {
+                "name": test_setup_name,
+                "Probe": probe_dimensions,
+                "Measurement_Method": measurement_method,
+                "Equipment": equipment_names,
+                "comment": comment
+            },
+            "measurement_data": []
+        }
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
@@ -1104,17 +1100,22 @@ def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, e
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
-    if type(data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"]) is not list:
-        data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"] = []
+    # if type(data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"]) is not list:
+    #     data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"] = []
 
-    data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"].append(
-        {
-            "temperature": temperature,
-            "frequencies": frequencies,
-            "epsilon_r": epsilon_r,
-            "epsilon_phi_deg": epsilon_phi_deg
-        }
-    )
+    if temperature in set([element["temperature"] for element in
+                           data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"]]):
+        print(f"Temperature {temperature} C is already in database!")
+    else:
+        data[material_name]["measurements"]["complex_permittivity"][measurement_setup]["measurement_data"].append(
+            {
+                "temperature": temperature,
+                "frequencies": frequencies,
+                "epsilon_r": epsilon_r,
+                "epsilon_phi_deg": epsilon_phi_deg
+            }
+        )
+
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)

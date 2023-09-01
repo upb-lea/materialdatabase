@@ -13,9 +13,10 @@ core_name               = CuboidDirectoryName.DMR96A_2  #  "C_25x2x21.6"  # b * 
 core_dimensions         = core_name[2:].split(sep="x")
 material_name           = Material.DMR96A2
 manufacturer            = Manufacturer.DMEGC
+# measurements_path       = os.path.join(my_wayne_kerr_measurements_path, "small_signal", core_name, material_name)
 measurements_path       = os.path.join(my_wayne_kerr_measurements_path, "small_signal", core_name, material_name)
-file_name               = "c.csv"
-temperature_db          = 25
+temperature_db          = 60
+file_name               = f"{temperature_db}.csv"
 frequencies_db          = [50e3, 1e5, 2e5, 3e5, 4e5, 5e5, 6e5, 7e5, 8e5, 9e5, 1e6, 1.1e6, 1.2e6]
 
 
