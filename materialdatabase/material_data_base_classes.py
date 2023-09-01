@@ -1,4 +1,5 @@
 # Python integrated libraries
+import logging
 
 # 3rd party libraries
 import mplcursors
@@ -18,13 +19,24 @@ class MaterialDatabase:
 
     silent: bool = False
 
-    def __init__(self, is_silent: bool = False):
+    def __init__(self, is_silent: bool = False, logging_file: str = ""):
+        """Constructor for MaterialDatabase. If is_silent is true nothing will be printet. If a logging_file is set the prints are written to a file.
+        """
 
         self.database_file_directory = 'data/'
         self.database_file_name = 'material_data_base.json'
         self.data_folder_path = os.path.join(os.path.dirname(__file__), self.database_file_directory)
         self.data_file_path = os.path.join(self.data_folder_path, self.database_file_name)
         self.silent = is_silent
+        self.logging_file = logging_file
+        
+        self.logger = logging.getLogger("MaterialDatabaseLogger")
+        self.logger.setLevel(logging.INFO)
+
+        if logging_file:
+            fh = logging.FileHandler(logging_file)
+            fh.setLevel(logging.INFO)
+            self.logger.addHandler(fh)
 
         self.data = self.load_database()
 
@@ -42,7 +54,7 @@ class MaterialDatabase:
 
         """
         if not self.silent:
-            print(text, end)
+            self.logger.info(f"{text}{end}")
 
     def material_data_interpolation_to_dto(self, material_name: str, fundamental_frequency: float,
                                            temperature: float) -> MaterialCurve:
