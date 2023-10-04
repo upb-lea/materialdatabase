@@ -24,7 +24,6 @@ links = [os.path.join(measurements_path, file_names[0]),
          os.path.join(measurements_path, file_names[1]),
          os.path.join(measurements_path, file_names[2])]
 
-f = np.genfromtxt(links[0], delimiter=',', skip_header=True)[:, 0]
 Z_k = np.genfromtxt(links[0], delimiter=',', skip_header=True)[:, 1]
 phi_k = np.genfromtxt(links[0], delimiter=',', skip_header=True)[:, 2]
 Z_11 = np.genfromtxt(links[1], delimiter=',', skip_header=True)[:, 1]
@@ -52,8 +51,6 @@ h = float(core_dimensions[2]) / 1000
 N1 = int(core_dimensions[3])
 N2 = int(core_dimensions[4])
 w = 0.5 * (d_outer - d_inner)
-A = h*w
-l = np.pi * (d_inner + w/2)
 
 # Self impedance
 Z_11_complex = 1 / N1**2 * Z_11 * (np.array(np.cos(np.deg2rad(phi_11)) + j * np.sin(np.deg2rad(phi_11))))
