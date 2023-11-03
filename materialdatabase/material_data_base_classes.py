@@ -346,7 +346,7 @@ class MaterialDatabase:
         # ------looking for temperatures and flux values in database----
         # ------ datasheet vs datasheet-----------
         if comparison_type == "dvd":
-            curve_data_material = self.data[f"{material_name.value}"]["manufacturer_datasheet"]
+            curve_data_material = self.data[f"{material_name}"]["manufacturer_datasheet"]
             temp_list = []
             for i in range(len(curve_data_material["b_h_curve"])):
                 temp_list.append(curve_data_material["b_h_curve"][i]["temperature"])
@@ -367,7 +367,7 @@ class MaterialDatabase:
 
         # ------- measurement vs measurement------
         if comparison_type == "mvm":
-            curve_data_material = self.data[f"{material_name.value}"]["measurements"][datatype][measurement_name][
+            curve_data_material = self.data[f"{material_name}"]["measurements"][datatype][measurement_name][
                 "measurement_data"]
             temp_list = []
             freq_list = []
