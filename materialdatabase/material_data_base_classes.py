@@ -108,6 +108,9 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
+            self.mdb_print(f"{material_name = }\n")
+            self.mdb_print(f"{datatype = }\n")
+            self.mdb_print(f"{measurement_setup = }\n")
             permeability_data = self.data[f"{material_name.value}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup.value}"][
                 "measurement_data"]
             # mdb_print(f"{permeability_data = }")
@@ -269,7 +272,6 @@ class MaterialDatabase:
         """
 
         value = self.data[f"{material_name.value}"]["manufacturer_datasheet"][f"{attribute}"]
-        self.mdb_print(f'value=', value)
         return value
 
     def get_saturation_flux_density(self, material_name: str):
@@ -720,11 +722,16 @@ class MaterialDatabase:
         :return: dictionary of required data
         """
         # Load all available permittivity data from datasource
-        self.mdb_print(f"{material_name = }"
-                  f"{datasource = }"
-                  f"{datatype = }"
-                  f"{measurement_setup =}")
-        return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
+        self.mdb_print(f"{material_name = }\n"
+                       f"{datasource = }\n"
+                       f"{datatype = }\n"
+                       f"{measurement_setup =}")
+
+        try:
+            return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
+        except:
+            raise ValueError("Requested measurement data not available.")
+
 
     def get_permittivity(self, temperature: float, frequency: float, material_name: str,
                          datasource: str = "measurements",
