@@ -1215,14 +1215,12 @@ def get_all_frequencies_for_material(material_path):
 
 def get_all_temperatures_for_directory(toroid_path):
     temperatures_str = os.listdir(toroid_path)
-    print(temperatures_str)
     temperatures = []
     for f_str in temperatures_str:
         try:
             temperatures.append(int(f_str))
         except:
             pass
-    # print(temperatures)
     return temperatures
 
 
