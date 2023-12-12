@@ -12,14 +12,13 @@ def compare_pro_files(first_pro_filepath, second_pro_filepath, significant_digit
     with open(second_pro_filepath, "r") as fd:
         second_content = fd.readlines()
 
-    for line_count, line in enumerate(first_content):
+    for line_count, _ in enumerate(first_content):
         if first_content[line_count] == second_content[line_count]:
             pass
         else:
             difference.append(first_content[line_count])
             difference.append(second_content[line_count])
     print(f"{difference = }")
-
 
     assert difference == []
 
@@ -41,10 +40,12 @@ def test(temp_folder):
     f = 100000
     material_name = mdb.Material.N95
     datasource = mdb.MaterialDataSource.ManufacturerDatasheet
-    parent_directory  = temp_folder
+    parent_directory = temp_folder
     pro_filepath = os.path.join(temp_folder, "core_materials_temp.pro")
     pro_verification_filepath = os.path.join(os.path.dirname(__file__), "fixtures", "core_materials_temp_n95_100000Hz_100deg.pro")
-    b_ref, mu_r_imag, mu_r_real = database.permeability_data_to_pro_file(temperature=T, frequency=f, material_name=material_name, datasource=datasource,datatype="complex_permeability", parent_directory=parent_directory)
+    b_ref, mu_r_imag, mu_r_real = database.permeability_data_to_pro_file(temperature=T, frequency=f, material_name=material_name,
+                                                                         datasource=datasource, datatype="complex_permeability",
+                                                                         parent_directory=parent_directory)
     print(f"{ b_ref = }")
     print(f"{mu_r_imag = }")
     print(f"{mu_r_real = }")

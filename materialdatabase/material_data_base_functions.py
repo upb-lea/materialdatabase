@@ -8,7 +8,6 @@ import os
 
 import numpy as np
 from matplotlib import pyplot as plt
-import matplotlib
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
 
@@ -43,17 +42,6 @@ def crop_data_fixed(x, pre_cropped_values: int = 0, post_cropped_values: int = 0
     if post_cropped_values == 0:
         post_cropped_values = -len(x)
     return x[pre_cropped_values:-post_cropped_values]
-
-
-def crop_data_variable_length(x):
-    pre_cropped_values = 0
-    post_cropped_values = 0
-
-    # determine no of pre crop data
-    rolling_average = []
-    relative_rolling_average_change = 0
-    while relative_rolling_average_change < 1:
-        relative_rolling_average_change
 
 
 def crop_3_with_1(x, y, z, xa, xb):
@@ -216,9 +204,9 @@ def getdata_datasheet(permeability, variable, frequency, temperature_1, temperat
 
     for y in range(len(b_1)):
         mu_r.append(t_mu_real_1(b_1[y]) + (t_mu_real_2(b_1[y]) - t_mu_real_1(b_1[y])) / (
-                temperature_2 - temperature_1) * (variable - temperature_1))
+            temperature_2 - temperature_1) * (variable - temperature_1))
         mu_i.append(t_mu_imag_1(b_1[y]) + (t_mu_imag_2(b_1[y]) - t_mu_imag_1(b_1[y])) / (
-                temperature_2 - temperature_1) * (variable - temperature_1))
+            temperature_2 - temperature_1) * (variable - temperature_1))
     return b_1, mu_r, mu_i
 
 
@@ -477,8 +465,10 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
         f_T_f_low_common = f_T_low_f_low_common  # at f_low
         f_T_f_high_common = f_T_low_f_high_common  # at f_high
     else:
-        f_T_f_low_common = f_T_low_f_low_common + (f_T_high_f_low_common - f_T_low_f_low_common) / (temperature_high - temperature_low) * (temperature - temperature_low)  # at f_low
-        f_T_f_high_common = f_T_low_f_high_common + (f_T_high_f_high_common - f_T_low_f_high_common) / (temperature_high - temperature_low) * (temperature - temperature_low)  # at f_high
+        f_T_f_low_common = f_T_low_f_low_common + (f_T_high_f_low_common - f_T_low_f_low_common) / \
+            (temperature_high - temperature_low) * (temperature - temperature_low)  # at f_low
+        f_T_f_high_common = f_T_low_f_high_common + (f_T_high_f_high_common - f_T_low_f_high_common) / \
+            (temperature_high - temperature_low) * (temperature - temperature_low)  # at f_high
 
     # Second interpolate in frequency:
     # mdb_print(f"{f_high, f_low = }")
@@ -504,7 +494,7 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
         plt.plot(b_common * scale, f_T_f_common, color="tab:orange", label=r"$T$" + f"={temperature} and " + r"$f$" + f"={frequency}")
         plt.xlabel("amplitude of magnetic flux density in mT")
         plt.ylabel(f"{y_label}")
-        plt.title(f"Interpolation in temperature and frequency")
+        plt.title("Interpolation in temperature and frequency")
         plt.legend()
         plt.grid()
         plt.show()
@@ -753,23 +743,31 @@ def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivi
 
     # T low
     nbh["T_low_f_low"]["frequency"]["index"], nbh["T_low_f_low"]["frequency"]["value"], \
-    nbh["T_low_f_high"]["frequency"]["index"], nbh["T_low_f_high"]["frequency"]["value"] = \
+        nbh["T_low_f_high"]["frequency"]["index"], nbh["T_low_f_high"]["frequency"]["value"] = \
         find_nearest_neighbours(frequency, list_of_permittivity_dicts[index_T_low_neighbour]["frequencies"])
 
-    nbh["T_low_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]]["epsilon_r"][nbh["T_low_f_low"]["frequency"]["index"]]
-    nbh["T_low_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_low_f_low"]["frequency"]["index"]]
-    nbh["T_low_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["temperature"]["index"]]["epsilon_r"][nbh["T_low_f_high"]["frequency"]["index"]]
-    nbh["T_low_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_low_f_high"]["frequency"]["index"]]
+    nbh["T_low_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]][
+        "epsilon_r"][nbh["T_low_f_low"]["frequency"]["index"]]
+    nbh["T_low_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_low"]["temperature"]["index"]][
+        "epsilon_phi_deg"][nbh["T_low_f_low"]["frequency"]["index"]]
+    nbh["T_low_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["temperature"]["index"]][
+        "epsilon_r"][nbh["T_low_f_high"]["frequency"]["index"]]
+    nbh["T_low_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_low_f_high"]["temperature"]["index"]][
+        "epsilon_phi_deg"][nbh["T_low_f_high"]["frequency"]["index"]]
 
     # T high
     nbh["T_high_f_low"]["frequency"]["index"], nbh["T_high_f_low"]["frequency"]["value"], \
-    nbh["T_high_f_high"]["frequency"]["index"], nbh["T_high_f_high"]["frequency"]["value"] = \
+        nbh["T_high_f_high"]["frequency"]["index"], nbh["T_high_f_high"]["frequency"]["value"] = \
         find_nearest_neighbours(frequency, list_of_permittivity_dicts[index_T_high_neighbour]["frequencies"])
 
-    nbh["T_high_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]]["epsilon_r"][nbh["T_high_f_low"]["frequency"]["index"]]
-    nbh["T_high_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_high_f_low"]["frequency"]["index"]]
-    nbh["T_high_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["temperature"]["index"]]["epsilon_r"][nbh["T_high_f_high"]["frequency"]["index"]]
-    nbh["T_high_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["temperature"]["index"]]["epsilon_phi_deg"][nbh["T_high_f_high"]["frequency"]["index"]]
+    nbh["T_high_f_low"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]][
+        "epsilon_r"][nbh["T_high_f_low"]["frequency"]["index"]]
+    nbh["T_high_f_low"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_low"]["temperature"]["index"]][
+        "epsilon_phi_deg"][nbh["T_high_f_low"]["frequency"]["index"]]
+    nbh["T_high_f_high"]["epsilon_r"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["temperature"]["index"]][
+        "epsilon_r"][nbh["T_high_f_high"]["frequency"]["index"]]
+    nbh["T_high_f_high"]["epsilon_phi_deg"] = list_of_permittivity_dicts[nbh["T_high_f_high"]["temperature"]["index"]][
+        "epsilon_phi_deg"][nbh["T_high_f_high"]["frequency"]["index"]]
 
     return nbh
 
@@ -965,7 +963,7 @@ def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_ab
     if "measurement_data" not in data[material_name]["measurements"]["complex_permeability"][measurement_setup]:
         data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
 
-    elif type(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"]) is not list:
+    elif not isinstance(data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"], list):
         data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"] = []
 
     if overwrite:
@@ -1053,23 +1051,23 @@ def create_permittivity_measurement_in_database(material_name, measurement_setup
     if material_name not in data:
         print(f"Material {material_name} does not exist in materialdatabase.")
     else:
-        if not "complex_permittivity" in data[material_name]["measurements"]:
+        if "complex_permittivity" not in data[material_name]["measurements"]:
             print("Create complex permittivity measurement.")
             data[material_name]["measurements"]["complex_permittivity"] = {}
             data[material_name]["measurements"]["complex_permittivity"][measurement_setup] = {
-            "data_type": "complex_permittivity_data",
-            "name": measurement_setup,
-            "company": company,
-            "date": date,
-            "test_setup": {
-                "name": test_setup_name,
-                "Probe": probe_dimensions,
-                "Measurement_Method": measurement_method,
-                "Equipment": equipment_names,
-                "comment": comment
-            },
-            "measurement_data": []
-        }
+                "data_type": "complex_permittivity_data",
+                "name": measurement_setup,
+                "company": company,
+                "date": date,
+                "test_setup": {
+                    "name": test_setup_name,
+                    "Probe": probe_dimensions,
+                    "Measurement_Method": measurement_method,
+                    "Equipment": equipment_names,
+                    "comment": comment
+                },
+                "measurement_data": []
+            }
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
@@ -1115,7 +1113,6 @@ def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, e
                 "epsilon_phi_deg": epsilon_phi_deg
             }
         )
-
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
@@ -1164,10 +1161,12 @@ def get_permeability_property_from_lea_lk(path_to_parent_folder, quantity: str, 
 # Permittivity
 def get_permittivity_data_from_lea_lk(location, temperature, frequency, material_name):
     e_amplitude, epsilon_r_tilde = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_r_Plot",
-                                                                         quantity="eps_r_tilde", frequency=frequency, material_name=material_name, temperature=temperature)
+                                                                         quantity="eps_r_tilde", frequency=frequency,
+                                                                         material_name=material_name, temperature=temperature)
 
     e_phi, epsilon_phi_deg = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_phi_Plot",
-                                                                   quantity="eps_phi_tilde", frequency=frequency, material_name=material_name, temperature=temperature)
+                                                                   quantity="eps_phi_tilde", frequency=frequency,
+                                                                   material_name=material_name, temperature=temperature)
 
     return epsilon_r_tilde, epsilon_phi_deg
 
@@ -1226,7 +1225,8 @@ def get_all_temperatures_for_directory(toroid_path):
 
 def sigma_from_permittivity(amplitude_relative_equivalent_permittivity, phi_deg_relative_equivalent_permittivity, frequency):
     return 2 * np.pi * frequency * amplitude_relative_equivalent_permittivity * \
-           (np.cos(np.deg2rad(phi_deg_relative_equivalent_permittivity)) + complex(0, 1) * np.sin(np.deg2rad(phi_deg_relative_equivalent_permittivity)) ) * epsilon_0 * complex(0, 1)
+        (np.cos(np.deg2rad(phi_deg_relative_equivalent_permittivity)) + \
+         complex(0, 1) * np.sin(np.deg2rad(phi_deg_relative_equivalent_permittivity))) * epsilon_0 * complex(0, 1)
 
 
 # ---
@@ -1294,9 +1294,10 @@ def export_data(parent_directory: str = "", file_format: str = None,
     """
     if file_format == "pro":
         with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
-            file.write(f'Include "Parameter.pro";\n')
+            file.write('Include "Parameter.pro";\n')
             file.write(
-                f"Function{{\n  b = {str(b_ref_vec).replace('[', '{').replace(']', '}')} ;\n  mu_real = {str(mu_r_real_vec).replace('[', '{').replace(']', '}')} ;"
+                f"Function{{\n  b = {str(b_ref_vec).replace('[', '{').replace(']', '}')} ;\n  "
+                f"mu_real = {str(mu_r_real_vec).replace('[', '{').replace(']', '}')} ;"
                 f"\n  mu_imag = {str(mu_r_imag_vec).replace('[', '{').replace(']', '}')} ;\n  "
                 f"mu_imag_couples = ListAlt[b(), mu_imag()] ;\n  "
                 f"mu_real_couples = ListAlt[b(), mu_real()] ;\n  "
@@ -1335,4 +1336,3 @@ def plot_data(material_name: str = None, properties: str = None,
         plt.show()
 
     print(f"Material properties {properties} of {material_name} are plotted.")
-

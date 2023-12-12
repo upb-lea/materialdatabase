@@ -11,4 +11,3 @@ for f in [100000, 200000, 300000, 400000, 500000]:
 
         b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg,
                                                             smooth_data=True, crop_data=False, plot_data=True)
-
