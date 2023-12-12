@@ -1,37 +1,19 @@
 #!/usr/bin/env python
-
-
-
 """The setup script."""
-
-
-
 from setuptools import setup, find_packages
-
-
 
 with open('README.md') as readme_file:
     readme = readme_file.read()
 
-
-
 with open('CHANGELOG.md') as history_file:
     history = history_file.read()
 
-
-
-#with open('requirements.txt', 'r') as f:
+# with open('requirements.txt', 'r') as f:
 #    requirements = f.read().splitlines()
-
-
 
 setup_requirements = ['setuptools_scm']
 
-
-
 test_requirements = ['pytest']
-
-
 
 setup(
     author="LEA - Uni Paderborn",
@@ -58,8 +40,7 @@ setup(
                       'matplotlib>=3.3.4',
                       'pytest>=6.2.4',
                       'mplcursors',
-                      'deepdiff',
-],
+                      'deepdiff'],
     license="GNU General Public License v3",
 
     # long_description=readme + '\n\n' + history,

@@ -10,13 +10,13 @@ write_data = False
 plot_data = True
 
 # Set parameters
-core_name               = ToroidDirectoryName.DMR96A_2  # d_out x d_in x h x N1 x N2
-core_dimensions         = core_name[2:].split(sep="x")
-material_name           = Material.DMR96A2
-manufacturer            = Manufacturer.DMEGC
-file_names              = ["lk.csv", "l11.csv", "l22.csv"]
-temperature_db          = 25
-frequencies_db          = [50e3, 1e5, 2e5, 3e5, 4e5, 5e5, 6e5, 7e5, 8e5, 9e5, 1e6, 1.1e6, 1.2e6]
+core_name = ToroidDirectoryName.DMR96A_2  # d_out x d_in x h x N1 x N2
+core_dimensions = core_name[2:].split(sep="x")
+material_name = Material.DMR96A2
+manufacturer = Manufacturer.DMEGC
+file_names = ["lk.csv", "l11.csv", "l22.csv"]
+temperature_db = 25
+frequencies_db = [50e3, 1e5, 2e5, 3e5, 4e5, 5e5, 6e5, 7e5, 8e5, 9e5, 1e6, 1.1e6, 1.2e6]
 
 measurements_path = os.path.join(my_wayne_kerr_measurements_path, "small_signal", core_name, material_name)
 
@@ -57,7 +57,7 @@ w = 0.5 * (d_outer - d_inner)
 
 # TECD
 Z_11_complex = Z_11 * (np.cos(np.deg2rad(phi_11)) + complex(0, 1) * np.sin(np.deg2rad(phi_11)))
-Z_22_complex = Z_22 * (np.cos(np.deg2rad(phi_22)) + complex(0, 1) *np.sin(np.deg2rad(phi_22)))
+Z_22_complex = Z_22 * (np.cos(np.deg2rad(phi_22)) + complex(0, 1) * np.sin(np.deg2rad(phi_22)))
 Z_k_complex = Z_k * (np.cos(np.deg2rad(phi_k)) + complex(0, 1) * np.sin(np.deg2rad(phi_k)))
 n = N1/N2
 Z_s1 = 0.5 * (Z_11_complex - Z_22_complex*n**2 + Z_k_complex)
@@ -66,15 +66,18 @@ Z_m_complex_alt = Z_11_complex - Z_s1
 
 # Self impedance
 Z_11_complex = Z_11 * (np.array(np.cos(np.deg2rad(phi_11)) + j * np.sin(np.deg2rad(phi_11))))
-mu_r_complex = 1 / N1**2 * (2 * np.pi * f * h / (2 * np.pi) * np.log(d_outer / d_inner))**(-1) * np.array(Z_11_complex.imag + j * Z_11_complex.real) / constants.mu_0
+mu_r_complex = 1 / N1**2 * (2 * np.pi * f * h / (2 * np.pi) * np.log(d_outer / d_inner))**(-1) * \
+    np.array(Z_11_complex.imag + j * Z_11_complex.real) / constants.mu_0
 
 # Magnetization impedance
 Z_m_complex = j*2*np.pi*f*Lm
-mu_r_complex_m = 1 / N1**2 * (2 * np.pi * f * h / (2 * np.pi) * np.log(d_outer / d_inner))**(-1) * np.array(Z_m_complex.imag + j * Z_m_complex.real) / constants.mu_0
+mu_r_complex_m = 1 / N1**2 * (2 * np.pi * f * h / (2 * np.pi) * np.log(d_outer / d_inner))**(-1) * \
+    np.array(Z_m_complex.imag + j * Z_m_complex.real) / constants.mu_0
 
 # Alternative magnetization impedance
 # Z_m_complex_alt = 1 / N1**2 * Z_11_complex - Z_k * N1 * (np.array(np.cos(np.deg2rad(phi_k)) + j * np.sin(np.deg2rad(phi_k))))
-mu_r_complex_m_alt = 1 / N1**2 * (2 * np.pi * f * h / (2 * np.pi) * np.log(d_outer / d_inner))**(-1) * np.array(Z_m_complex_alt.imag + j * Z_m_complex_alt.real) / constants.mu_0
+mu_r_complex_m_alt = 1 / N1**2 * (2 * np.pi * f * h / (2 * np.pi) * np.log(d_outer / d_inner))**(-1) * \
+    np.array(Z_m_complex_alt.imag + j * Z_m_complex_alt.real) / constants.mu_0
 
 # plt.plot(f, abs(Z_11_complex)-abs(Z_11_complex), label="z11")
 # plt.plot(f, (abs(Z_11_complex)-abs(Z_m_complex))/2/np.pi/f, label="zs1")
@@ -128,13 +131,16 @@ if write_data:
 
     flag_overwrite = True
     create_empty_material(material_name, manufacturer)
-    create_permeability_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal, company=Company.UPB, date=str(date.today()),
-                                                test_setup_name=MeasurementSetup.LEA_MTB_small_signal, toroid_dimensions=core_name,
-                                                measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.WayneKerr, comment="")
+    create_permeability_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal,
+                                                company=Company.UPB, date=str(date.today()),
+                                                test_setup_name=MeasurementSetup.LEA_MTB_small_signal,
+                                                toroid_dimensions=core_name,
+                                                measurement_method=MeasurementMethod.ImpedanceAnalyzer,
+                                                equipment_names=MeasurementDevice.WayneKerr, comment="")
 
-    for i, f in enumerate(f[indices]):
+    for i, frequency in enumerate(f[indices]):
 
-        write_permeability_data_into_database(frequency=f,
+        write_permeability_data_into_database(frequency=frequency,
                                               temperature=temperature_db,
                                               b_ref=b_ref,
                                               mu_r_abs=[db_mu_r_abs[i], db_mu_r_abs[i]],

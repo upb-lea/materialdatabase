@@ -32,10 +32,9 @@ class Company(str, Enum):
     UPB = "Paderborn University"
 
 
-
 class Manufacturer(str, Enum):
-    """Sets the source from where data is taken.
-    """
+    """Sets the source from where data is taken."""
+
     TDK = "TDK"
     Ferroxcube = "Ferroxcube"
     DMEGC = "DMEGC"
@@ -102,4 +101,3 @@ class CuboidDirectoryName(str, Enum):
     (a and b can be exchanged, because A = a*b)
     """
     DMR96A_2 = "C_25.0x2.0x15.0"
-
