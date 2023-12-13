@@ -1,4 +1,5 @@
 # Python integrated libraries
+import logging
 
 # 3rd party libraries
 import mplcursors
@@ -18,13 +19,24 @@ class MaterialDatabase:
 
     silent: bool = False
 
-    def __init__(self, is_silent: bool = False):
+    def __init__(self, is_silent: bool = False, logging_file: str = ""):
+        """Constructor for MaterialDatabase. If is_silent is true nothing will be printet. If a logging_file is set the prints are written to a file.
+        """
 
         self.database_file_directory = 'data/'
         self.database_file_name = 'material_data_base.json'
         self.data_folder_path = os.path.join(os.path.dirname(__file__), self.database_file_directory)
         self.data_file_path = os.path.join(self.data_folder_path, self.database_file_name)
         self.silent = is_silent
+        self.logging_file = logging_file
+        
+        self.logger = logging.getLogger("MaterialDatabaseLogger")
+        self.logger.setLevel(logging.INFO)
+
+        if logging_file:
+            fh = logging.FileHandler(logging_file)
+            fh.setLevel(logging.INFO)
+            self.logger.addHandler(fh)
 
         self.data = self.load_database()
 
@@ -42,7 +54,7 @@ class MaterialDatabase:
 
         """
         if not self.silent:
-            print(text, end)
+            self.logger.info(f"{text}{end}")
 
     def material_data_interpolation_to_dto(self, material_name: str, fundamental_frequency: float,
                                            temperature: float) -> MaterialCurve:
@@ -89,14 +101,18 @@ class MaterialDatabase:
         :Example:
         >>> import materialdatabase as mdb
         >>> material_db = mdb.MaterialDatabase()
-        >>> b_ref, mu_r_real, mu_r_imag = material_db.permeability_data_to_pro_file(temperature=25, frequency=150000, material_name = "N95", datatype = "complex_permeability",
-                                      datasource = mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory = "")
+        >>> b_ref, mu_r_real, mu_r_imag = material_db.permeability_data_to_pro_file(temperature=25, frequency=150000,
+        >>>     material_name = "N95", datatype = "complex_permeability",
+        >>>     datasource = mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory = "")
         """
 
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            permeability_data = self.data[f"{material_name}"][f"measurements"][f"{datatype.value}"][f"{measurement_setup}"][
+            self.mdb_print(f"{material_name = }\n")
+            self.mdb_print(f"{datatype = }\n")
+            self.mdb_print(f"{measurement_setup = }\n")
+            permeability_data = self.data[f"{material_name.value}"]["measurements"][f"{datatype.value}"][f"{measurement_setup.value}"][
                 "measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
@@ -170,7 +186,7 @@ class MaterialDatabase:
             mu_r_imag = mu_imag_from_polar
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name}"][f"{datasource.value}"]["permeability_data"]
+            permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
             # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
@@ -237,7 +253,7 @@ class MaterialDatabase:
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref),
                     mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag), silent=self.silent)
 
-        self.mdb_print(f"Material properties of {material_name} are loaded at {temperature} °C and {frequency} Hz.")
+        self.mdb_print(f"Material properties of {material_name.value} are loaded at {temperature} °C and {frequency} Hz.")
 
         return b_ref, mu_r_imag, mu_r_real
 
@@ -255,8 +271,8 @@ class MaterialDatabase:
         >>> material_db = mdb.MaterialDatabase(is_silent=True)
         >>> initial_u_r = material_db.get_material_attribute(material_name="N95", attribute="initial_permeability")
         """
-        value = self.data[f"{material_name}"]["manufacturer_datasheet"][f"{attribute}"]
-        self.mdb_print(f'value=', value)
+
+        value = self.data[f"{material_name.value}"]["manufacturer_datasheet"][f"{attribute}"]
         return value
 
     def get_saturation_flux_density(self, material_name: str):
@@ -294,7 +310,7 @@ class MaterialDatabase:
         :param datasource: measurement or datasheet
         :param loss_type: steinmetz or generalized steinmetz
         """
-        s_data = self.data[f"{material_name}"][f"{datasource}"]
+        s_data = self.data[f"{material_name.value}"][f"{datasource}"]
         if loss_type == "Steinmetz":
             for i in range(len(s_data)):
                 if s_data[i]["data_type"] == "steinmetz_data":
@@ -303,7 +319,7 @@ class MaterialDatabase:
             raise Exception(
                 "Error in selecting loss data. 'type' must be 'Steinmetz' or others (will be implemented in future).")
         # elif type == "Generalized_Steinmetz":
-        #     coefficient = dict(s_data[f"{material_name}"]["generalized_steinmetz_data"])
+        #     coefficient = dict(s_data[f"{material_name.value}"]["generalized_steinmetz_data"])
         # mdb_print(coefficient)
         return coefficient
 
@@ -356,7 +372,7 @@ class MaterialDatabase:
                 "measurement_data"]
             temp_list = []
             freq_list = []
-            for j in range(len(curve_data_material)):
+            for _ in range(len(curve_data_material)):
                 for i in range(len(curve_data_material)):
                     temp_list.append(curve_data_material[i]["temperature"])
 
@@ -494,8 +510,7 @@ class MaterialDatabase:
             power_loss = []
             color = color_list[i]
             for m in range(len(curve_data_material)):
-                if curve_data_material[m]["temperature"] == temperature and curve_data_material[m][
-                    "flux_density"] == flux:
+                if curve_data_material[m]["temperature"] == temperature and curve_data_material[m]["flux_density"] == flux:
                     frequency.append(curve_data_material[m]["frequency"])
                     power_loss.append(curve_data_material[m]["power_loss"])
 
@@ -573,22 +588,20 @@ class MaterialDatabase:
         # axs[1].grid()
         for i in range(len(material_list)):
             curve_data_material = \
-            self.data[f"{material_list[i]}"]["measurements"]["complex_permeability"][measurement_name[i]][
-                "measurement_data"]
+                self.data[f"{material_list[i]}"]["measurements"]["complex_permeability"][measurement_name[i]]["measurement_data"]
             material = material_list[i]
             temperature = temperature_list[i]
             frequency = frequency_list[i]
             color = color_list[i]
 
-            for j in range(len(curve_data_material)):
+            for _ in range(len(curve_data_material)):
                 b = []
                 freq = []
                 mu_phi = []
                 mu_r = []
 
                 for k in range(len(curve_data_material)):
-                    if curve_data_material[k]["frequency"] == frequency and curve_data_material[k][
-                        "temperature"] == temperature:
+                    if curve_data_material[k]["frequency"] == frequency and curve_data_material[k]["temperature"] == temperature:
                         b.append(curve_data_material[k]["flux_density"])
                         freq.append(curve_data_material[k]["frequency"])
                         mu_phi.append(curve_data_material[k]["mu_phi_deg"])
@@ -661,7 +674,7 @@ class MaterialDatabase:
                 frequency_d.append(curve_data_material_datasheet[j]["frequency"])
                 power_loss_d.append(curve_data_material_datasheet[j]["power_loss"])
         for j in range(len(b_d)):
-            label = f"{material}", f"F={frequency_d[j]}Hz", f"T={temperature_datasheet}°C", f"Datasheet"
+            label = f"{material}", f"F={frequency_d[j]}Hz", f"T={temperature_datasheet}°C", "Datasheet"
             lines = matplotlib_widget.axis.plot(b_d[j], power_loss_d[j], label=label, color=color_list[0],
                                                 linestyle=line_style[0])
             mplcursors.cursor(lines)
@@ -678,7 +691,7 @@ class MaterialDatabase:
                                                      list_item["mu_r_abs"],
                                                      list_item["mu_phi_deg"]))
         for j in range(len(b_m)):
-            label = f"{material}", f"F={frequency_m[j]}Hz", f"T={temperature_measurement}°C", f"Measurements"
+            label = f"{material}", f"F={frequency_m[j]}Hz", f"T={temperature_measurement}°C", "Measurements"
             lines = matplotlib_widget.axis.plot(b_m[j], power_loss_m[j], label=label, color=color_list[1],
                                                 linestyle=line_style[1])
             mplcursors.cursor(lines)
@@ -707,11 +720,15 @@ class MaterialDatabase:
         :return: dictionary of required data
         """
         # Load all available permittivity data from datasource
-        self.mdb_print(f"{material_name = }"
-                  f"{datasource = }"
-                  f"{datatype = }"
-                  f"{measurement_setup =}")
-        return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
+        self.mdb_print(f"{material_name = }\n"
+                       f"{datasource = }\n"
+                       f"{datatype = }\n"
+                       f"{measurement_setup =}")
+
+        try:
+            return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]
+        except Exception as err:
+            raise ValueError("Requested measurement data not available.") from err
 
     def get_permittivity(self, temperature: float, frequency: float, material_name: str,
                          datasource: str = "measurements",
@@ -740,7 +757,7 @@ class MaterialDatabase:
         >>> import materialdatabase as mdb
         >>> material_db = mdb.MaterialDatabase()
         >>> epsilon_r, epsilon_phi_deg = material_db.get_permittivity(temperature= 25, frequency=150000, material_name = "N95", datasource = "measurements",
-        >>>                                      datatype = mdb.MeasurementDataType.ComplexPermittivity, measurement_setup = "LEA_LK",interpolation_type = "linear")
+        >>>     datatype = mdb.MeasurementDataType.ComplexPermittivity, measurement_setup = "LEA_LK",interpolation_type = "linear")
 
         """
         # Load the chosen permittivity data from the database
@@ -761,8 +778,8 @@ class MaterialDatabase:
         return epsilon_r, epsilon_phi_deg
 
     def get_steinmetz(self, temperature: float, material_name: str, datasource: str = "measurements",
-                         datatype: MeasurementDataType = MeasurementDataType.Steinmetz, measurement_setup: str = None,
-                         interpolation_type: str = "linear"):
+                      datatype: MeasurementDataType = MeasurementDataType.Steinmetz, measurement_setup: str = None,
+                      interpolation_type: str = "linear"):
         """
         Returns the complex permittivity for a certain operation point defined by temperature and frequency.
         :param temperature:
@@ -793,9 +810,12 @@ class MaterialDatabase:
             t_index_low = neighbourhood["T_low"]["temperature"]["index"]
             t_high = neighbourhood["T_high"]["temperature"]["value"]
             t_index_high = neighbourhood["T_high"]["temperature"]["index"]
-            alpha = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["alpha"], f_b=list_of_steinmetz_dicts[t_index_high]["alpha"], x=temperature)
-            beta = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["beta"], f_b=list_of_steinmetz_dicts[t_index_high]["beta"], x=temperature)
-            k = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["k"], f_b=list_of_steinmetz_dicts[t_index_high]["k"], x=temperature)
+            alpha = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["alpha"],
+                                     f_b=list_of_steinmetz_dicts[t_index_high]["alpha"], x=temperature)
+            beta = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["beta"],
+                                    f_b=list_of_steinmetz_dicts[t_index_high]["beta"], x=temperature)
+            k = my_polate_linear(a=t_low, b=t_high, f_a=list_of_steinmetz_dicts[t_index_low]["k"],
+                                 f_b=list_of_steinmetz_dicts[t_index_high]["k"], x=temperature)
         else:
             raise NotImplementedError
 

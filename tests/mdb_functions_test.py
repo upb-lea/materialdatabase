@@ -7,28 +7,32 @@ mdb_instance = mdb.MaterialDatabase()
 
 def test_get_material_property():
 
-    initial_mu_r_abs = mdb_instance.get_material_attribute(material_name="N95", attribute="initial_permeability")
+    initial_mu_r_abs = mdb_instance.get_material_attribute(material_name=mdb.Material.N95, attribute="initial_permeability")
     assert initial_mu_r_abs == pytest.approx(3000, rel=1e-3)
 
-    core_material_resistivity = mdb_instance.get_material_attribute(material_name="N95", attribute="resistivity")
+    core_material_resistivity = mdb_instance.get_material_attribute(material_name=mdb.Material.N95, attribute="resistivity")
     assert core_material_resistivity == pytest.approx(6, rel=1e-3)
 
-    b_ref, mu_r_real, mu_r_imag = mdb_instance.permeability_data_to_pro_file(temperature=25, frequency=150000, material_name ="N95", datatype =mdb.MeasurementDataType.ComplexPermeability,
-                                                                             datasource=mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory="")
+    b_ref, mu_r_real, mu_r_imag = mdb_instance.permeability_data_to_pro_file(temperature=25, frequency=150000, material_name=mdb.Material.N95,
+                                                                             datatype=mdb.MeasurementDataType.ComplexPermeability,
+                                                                             datasource=mdb.MaterialDataSource.ManufacturerDatasheet,
+                                                                             parent_directory="")
 
     b_ref = np.array(b_ref)
 
-    b_test_ref = np.array([0.0 , 0.14285714, 0.28571429, 0.42857143, 0.57142857, 0.71428571, 0.85714286, 1.0])
-    mu_r_real_test_ref = np.array([  1., 438.42857143, 550.71428571, 560., 560., 560., 560., 560.])
+    b_test_ref = np.array([0.0, 0.14285714, 0.28571429, 0.42857143, 0.57142857, 0.71428571, 0.85714286, 1.0])
+    mu_r_real_test_ref = np.array([1., 438.42857143, 550.71428571, 560., 560., 560., 560., 560.])
     mu_r_imag_test_ref = np.array([3.00000000e+03, 2.96707143e+03, 2.95635714e+03, 1.00000000e+00,
-                         1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00])
+                                   1.00000000e+00, 1.00000000e+00, 1.00000000e+00, 1.00000000e+00])
 
     assert b_ref == pytest.approx(b_test_ref, rel=1e-3)
     assert mu_r_real == pytest.approx(mu_r_real_test_ref, rel=1e-3)
     assert mu_r_imag == pytest.approx(mu_r_imag_test_ref, rel=1e-3)
 
-    epsilon_r, epsilon_phi_deg = mdb_instance.get_permittivity(temperature=25, frequency=150000, material_name="N95", datasource =mdb.MaterialDataSource.Measurement,
-                                                               datatype=mdb.MeasurementDataType.ComplexPermittivity, measurement_setup="LEA_LK", interpolation_type="linear")
+    epsilon_r, epsilon_phi_deg = mdb_instance.get_permittivity(temperature=25, frequency=150000, material_name=mdb.Material.N95,
+                                                               datasource=mdb.MaterialDataSource.Measurement,
+                                                               datatype=mdb.MeasurementDataType.ComplexPermittivity,
+                                                               measurement_setup=mdb.MeasurementSetup.LEA_LK, interpolation_type="linear")
     assert epsilon_r == pytest.approx(89591, rel=1e-3)
     assert epsilon_phi_deg == pytest.approx(19.6, rel=1e-3)
 
@@ -54,14 +58,14 @@ def test_interpolation():
     mu_T_high_f_high = [2300, 2500, 3000, 3200]
 
     (result) = mdb.interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency, T_low, T_high, f_low, f_high,
-                                                                               b_T_low_f_low, mu_T_low_f_low,
-                                                                               b_T_high_f_low, mu_T_high_f_low,
-                                                                               b_T_low_f_high, mu_T_low_f_high,
-                                                                               b_T_high_f_high, mu_T_high_f_high)
+                                                                                 b_T_low_f_low, mu_T_low_f_low,
+                                                                                 b_T_high_f_low, mu_T_high_f_low,
+                                                                                 b_T_low_f_high, mu_T_low_f_high,
+                                                                                 b_T_high_f_high, mu_T_high_f_high)
 
     result = np.array(result)
     correct_result = [[2.0, 2.28571429, 2.57142857, 2.85714286, 3.14285714, 3.42857143, 3.71428571, 4.0],
-                              [2678.78787879, 2885.71428571, 3105.97402597, 3326.23376623, 3536.27705628, 3736.1038961 , 3935.93073593, 4135.75757576]]
+                      [2678.78787879, 2885.71428571, 3105.97402597, 3326.23376623, 3536.27705628, 3736.1038961, 3935.93073593, 4135.75757576]]
     assert result[0] == pytest.approx(correct_result[0], rel=1e-3)
     assert result[1] == pytest.approx(correct_result[1], rel=1e-3)
 
@@ -83,8 +87,7 @@ def test_neighbourhood():
     f = 450000
 
     neighbourhood = mdb.create_permittivity_neighbourhood(temperature=T, frequency=f,
-                                                      list_of_permittivity_dicts=list_of_permittivity_dicts)
-
+                                                          list_of_permittivity_dicts=list_of_permittivity_dicts)
 
     difference = deepdiff.DeepDiff(neighbourhood, correct_result_neighbourhood, ignore_order=True, significant_digits=3)
     print(f"{difference = }")
@@ -93,20 +96,21 @@ def test_neighbourhood():
 
 
 def test_load_permittivity_measurement():
-    load_permittivity_measurement_result = {'T_low_f_low': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
-                     'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999},
-     'T_low_f_high': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
-                      'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999},
-     'T_high_f_low': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
-                      'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999},
-     'T_high_f_high': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
-                       'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999}}
+    load_permittivity_measurement_result = \
+        {'T_low_f_low': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
+                         'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999},
+         'T_low_f_high': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
+                          'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999},
+         'T_high_f_low': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
+                          'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999},
+         'T_high_f_high': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
+                           'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999}}
 
     list_of_permittivity_dicts = mdb_instance.load_permittivity_measurement(material_name="N49", datasource="measurements",
                                                                             measurement_setup="LEA_LK")
 
     create_dict = mdb.create_permittivity_neighbourhood(temperature=60, frequency=1e5,
-                                            list_of_permittivity_dicts=list_of_permittivity_dicts)
+                                                        list_of_permittivity_dicts=list_of_permittivity_dicts)
 
     assert not deepdiff.DeepDiff(load_permittivity_measurement_result, create_dict, ignore_order=True, significant_digits=3)
 
@@ -165,7 +169,6 @@ def test_find_nearest_neighbours():
     value = "computer"
     with pytest.raises(TypeError):
         mdb.find_nearest_neighbours(value, list_to_search_in)
-
 
     list_to_search_in = [10, 20, 30, 40, 60]
 
