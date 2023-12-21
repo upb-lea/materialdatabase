@@ -60,6 +60,8 @@ class MeasurementDevice(str, Enum):
 
 
 class PlotLabels(str, Enum):
+    """Labels for possible plots
+    """
 
     time = "time in s"
 
