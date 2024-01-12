@@ -1,41 +1,38 @@
-from scipy import constants
-from materialdatabase.utils import get_closest, Z_from_amplitude_and_angle
 from materialdatabase.material_data_base_classes import *
-# from materialdatabase.paths import my_wayne_kerr_measurements_path
+import materialdatabase.paths as paths
 import datetime
 import pandas as pd
 
-# Control
+# Control flags
 write_data = True
 plot_data = True
 
 # Set parameters
-core_name = 'R_14x9x5'  # d_out x d_in x h x N1 x N2
-core_dimensions = core_name[2:].split(sep="x")
+core_name = 'R_14x9x5'  # d_out x d_in x h
 material_name = Material._3F46
 manufacturer = Manufacturer.Ferroxcube
-date = datetime.datetime(2016, 3, 3).strftime("%m/%d/%Y")  # (year, month, day)
+date = str(datetime.datetime(2016, 3, 3))  # (year, month, day)
 temperature_db = 100
 frequencies_db = [1e6, 2e6, 3e6]
 
-datasheet_path = "D:/sciebo/Exchange_Sebastian/05_Material_Datasheets/Ferroxcube/3F46_digitized/"
+# Path to folder with datasheet data
+datasheet_path = paths.datasheet_path
 
 powerloss_data = []
 powerloss_files = ["powerloss_density_over_b_field_1MHz_100C.csv",
                    "powerloss_density_over_b_field_2MHz_100C.csv",
                    "powerloss_density_over_b_field_3MHz_100C.csv"]
 
-
 permeability_amplitude_data = []
 permeability_amplitude_files = ["permeability_over_b_field_1MHz_100C.csv",
-                                "placeholder.csv",
+                                "placeholder.csv",  # placeholder because no data for 2MHz
                                 "permeability_over_b_field_3MHz_100C.csv"]
 
 b_field_data = []
 permeability_angle_data = []
 
 for index, value in enumerate(powerloss_files):
-    print(index)
+    print(index+1, "out of", len(powerloss_files), "calculated")
 
     # adding the graph by 2MHz
     if index == 1:
