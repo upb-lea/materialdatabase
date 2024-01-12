@@ -6,20 +6,19 @@ import datetime
 import pandas as pd
 
 # Control
-write_data = False
+write_data = True
 plot_data = True
-create_material = False
 
 # Set parameters
 core_name = 'R_14x9x5'  # d_out x d_in x h x N1 x N2
 core_dimensions = core_name[2:].split(sep="x")
 material_name = Material._3F46
 manufacturer = Manufacturer.Ferroxcube
-date = datetime.datetime(2016, 3, 3)  # (year, month, day)
+date = datetime.datetime(2016, 3, 3).strftime("%m/%d/%Y")  # (year, month, day)
 temperature_db = 100
 frequencies_db = [1e6, 2e6, 3e6]
 
-datasheet_path = "C:/Users/schacht/sciebo/Exchange_Sebastian/05_Material_Datasheets/Ferroxcube/3F46_digitized/"
+datasheet_path = "D:/sciebo/Exchange_Sebastian/05_Material_Datasheets/Ferroxcube/3F46_digitized/"
 
 powerloss_data = []
 powerloss_files = ["powerloss_density_over_b_field_1MHz_100C.csv",
@@ -71,17 +70,18 @@ for index, value in enumerate(powerloss_files):
 
 # Plot
 if plot_data:
-    fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
-    ax[0].plot(b_field_data[1], permeability_angle_data[1], label="angle")
-    ax[1].plot(b_field_data[1], permeability_amplitude_data[1], label="amplitude")
-    ax[2].plot(b_field_data[1], powerloss_data[1], label="powerloss")
-    ax[0].grid()
-    ax[1].grid()
-    ax[2].grid()
-    ax[0].legend()
-    ax[1].legend()
-    ax[2].legend()
-    plt.show()
+    for index, value in enumerate(frequencies_db):
+        fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
+        ax[0].plot(b_field_data[index], permeability_angle_data[index], label="angle")
+        ax[1].plot(b_field_data[index], permeability_amplitude_data[index], label="amplitude")
+        ax[2].plot(b_field_data[index], powerloss_data[index], label="powerloss")
+        ax[0].grid()
+        ax[1].grid()
+        ax[2].grid()
+        ax[0].legend()
+        ax[1].legend()
+        ax[2].legend()
+        plt.show()
 
 
 # Writing into material database
@@ -100,9 +100,9 @@ if write_data:
 
         write_permeability_data_into_database(frequency=value,
                                               temperature=temperature_db,
-                                              b_ref=b_field_data[index],
-                                              mu_r_abs=permeability_amplitude_data[index],
-                                              mu_phi_deg=permeability_angle_data[index],
+                                              b_ref=np.round(b_field_data[index], 3),
+                                              mu_r_abs=np.round(permeability_amplitude_data[index], 3),
+                                              mu_phi_deg=np.round(permeability_angle_data[index], 3),
                                               material_name=material_name,
                                               measurement_setup="datasheet",
                                               overwrite=flag_overwrite)
