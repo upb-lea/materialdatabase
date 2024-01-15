@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 
 # Control flags
-write_data = True
+write_data = False
 plot_data = True
 
 # Set parameters
@@ -31,7 +31,7 @@ permeability_amplitude_files = ["permeability_over_b_field_1MHz_100C.csv",
 b_field_data = []
 permeability_angle_data = []
 
-for index, value in enumerate(powerloss_files):
+for index in range(len(powerloss_files)):
     print(index+1, "out of", len(powerloss_files), "calculated")
 
     # adding the graph by 2MHz
@@ -39,23 +39,25 @@ for index, value in enumerate(powerloss_files):
         permeability_amplitude_dataframe_1 = pd.read_csv(os.path.join(datasheet_path, permeability_amplitude_files[0]), encoding="latin1")
         permeability_amplitude_dataframe_3 = pd.read_csv(os.path.join(datasheet_path, permeability_amplitude_files[2]), encoding="latin1")
 
-        f_linear = interp1d(permeability_amplitude_dataframe_1["x"], permeability_amplitude_dataframe_1[" y"], fill_value="extrapolate")
-
-        permeability_amplitude_dataframe_1_interpolated = f_linear(permeability_amplitude_dataframe_3["x"])
+        permeability_amplitude_dataframe_1_interpolated = interpolate_between_two_functions(x_data=permeability_amplitude_dataframe_1["x"],
+                                                                                            y_data=permeability_amplitude_dataframe_1[" y"],
+                                                                                            x_new=permeability_amplitude_dataframe_3["x"])
 
         b_field = permeability_amplitude_dataframe_3["x"]
-        permeability_interpolated = np.mean(np.array([permeability_amplitude_dataframe_1_interpolated, permeability_amplitude_dataframe_3[" y"]]), axis=0)
 
-        permeability_amplitude_dataframe = pd.DataFrame(data={"x": b_field, " y": permeability_interpolated})
+        # calculating the mean of the graphs by 1MHz and 3 MHz for the missing graph of 2MHz
+        permeability_mean = np.mean(np.array([permeability_amplitude_dataframe_1_interpolated, permeability_amplitude_dataframe_3[" y"]]), axis=0)
+
+        permeability_amplitude_dataframe = pd.DataFrame(data={"x": b_field, " y": permeability_mean})
 
     else:
         permeability_amplitude_dataframe = pd.read_csv(os.path.join(datasheet_path, permeability_amplitude_files[index]), encoding="latin1")
 
     powerloss_dataframe = pd.read_csv(os.path.join(datasheet_path, powerloss_files[index]), encoding="latin1")
 
-    f_linear = interp1d(permeability_amplitude_dataframe["x"], permeability_amplitude_dataframe[" y"])
-
-    permeability_interpolated = f_linear(powerloss_dataframe["x"])
+    permeability_interpolated = interpolate_between_two_functions(x_data=permeability_amplitude_dataframe["x"],
+                                                                  y_data=permeability_amplitude_dataframe[" y"],
+                                                                  x_new=powerloss_dataframe["x"])
 
     permeability_amplitude_data.append(permeability_interpolated)
     powerloss_data.append(powerloss_dataframe[" y"])
@@ -67,17 +69,18 @@ for index, value in enumerate(powerloss_files):
 
 # Plot
 if plot_data:
-    for index, value in enumerate(frequencies_db):
+    for index in range(len(frequencies_db)):
         fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
-        ax[0].plot(b_field_data[index], permeability_angle_data[index], label="angle")
+
+        ax[0].plot(b_field_data[index], permeability_angle_data[index], label="angle", )
         ax[1].plot(b_field_data[index], permeability_amplitude_data[index], label="amplitude")
         ax[2].plot(b_field_data[index], powerloss_data[index], label="powerloss")
-        ax[0].grid()
-        ax[1].grid()
-        ax[2].grid()
-        ax[0].legend()
-        ax[1].legend()
-        ax[2].legend()
+
+        ax[2].set_xlabel(PlotLabels.b_field.value)
+        for ind in range(len(ax)):
+            ax[ind].grid(True, which="both")
+            ax[ind].legend()
+        plt.tight_layout()
         plt.show()
 
 

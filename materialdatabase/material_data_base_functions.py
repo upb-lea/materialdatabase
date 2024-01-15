@@ -153,6 +153,18 @@ def interpolate_a_b_c(a, b, c, no_interpolation_values=20):
     return a_reduced, b_interpol_common, c_interpol_common
 
 
+def interpolate_between_two_functions(x_data: list, y_data: list, x_new: list):
+    """
+    interpolates y_new on base of x_new with the (x_data,y_data)-dataset
+    :param x_data: x-data given
+    :param y_data: y-data given
+    :param x_new: data to interpolate
+    :return: y_new-data corresponding to the x_new-data
+    """
+    f_linear = interp1d(x_data, y_data, fill_value="extrapolate")
+    return f_linear(x_new)
+
+
 # ---
 # Load Permeability
 
