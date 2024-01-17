@@ -4,7 +4,7 @@ import datetime
 import pandas as pd
 
 # Control flags
-write_data = False
+write_data = True
 plot_data = True
 
 # Set parameters
@@ -34,6 +34,8 @@ permeability_angle_data = []
 for index in range(len(powerloss_files)):
     print(index+1, "out of", len(powerloss_files), "calculated")
 
+    fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
+
     # adding the graph by 2MHz
     if index == 1:
         permeability_amplitude_dataframe_1 = pd.read_csv(os.path.join(datasheet_path, permeability_amplitude_files[0]), encoding="latin1")
@@ -55,32 +57,36 @@ for index in range(len(powerloss_files)):
 
     powerloss_dataframe = pd.read_csv(os.path.join(datasheet_path, powerloss_files[index]), encoding="latin1")
 
-    permeability_interpolated = interpolate_between_two_functions(x_data=permeability_amplitude_dataframe["x"],
-                                                                  y_data=permeability_amplitude_dataframe[" y"],
+    permeability_interpolated = interpolate_between_two_functions(x_data=permeability_amplitude_dataframe["x"], y_data=permeability_amplitude_dataframe[" y"],
                                                                   x_new=powerloss_dataframe["x"])
 
-    permeability_amplitude_data.append(permeability_interpolated)
-    powerloss_data.append(powerloss_dataframe[" y"])
-    b_field_data.append(powerloss_dataframe["x"])
+    b_reduced, f_p_hys_interpol_common, f_b_phi_interpol_common = interpolate_a_b_c(powerloss_dataframe["x"]/1000, permeability_interpolated,
+                                                                                    mu_phi_deg__from_mu_r_and_p_hyst(frequency=frequencies_db[index],
+                                                                                                                     b_peak=powerloss_dataframe["x"]/1000,
+                                                                                                                     mu_r=permeability_interpolated,
+                                                                                                                     p_hyst=powerloss_dataframe[" y"]*1000))
 
-    permeability_angle_data.append(mu_phi_deg__from_mu_r_and_p_hyst(frequency=frequencies_db[index], b_peak=b_field_data[index]/1000,
-                                                                    mu_r=permeability_amplitude_data[index], p_hyst=powerloss_data[index]*1000))
+    b_ref, mu_r, mu_phi_deg = sort_data(b_reduced, f_p_hys_interpol_common, f_b_phi_interpol_common)
 
+    b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref_raw=b_ref, mu_r_raw=mu_r, mu_phi_deg_raw=mu_phi_deg, b_min=0.005, b_max=0.051,
+                                                        smooth_data=False, crop_data=True, plot_data=True, ax=ax, f=frequencies_db[index], T=temperature_db)
 
-# Plot
-if plot_data:
-    for index in range(len(frequencies_db)):
+    permeability_amplitude_data.append(mu_r)
+    powerloss_data.append(powerloss_dataframe[" y"]*1000)
+    b_field_data.append(b_ref)
+
+    permeability_angle_data.append(mu_phi_deg)
+
+    # Plot
+    if plot_data:
         fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
-
-        ax[0].plot(b_field_data[index], permeability_angle_data[index], label="angle", )
-        ax[1].plot(b_field_data[index], permeability_amplitude_data[index], label="amplitude")
-        ax[2].plot(b_field_data[index], powerloss_data[index], label="powerloss")
+        ax[1].plot(b_ref, mu_phi_deg, label="angle")
+        ax[0].plot(b_ref, mu_r, label="amplitude")
 
         ax[2].set_xlabel(PlotLabels.b_field.value)
         for ind in range(len(ax)):
             ax[ind].grid(True, which="both")
             ax[ind].legend()
-        plt.tight_layout()
         plt.show()
 
 
