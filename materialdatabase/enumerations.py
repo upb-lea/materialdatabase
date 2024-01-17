@@ -56,7 +56,7 @@ class MeasurementDevice(str, Enum):
     """
     lecroy = "LeCroy_HDO4104"
     wayne_kerr = "Wayne_Kerr_6500B"
-    zimmer = "ZES_Zimmer_LMG640"
+    zimmer = "ZES-Zimmer_LMG640"
 
 
 class PlotLabels(str, Enum):
@@ -165,7 +165,7 @@ class ToroidDirectoryName(str, Enum):
     """
     N87_1 = "R24,6x20,25x20,5_A00"
     DMR96A_1 = '???'
-    DMR96A_2 = 'R_25x21x15x4x4'
+    DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
 
 
 class CuboidDirectoryName(str, Enum):
@@ -180,5 +180,6 @@ class CuboidDirectoryName(str, Enum):
 
     (a and b can be exchanged, because A = a*b)
     """
+    _3F46_thin = "C_25.16x2.04x15.55"
     DMR96A_2 = "C_25x2x15"
     # DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
