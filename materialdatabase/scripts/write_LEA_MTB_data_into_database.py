@@ -7,13 +7,13 @@ from datetime import date
 write_data = True
 
 # Set parameters
-measurement_device = MeasurementDevice.ZESZimmer
+measurement_device = MeasurementDevice.zimmer
 material_name = Material.DMR96A2
 toroid_name = ToroidDirectoryName.DMR96A_2
 create_permeability_measurement_in_database(Material.DMR96A2, MeasurementSetup.LEA_MTB, company=Company.UPB, date=str(date.today()),
                                             test_setup_name=MeasurementSetup.LEA_MTB,
                                             toroid_dimensions=toroid_name, measurement_method=MeasurementMethod.Electric,
-                                            equipment_names=MeasurementDevice.ZESZimmer)
+                                            equipment_names=MeasurementDevice.zimmer)
 
 # General Path to measurements destination
 mtb_post_pro_path = os.path.join(my_MTB_measurements_path, "post_processing_data_17_08_2023")

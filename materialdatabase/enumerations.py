@@ -56,7 +56,7 @@ class MeasurementDevice(str, Enum):
     """
     lecroy = "LeCroy_HDO4104"
     wayne_kerr = "Wayne_Kerr_6500B"
-    zimmer = "ZES-Zimmer_LMG640"
+    zimmer = "ZES_Zimmer_LMG640"
 
 
 class PlotLabels(str, Enum):
@@ -143,6 +143,7 @@ class Material(str, Enum):
 
     TEST = "TEST"  # FOR TESTING STUFF
     _3F46 = "3F46"
+    _3C95 = "3C95"
     N49 = "N49"
     N87 = "N87"
     N95 = "N95"
