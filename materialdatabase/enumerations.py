@@ -35,8 +35,8 @@ class Company(str, Enum):
 
 
 class Manufacturer(str, Enum):
-    """Sets the source from where data is taken."""
-
+    """Sets the source from where data is taken.
+    """
     TDK = "TDK"
     Ferroxcube = "Ferroxcube"
     DMEGC = "DMEGC"
@@ -138,8 +138,7 @@ class ToroidCodeNames(str, Enum):
 
 
 class Material(str, Enum):
-    """
-    Sets the name of the core material as enums.
+    """Sets the name of the core material as enums.
     """
 
     TEST = "TEST"  # FOR TESTING STUFF
@@ -155,7 +154,6 @@ class Material(str, Enum):
 
 
 class ToroidDirectoryName(str, Enum):
-
     """Sets the type of Permeability Measurement Probe
     d_out: outer diameter of toroid in mm
     d_in: innter diameter of toroid in mm

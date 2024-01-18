@@ -19,14 +19,14 @@ frequencies_db = [1e6, 2e6, 3e6]
 datasheet_path = paths.datasheet_path
 
 powerloss_data = []
-powerloss_files = ["powerloss_density_over_b_field_1MHz_100C.csv",
-                   "powerloss_density_over_b_field_2MHz_100C.csv",
-                   "powerloss_density_over_b_field_3MHz_100C.csv"]
+powerloss_files = ["powerloss_density_over_b_field_1MHz_100C_new.csv",
+                   "powerloss_density_over_b_field_2MHz_100C_new.csv",
+                   "powerloss_density_over_b_field_3MHz_100C_new.csv"]
 
 permeability_amplitude_data = []
-permeability_amplitude_files = ["permeability_over_b_field_1MHz_100C.csv",
+permeability_amplitude_files = ["permeability_over_b_field_1MHz_100C_new.csv",
                                 "placeholder.csv",  # placeholder because no data for 2MHz
-                                "permeability_over_b_field_3MHz_100C.csv"]
+                                "permeability_over_b_field_3MHz_100C_new.csv"]
 
 b_field_data = []
 permeability_angle_data = []
@@ -79,11 +79,11 @@ for index in range(len(powerloss_files)):
 
     # Plot
     if plot_data:
-        fig, ax = plt.subplots(nrows=3, ncols=1, sharex=True)
+        fig, ax = plt.subplots(nrows=2, ncols=1, sharex=True)
         ax[1].plot(b_ref, mu_phi_deg, label="angle")
         ax[0].plot(b_ref, mu_r, label="amplitude")
 
-        ax[2].set_xlabel(PlotLabels.b_field.value)
+        ax[1].set_xlabel(PlotLabels.b_field.value)
         for ind in range(len(ax)):
             ax[ind].grid(True, which="both")
             ax[ind].legend()
