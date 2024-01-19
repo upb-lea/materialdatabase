@@ -41,9 +41,9 @@ for index in range(len(powerloss_files)):
         permeability_amplitude_dataframe_1 = pd.read_csv(os.path.join(datasheet_path, permeability_amplitude_files[0]), encoding="latin1")
         permeability_amplitude_dataframe_3 = pd.read_csv(os.path.join(datasheet_path, permeability_amplitude_files[2]), encoding="latin1")
 
-        permeability_amplitude_dataframe_1_interpolated = interpolate_between_two_functions(x_data=permeability_amplitude_dataframe_1["x"],
-                                                                                            y_data=permeability_amplitude_dataframe_1[" y"],
-                                                                                            x_new=permeability_amplitude_dataframe_3["x"])
+        permeability_amplitude_dataframe_1_interpolated = updates_x_ticks_for_graph(x_data=permeability_amplitude_dataframe_1["x"],
+                                                                                    y_data=permeability_amplitude_dataframe_1[" y"],
+                                                                                    x_new=permeability_amplitude_dataframe_3["x"])
 
         b_field = permeability_amplitude_dataframe_3["x"]
 
@@ -57,8 +57,8 @@ for index in range(len(powerloss_files)):
 
     powerloss_dataframe = pd.read_csv(os.path.join(datasheet_path, powerloss_files[index]), encoding="latin1")
 
-    permeability_interpolated = interpolate_between_two_functions(x_data=permeability_amplitude_dataframe["x"], y_data=permeability_amplitude_dataframe[" y"],
-                                                                  x_new=powerloss_dataframe["x"])
+    permeability_interpolated = updates_x_ticks_for_graph(x_data=permeability_amplitude_dataframe["x"], y_data=permeability_amplitude_dataframe[" y"],
+                                                          x_new=powerloss_dataframe["x"])
 
     b_reduced, f_p_hys_interpol_common, f_b_phi_interpol_common = interpolate_a_b_c(powerloss_dataframe["x"]/1000, permeability_interpolated,
                                                                                     mu_phi_deg__from_mu_r_and_p_hyst(frequency=frequencies_db[index],
