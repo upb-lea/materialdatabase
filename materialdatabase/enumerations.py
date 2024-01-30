@@ -64,9 +64,12 @@ class PlotLabels(str, Enum):
     """
 
     time = "time in s"
+    time_ms = "time in ms"
+    time_us = "time in µs"
 
     frequency_Hz = "frequency in Hz"
     frequency_kHz = "frequency in kHz"
+    frequency_MHz = "frequency in MHz"
 
     powerloss_density = r"powerloss density  in mW/cm^3"
 
@@ -182,3 +185,53 @@ class CuboidDirectoryName(str, Enum):
     _3F46_thin = "C_25.16x2.04x15.55"
     DMR96A_2 = "C_25x2x15"
     # DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
+
+
+class HeaderMeasurementData(str, Enum):
+    """Names for the header of the dataframes for the post-processing data
+       e.g. data of the permeability angle gets the header "permeability angle"
+    """
+
+    frequency = "frequency"
+    time = "time"
+
+    powerloss_density = "powerloss density"
+
+    mag_flux_density = "magnetic flux density"
+    mag_field_strength = "magnetic field strength"
+
+    elec_flux_density = "electric flux density"
+    elec_field_strength = "electric field strength"
+
+    permeability_ampl = "permeability amplitude"
+    permeability_angle = "permeability angle"
+
+    permittivity_ampl = "permittivity amplitude"
+    permittivity_angle = "permittivity angle"
+
+    self_inductance = "self inductance"
+    prim_leakage_inductance = "primary leakage inductance"
+    sec_leakage_inductance = "secondary leakage inductance"
+
+    voltage = "voltage"
+    current = "current"
+    power = "power"
+
+
+class ProbeDimensions(str, Enum):
+    """Sets the name for the dimensions of a probe
+    """
+    height = "height"
+    cross_section = "cross section"
+    volume = "volume"
+
+    width = "width"
+    thickness = "thickness"
+
+    out_diameter = "outer diameter"
+    inn_diameter = "inner diameter"
+
+    prim_winding = "primary winding"
+    sec_winding = "secondary winding"
+
+    l_mag = "l_mag"
