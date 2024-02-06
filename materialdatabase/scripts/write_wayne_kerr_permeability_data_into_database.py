@@ -136,7 +136,7 @@ if write_data:
                                                 test_setup_name=MeasurementSetup.LEA_MTB_small_signal,
                                                 toroid_dimensions=core_name,
                                                 measurement_method=MeasurementMethod.ImpedanceAnalyzer,
-                                                equipment_names=MeasurementDevice.WayneKerr, comment="")
+                                                equipment_names=MeasurementDevice.wayne_kerr, comment="")
 
     for i, frequency in enumerate(f[indices]):
 

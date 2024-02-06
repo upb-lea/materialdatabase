@@ -35,8 +35,8 @@ class Company(str, Enum):
 
 
 class Manufacturer(str, Enum):
-    """Sets the source from where data is taken."""
-
+    """Sets the source from where data is taken.
+    """
     TDK = "TDK"
     Ferroxcube = "Ferroxcube"
     DMEGC = "DMEGC"
@@ -64,9 +64,12 @@ class PlotLabels(str, Enum):
     """
 
     time = "time in s"
+    time_ms = "time in ms"
+    time_us = "time in µs"
 
     frequency_Hz = "frequency in Hz"
     frequency_kHz = "frequency in kHz"
+    frequency_MHz = "frequency in MHz"
 
     powerloss_density = r"powerloss density  in mW/cm^3"
 
@@ -138,12 +141,12 @@ class ToroidCodeNames(str, Enum):
 
 
 class Material(str, Enum):
-    """
-    Sets the name of the core material as enums.
+    """Sets the name of the core material as enums.
     """
 
     TEST = "TEST"  # FOR TESTING STUFF
     _3F46 = "3F46"
+    _3C95 = "3C95"
     N49 = "N49"
     N87 = "N87"
     N95 = "N95"
@@ -155,7 +158,6 @@ class Material(str, Enum):
 
 
 class ToroidDirectoryName(str, Enum):
-
     """Sets the type of Permeability Measurement Probe
     d_out: outer diameter of toroid in mm
     d_in: innter diameter of toroid in mm
@@ -165,7 +167,7 @@ class ToroidDirectoryName(str, Enum):
     """
     N87_1 = "R24,6x20,25x20,5_A00"
     DMR96A_1 = '???'
-    DMR96A_2 = 'R_25x21x15x4x4'
+    DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
 
 
 class CuboidDirectoryName(str, Enum):
@@ -180,5 +182,56 @@ class CuboidDirectoryName(str, Enum):
 
     (a and b can be exchanged, because A = a*b)
     """
+    _3F46_thin = "C_25.16x2.04x15.55"
     DMR96A_2 = "C_25x2x15"
     # DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
+
+
+class HeaderMeasurementData(str, Enum):
+    """Names for the header of the dataframes for the post-processing data
+       e.g. data of the permeability angle gets the header "permeability angle"
+    """
+
+    frequency = "frequency"
+    time = "time"
+
+    powerloss_density = "powerloss density"
+
+    mag_flux_density = "magnetic flux density"
+    mag_field_strength = "magnetic field strength"
+
+    elec_flux_density = "electric flux density"
+    elec_field_strength = "electric field strength"
+
+    permeability_ampl = "permeability amplitude"
+    permeability_angle = "permeability angle"
+
+    permittivity_ampl = "permittivity amplitude"
+    permittivity_angle = "permittivity angle"
+
+    self_inductance = "self inductance"
+    prim_leakage_inductance = "primary leakage inductance"
+    sec_leakage_inductance = "secondary leakage inductance"
+
+    voltage = "voltage"
+    current = "current"
+    power = "power"
+
+
+class ProbeDimensions(str, Enum):
+    """Sets the name for the dimensions of a probe
+    """
+    height = "height"
+    cross_section = "cross section"
+    volume = "volume"
+
+    width = "width"
+    thickness = "thickness"
+
+    out_diameter = "outer diameter"
+    inn_diameter = "inner diameter"
+
+    prim_winding = "primary winding"
+    sec_winding = "secondary winding"
+
+    l_mag = "l_mag"
