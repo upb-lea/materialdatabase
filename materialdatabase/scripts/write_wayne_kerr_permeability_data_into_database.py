@@ -1,3 +1,4 @@
+"""Script to write permeability data by the impedance analyzer into the material database."""
 import matplotlib.pyplot as plt
 from scipy import constants
 from materialdatabase.utils import L_from_Z, get_closest
@@ -131,21 +132,13 @@ if write_data:
 
     flag_overwrite = True
     create_empty_material(material_name, manufacturer)
-    create_permeability_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal,
-                                                company=Company.UPB, date=str(date.today()),
-                                                test_setup_name=MeasurementSetup.LEA_MTB_small_signal,
-                                                toroid_dimensions=core_name,
-                                                measurement_method=MeasurementMethod.ImpedanceAnalyzer,
-                                                equipment_names=MeasurementDevice.WayneKerr, comment="")
+    create_permeability_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal, company=Company.UPB,
+                                                date=str(date.today()), test_setup_name=MeasurementSetup.LEA_MTB_small_signal, toroid_dimensions=core_name,
+                                                measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.WayneKerr, comment="")
 
     for i, frequency in enumerate(f[indices]):
 
-        write_permeability_data_into_database(frequency=frequency,
-                                              temperature=temperature_db,
-                                              b_ref=b_ref,
-                                              mu_r_abs=[db_mu_r_abs[i], db_mu_r_abs[i]],
-                                              mu_phi_deg=[db_mu_phi_deg[i], db_mu_phi_deg[i]],
-                                              material_name=material_name,
-                                              measurement_setup=MeasurementSetup.LEA_MTB_small_signal,
-                                              overwrite=flag_overwrite)
+        write_permeability_data_into_database(frequency=frequency, temperature=temperature_db, b_ref=b_ref, mu_r_abs=[db_mu_r_abs[i], db_mu_r_abs[i]],
+                                              mu_phi_deg=[db_mu_phi_deg[i], db_mu_phi_deg[i]], material_name=material_name,
+                                              measurement_setup=MeasurementSetup.LEA_MTB_small_signal, overwrite=flag_overwrite)
         flag_overwrite = False

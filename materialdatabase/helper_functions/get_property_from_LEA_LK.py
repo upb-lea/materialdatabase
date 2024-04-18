@@ -1,3 +1,4 @@
+"""Script to get the property from LEA_LK."""
 from materialdatabase.material_data_base_functions import *
 from matplotlib import pyplot as plt
 from scipy.signal import savgol_filter as savgol
@@ -8,10 +9,10 @@ filename = create_permeability_file_name_lea_lk()
 
 print(filename)
 for f in [200000, 300000]:
-    b_hys, p_hys = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="Core_Loss",
-                                                         quantity="p_hys", frequency=f, material_name="N49", temperature=30)
-    b_phi, mu_phi_deg = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
-                                                              quantity="mu_phi", frequency=f, material_name="N49", temperature=30)
+    b_hys, p_hys = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="Core_Loss", quantity="p_hys", frequency=f,
+                                                         material_name="N49", temperature=30)
+    b_phi, mu_phi_deg = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot", quantity="mu_phi", frequency=f,
+                                                              material_name="N49", temperature=30)
     if len(b_phi) != len(b_hys):
         print("invalid")
         break

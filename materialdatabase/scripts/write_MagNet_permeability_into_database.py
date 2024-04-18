@@ -1,3 +1,4 @@
+"""Script to write permeability data by MagNet into the material database."""
 from materialdatabase.material_data_base_classes import *
 import pandas as pd
 import os
@@ -18,8 +19,7 @@ create_permeability_measurement_in_database("N87", "MagNet", company="Princeton"
 fig, ax = plt.subplots(3)
 for frequency in f_sine_lim_clustered_set:
     if len(df[df["frequency"] == frequency]["b"]) > min_number_of_measurements:
-        b_ref, mu_r, mu_phi_deg = np.array(df[df["frequency"] == frequency]["b"]), \
-            np.array(df[df["frequency"] == frequency]["mu_r_abs"]), \
+        b_ref, mu_r, mu_phi_deg = np.array(df[df["frequency"] == frequency]["b"]), np.array(df[df["frequency"] == frequency]["mu_r_abs"]), \
             np.array(df[df["frequency"] == frequency]["mu_phi_deg"])
 
         b_ref, mu_r, mu_phi_deg = sort_data(b_ref, mu_r, mu_phi_deg)
