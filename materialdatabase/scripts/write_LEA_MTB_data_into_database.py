@@ -8,7 +8,7 @@ from datetime import date
 write_data = True
 
 # Set parameters
-measurement_device = MeasurementDevice.ZESZimmer
+measurement_device = MeasurementDevice.zimmer
 material_name = Material.DMR96A2
 toroid_name = ToroidDirectoryName.DMR96A_2
 create_permeability_measurement_in_database(Material.DMR96A2, MeasurementSetup.LEA_MTB, company=Company.UPB, date=str(date.today()),

@@ -64,9 +64,12 @@ class PlotLabels(str, Enum):
     """Labels for axes of possible plots."""
 
     time = "time in s"
+    time_ms = "time in ms"
+    time_us = "time in µs"
 
     frequency_Hz = "frequency in Hz"
     frequency_kHz = "frequency in kHz"
+    frequency_MHz = "frequency in MHz"
 
     powerloss_density_mW = r"powerloss density  in mW/cm^3"
     powerloss_density_kW = r"powerloss density  in kW/m^3"
@@ -148,6 +151,7 @@ class Material(str, Enum):
 
     TEST = "TEST"  # FOR TESTING STUFF
     _3F46 = "3F46"
+    _3C95 = "3C95"
     N49 = "N49"
     N87 = "N87"
     N95 = "N95"
@@ -171,7 +175,7 @@ class ToroidDirectoryName(str, Enum):
 
     N87_1 = "R24,6x20,25x20,5_A00"
     DMR96A_1 = '???'
-    DMR96A_2 = 'R_25x21x15x4x4'
+    DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
 
 
 class CuboidDirectoryName(str, Enum):
@@ -188,6 +192,7 @@ class CuboidDirectoryName(str, Enum):
     (a and b can be exchanged, because A = a*b)
     """
 
+    _3F46_thin = "C_25.16x2.04x15.55"
     DMR96A_2 = "C_25x2x15"
     # DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
 
@@ -252,5 +257,6 @@ class ProbeDimensions(str, Enum):
 
     prim_winding = "primary winding"
     sec_winding = "secondary winding"
+
 
     l_mag = "lmag"

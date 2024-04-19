@@ -2,7 +2,7 @@
 from scipy import constants
 from materialdatabase.utils import get_closest, Z_from_amplitude_and_angle
 from materialdatabase.material_data_base_classes import *
-from materialdatabase.paths import my_wayne_kerr_measurements_path
+from materialdatabase.paths import your_sciebo
 from datetime import date
 
 # Control
@@ -10,14 +10,14 @@ write_data = False
 plot_data = True
 
 # Set parameters
-core_name = CuboidDirectoryName.DMR96A_2  # "C_25x2x21.6"  # b * a * h
+core_name = CuboidDirectoryName._3F46_thin  # "C_25x2x21.6"  # b * a * h
 core_dimensions = core_name[2:].split(sep="x")
-material_name = Material.DMR96A2
-manufacturer = Manufacturer.DMEGC
+material_name = Material._3F46
+manufacturer = Manufacturer.Ferroxcube
 # measurements_path       = os.path.join(my_wayne_kerr_measurements_path, "small_signal", core_name, material_name)
-measurements_path = os.path.join(my_wayne_kerr_measurements_path, "small_signal", core_name, material_name)
-temperatures_db = [30, 45, 60, 75]
-frequencies_db = [50e3, 1e5, 2e5, 3e5, 4e5, 5e5, 6e5, 7e5, 8e5, 9e5, 1e6, 1.1e6, 1.2e6]
+measurements_path = os.path.join(your_sciebo, "08_Labor", "Impedanzanalysator", "Speedam")
+temperatures_db = [25]
+frequencies_db = [50e3, 1e5, 2e5, 3e5, 4e5, 5e5, 6e5, 7e5, 8e5, 9e5, 1e6, 1.1e6, 1.2e6, 1.5e6, 2e6, 2.5e6, 3e6]
 
 if plot_data:
     fig, ax = plt.subplots(nrows=2, ncols=1, sharex="all")
