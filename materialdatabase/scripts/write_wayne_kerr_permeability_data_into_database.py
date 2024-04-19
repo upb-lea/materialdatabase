@@ -136,7 +136,6 @@ if write_data:
                                                 date=str(date.today()), test_setup_name=MeasurementSetup.LEA_MTB_small_signal, toroid_dimensions=core_name,
                                                 measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.WayneKerr, comment="")
 
-
     for i, frequency in enumerate(f[indices]):
 
         write_permeability_data_into_database(frequency=frequency, temperature=temperature_db, b_ref=b_ref, mu_r_abs=[db_mu_r_abs[i], db_mu_r_abs[i]],

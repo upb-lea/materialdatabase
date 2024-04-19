@@ -258,5 +258,4 @@ class ProbeDimensions(str, Enum):
     prim_winding = "primary winding"
     sec_winding = "secondary winding"
 
-
     l_mag = "lmag"

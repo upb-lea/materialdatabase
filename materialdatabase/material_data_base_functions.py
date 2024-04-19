@@ -185,11 +185,11 @@ def interpolate_a_b_c(a, b, c, no_interpolation_values=20):
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-
 # Load Permeability --------------------------------------------------------------------------------------------------------------------------------------------
 def updates_x_ticks_for_graph(x_data: list, y_data: list, x_new: list):
     """
-    updates the x-values of the given (x_data,y_data)-dataset and returns y_new based on x_new
+    Update the x-values of the given (x_data,y_data)-dataset and returns y_new based on x_new.
+
     :param x_data: x-data given
     :param y_data: y-data given
     :param x_new: new x-values
