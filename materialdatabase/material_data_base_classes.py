@@ -281,14 +281,14 @@ class MaterialDatabase:
         """
         Return a list temp, freq and flux to GUI from database to used as dropdown list.
 
-        @param material_name: material name, e.g. "N95"
-        @param temperature: boolean to get temp list
-        @param flux_density: boolean to get flux list
-        @param frequency: boolean to get freq list
-        @param datatype: needed for load measurement readings
-        @param measurement_name: test setup name, of which data is to be plotted
-        @param comparison_type: datasheet vs datasheet ="dvd", measurement vs measurement = "mvm", datasheet vs measurement = "dvm"
-        @return: temp_list or freq_list or flux_list
+        :param material_name: material name, e.g. "N95"
+        :param temperature: boolean to get temp list
+        :param flux_density: boolean to get flux list
+        :param frequency: boolean to get freq list
+        :param datatype: needed for load measurement readings
+        :param measurement_name: test setup name, of which data is to be plotted
+        :param comparison_type: datasheet vs datasheet ="dvd", measurement vs measurement = "mvm", datasheet vs measurement = "dvm"
+        :return: temp_list or freq_list or flux_list
         """
         global temp_list, flux_list, freq_list_new, temp_list_new, flux_list_new
 
@@ -341,7 +341,7 @@ class MaterialDatabase:
         """
         Return a list with all the different material present in the database.
 
-        @return: list of materials present in database in form of list to GUI.
+        :return: list of materials present in database in form of list to GUI.
         """
         materials = []
         for i in self.data:
@@ -353,10 +353,10 @@ class MaterialDatabase:
         """
         Compare the core loss of a material at different temperatures over the magnetic flux density from datasheet.
 
-        @param matplotlib_widget: plotting parameter for GUI
-        @param material_list:[material1, material2, .....]
-        @param temperature_list: [temp1, temp2,..]
-        @return: return plotting data in two list, power_loss and flux
+        :param matplotlib_widget: plotting parameter for GUI
+        :param material_list:[material1, material2, .....]
+        :param temperature_list: [temp1, temp2,..]
+        :return: return plotting data in two list, power_loss and flux
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         # mdb_print(material_list)
@@ -396,10 +396,10 @@ class MaterialDatabase:
         """
         Compare the core loss of a material at different magnetic flux densities over the temperature from datasheet.
 
-        @param matplotlib_widget: plot parameter for GUI
-        @param material_list:[material1, material2, ....]
-        @param flux_density_list: [flux1, flux2,..]
-        @return: return plotting data in two list, power_loss and temperature
+        :param matplotlib_widget: plot parameter for GUI
+        :param material_list:[material1, material2, ....]
+        :param flux_density_list: [flux1, flux2,..]
+        :return: return plotting data in two list, power_loss and temperature
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         # mdb_print(material_list)
@@ -437,11 +437,11 @@ class MaterialDatabase:
         """
         Compare the core loss of a material at different temperatures over the frequency from datasheet.
 
-        @param matplotlib_widget: plot parameter for GUI
-        @param material_list:[material1, material2, ....]
-        @param flux_density_list: [flux1, flux2, ....]
-        @param temperature_list: [temp1, temp2, ....]
-        @return: return plotting data in two list, power_loss and frequency
+        :param matplotlib_widget: plot parameter for GUI
+        :param material_list:[material1, material2, ....]
+        :param flux_density_list: [flux1, flux2, ....]
+        :param temperature_list: [temp1, temp2, ....]
+        :return: return plotting data in two list, power_loss and frequency
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
 
@@ -475,10 +475,10 @@ class MaterialDatabase:
         """
         Compare the B-H curve of a material at different temperatures from datasheet.
 
-        @param matplotlib_widget: plot parameter for GUI
-        @param material_list: [material1, material2, ...]
-        @param temperature_list: [temp1, temp2, ...]
-        @return plotting data two vector,B and H
+        :param matplotlib_widget: plot parameter for GUI
+        :param material_list: [material1, material2, ...]
+        :param temperature_list: [temp1, temp2, ...]
+        :return plotting data two vector,B and H
         """
         # -------B_H Curve-------
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
@@ -515,12 +515,12 @@ class MaterialDatabase:
         """
         Compare the permeability data of a material at different temperatures and frequencies from datasheet.
 
-        @param matplotlib_widget: plotting parameter for GUI
-        @param material_list:[material1, material2, .....]
-        @param plot_real_part: True for plot real part of mu/ False for plots imaginary part of mu
-        @type temperature_list: [temp1, temp2, ...]
-        @param measurement_name: Name from database
-        @param frequency_list: [freq1, freq2, ...]
+        :param matplotlib_widget: plotting parameter for GUI
+        :param material_list:[material1, material2, .....]
+        :param plot_real_part: True for plot real part of mu/ False for plots imaginary part of mu
+        :type temperature_list: [temp1, temp2, ...]
+        :param measurement_name: Name from database
+        :param frequency_list: [freq1, freq2, ...]
         :return: Plotting data list for GUI
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
@@ -580,11 +580,11 @@ class MaterialDatabase:
         """
         Compare the core loss of a material at different temperatures between the datasheet and measurement.
 
-        @param matplotlib_widget: For GUI plot
-        @param material: [material1, material2, ...]
-        @param measurement_name: Name from database
-        @param temperature_list: [temp1, temp2, ...]
-        @return: Plotting data for GUI
+        :param matplotlib_widget: For GUI plot
+        :param material: [material1, material2, ...]
+        :param measurement_name: Name from database
+        :param temperature_list: [temp1, temp2, ...]
+        :return: Plotting data for GUI
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
@@ -746,9 +746,9 @@ class MaterialDatabase:
         """
         Make a list of available measurements in database.
 
-        @param material_name: "N95"
-        @param datatype: complex_permittivity or complex_permeability
-        return: Names of measurement in database
+        :param material_name: "N95"
+        :param datatype: complex_permittivity or complex_permeability
+        :return: Names of measurement in database
         """
         names = []
         for i in self.data[material_name]["measurements"][datatype]:
