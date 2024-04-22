@@ -1,3 +1,4 @@
+"""Script to write permittivity data by LEA_LK into the material database."""
 import numpy as np
 
 from materialdatabase.material_data_base_functions import *

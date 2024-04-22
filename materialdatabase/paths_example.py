@@ -1,4 +1,4 @@
-
+"""Instruction on how to create the paths.py."""
 # For some tasks/scripts paths to specific folders are needed. These paths are located in the paths.py file.
 # Every user needs to create their own paths.py in their local repository of the materialdatabase.
 # First step is to create a new .py-file with the name paths.py. The file needs to be located in the same folder as this example-file.

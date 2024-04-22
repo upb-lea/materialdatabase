@@ -1,3 +1,4 @@
+"""Script to write permittivity data measured with the impedance analyzer into the database."""
 from scipy import constants
 from materialdatabase.utils import get_closest, Z_from_amplitude_and_angle
 from materialdatabase.material_data_base_classes import *
@@ -62,12 +63,10 @@ for temperature_db in temperatures_db:
 
     if write_data:
         create_empty_material(material_name, manufacturer)
-        create_permittivity_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal,
-                                                    company=Company.UPB, date=str(date.today()),
-                                                    test_setup_name=MeasurementSetup.LEA_MTB_small_signal,
-                                                    probe_dimensions=core_name,
-                                                    measurement_method=MeasurementMethod.ImpedanceAnalyzer,
-                                                    equipment_names=MeasurementDevice.wayne_kerr, comment="")
+        create_permittivity_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal, company=Company.UPB,
+                                                    date=str(date.today()), test_setup_name=MeasurementSetup.LEA_MTB_small_signal, probe_dimensions=core_name,
+                                                    measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.WayneKerr,
+                                                    comment="")
         write_permittivity_data_into_database(temperature_db, list(f[indices]), list(db_eps_tilde_amplitude), list(db_eps_tilde_angle),
                                               material_name=material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal)
 
