@@ -1,3 +1,4 @@
+"""Constants."""
 import numpy as np
 
 # vacuum permeability

@@ -1,3 +1,4 @@
+"""Examples of differtent functions for the material database."""
 import material_data_base_classes as mdb
 
 database = mdb.MaterialDatabase()

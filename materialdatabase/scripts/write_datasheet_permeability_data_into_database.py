@@ -1,3 +1,4 @@
+"""Write permeability data of datasheets into the database."""
 from materialdatabase.material_data_base_classes import *
 import materialdatabase.paths as paths
 import datetime

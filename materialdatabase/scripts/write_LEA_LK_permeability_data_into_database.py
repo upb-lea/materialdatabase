@@ -1,3 +1,4 @@
+"""Script to write permeability data by LEA_LK into the material database."""
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.material_data_base_classes import *
 from materialdatabase.paths import my_LEA_LK_measurement_path

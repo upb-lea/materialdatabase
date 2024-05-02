@@ -1,7 +1,7 @@
+"""Functions of the material database."""
 # all static functions shall be inserted in this file
 
 # Python integrated libraries
-
 import json
 # 3rd party libraries
 import os
@@ -20,16 +20,17 @@ global relative_path_to_db
 relative_path_to_db = "../data/material_data_base.json"
 
 
-# ---
-# Auxiliary functions
+# Auxiliary functions ------------------------------------------------------------------------------------------------------------------------------------------
 j = complex(0, 1)
+
 
 def remove(arr, n):
     """
-    Remove Duplicate from array
-    :param arr:
-    :param n:
-    :return:
+    Remove duplicates from array.
+
+    :param arr: array with duplicates
+    :param n: has no effect of the functionality
+    :return: array without duplicates
     """
     mp = {i: 0 for i in arr}
     for i in range(n):
@@ -39,12 +40,32 @@ def remove(arr, n):
 
 
 def crop_data_fixed(x, pre_cropped_values: int = 0, post_cropped_values: int = 0):
+    """
+    Crop an array based on the given indices.
+
+    IMPORTANT! THE SECOND INDEX IS COUNTED BACKWARDS(NEGATIVE)!
+
+    :param x: array to get cropped
+    :param pre_cropped_values: start value
+    :param post_cropped_values: end value, but counted backwards
+    :return: cropped data
+    """
     if post_cropped_values == 0:
         post_cropped_values = -len(x)
     return x[pre_cropped_values:-post_cropped_values]
 
 
 def crop_3_with_1(x, y, z, xa, xb):
+    """
+    Crop three arrays based on one array.
+
+    :param x: array crop is based on
+    :param y: first array to get cropped
+    :param z: second array to get cropped
+    :param xa: start value of crop
+    :param xb: end value of crop
+    :return: the three cropped arrays
+    """
     x_copy = np.array(x)
     y_copy = np.array(y)
     z_copy = np.array(z)
@@ -61,8 +82,9 @@ def crop_3_with_1(x, y, z, xa, xb):
 
 def store_data(material_name: str, data_to_be_stored: dict) -> None:
     """
-    Method is used to store data from measurement/datasheet into the material database.
-    :param material_name: Material name
+    Store data from measurement/datasheet into the material database.
+
+    :param material_name: name of the material
     :type material_name: str
     :param data_to_be_stored: data to be stored
     :type data_to_be_stored: dict
@@ -76,11 +98,10 @@ def store_data(material_name: str, data_to_be_stored: dict) -> None:
 
 def load_material_from_db(material_name: str) -> None:
     """
-    Method is used to load data from material database.
-    :param material_name: Material name
+    Load data from material database.
+
+    :param material_name: name of material
     :type material_name: str
-    :param data_to_be_stored: data to be stored
-    :type data_to_be_stored: dict
     :return: None
     :rtype: None
     """
@@ -92,10 +113,11 @@ def load_material_from_db(material_name: str) -> None:
 
 def find_nearest(array, value):
     """
-    find nearby frequency n Temp
-    :param array:
-    :param value:
-    :return:
+    Find the nearest value in an array.
+
+    :param array: array to search
+    :param value: desired value
+    :return: two values of the array with the wanted value in between
     """
     array = np.asarray(array)
     array.sort()
@@ -111,14 +133,13 @@ def find_nearest(array, value):
 
 def rect(radius_or_amplitude: float, theta_deg: float):
     """
-    converts polar coordinates [degree] cartesian coordinates
-    theta in degrees
+    Convert polar coordinates [radius, angle] into cartesian coordinates [abscissa_x,ordinate_y].
+
     :param radius_or_amplitude: radius or amplitude
     :type radius_or_amplitude: float
     :param theta_deg: angle in degree
     :type theta_deg: float
-
-    :returns: tuple; (float, float); (abscissa_x,ordinate_y)
+    :return: tuple; (float, float); (abscissa_x,ordinate_y)
     """
     abscissa_x = radius_or_amplitude * np.cos(np.radians(theta_deg))
     ordinate_y = radius_or_amplitude * np.sin(np.radians(theta_deg))
@@ -126,18 +147,28 @@ def rect(radius_or_amplitude: float, theta_deg: float):
 
 
 def sort_data(a, b, c):
-    """sorts three lists according to a
+    """
+    Sort three arrays according to array a.
 
-    :param a:
-    :param b:
-    :param c:
-    :return:
+    :param a: array that is the base of the sorting
+    :param b: array that gets sorted based on a
+    :param c: array that gets sorted based on a
+    :return: the three arrays sorted according to a
     """
     sorted_list_of_lists = [list(x) for x in list(zip(*sorted(zip(a, b, c), key=lambda a: a)))]
     return np.array(sorted_list_of_lists[0]), np.array(sorted_list_of_lists[1]), np.array(sorted_list_of_lists[2])
 
 
 def interpolate_a_b_c(a, b, c, no_interpolation_values=20):
+    """
+    Interpolation between three arrays based on the first array.
+
+    :param a: array that is the base of the interpolation
+    :param b: array that gets interpolated based on the values of array a
+    :param c: array that gets interpolated based on the values of array a
+    :param no_interpolation_values: number of interpolation values
+    :return: the three interpolated arrays
+    """
     # Find the border of the common magnetic flux density values
     b_min = min(a)
     b_max = max(a)
@@ -151,11 +182,14 @@ def interpolate_a_b_c(a, b, c, no_interpolation_values=20):
     b_interpol_common = f_b_interpol(a_reduced)
     c_interpol_common = f_c_interpol(a_reduced)
     return a_reduced, b_interpol_common, c_interpol_common
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+# Load Permeability --------------------------------------------------------------------------------------------------------------------------------------------
 def updates_x_ticks_for_graph(x_data: list, y_data: list, x_new: list):
     """
-    updates the x-values of the given (x_data,y_data)-dataset and returns y_new based on x_new
+    Update the x-values of the given (x_data,y_data)-dataset and returns y_new based on x_new.
+
     :param x_data: x-data given
     :param y_data: y-data given
     :param x_new: new x-values
@@ -165,12 +199,10 @@ def updates_x_ticks_for_graph(x_data: list, y_data: list, x_new: list):
     return f_linear(x_new)
 
 
-# ---
-# Load Permeability
-
 def check_input_permeability_data(datasource: str, material_name: str, temperature: float, frequency: float) -> None:
     """
-    Checks input permeability data for correct input parameters.
+    Check input permeability data for correct input parameters.
+
      * datasource must be 'measurements' or 'manufacturer_datasheet'
      * material_name, T, f must be different from None
 
@@ -182,7 +214,7 @@ def check_input_permeability_data(datasource: str, material_name: str, temperatu
     :type temperature: float
     :param frequency: frequency in Hz
     :type frequency: float
-    :returns: None
+    :return: None
     :rtype: None
     """
     if datasource != MaterialDataSource.Measurement and datasource != MaterialDataSource.ManufacturerDatasheet:
@@ -194,7 +226,16 @@ def check_input_permeability_data(datasource: str, material_name: str, temperatu
 
 def getdata_datasheet(permeability, variable, frequency, temperature_1, temperature_2):
     """
-    interpolation function
+    Interpolation of permeability data between two temperatures at a constant frequency.
+
+    Linear Interpolation between temperature_1 and temperature_2 to get a value for the temperature "variable".
+
+    :param permeability: permeability data
+    :param variable: desired temperature value in degree
+    :param frequency: frequency value in Hz
+    :param temperature_1: first temperature value in degree
+    :param temperature_2: second temperature value
+    :return: magnetic flux density, real part of permeability and imaginary part of permeability
     """
     for k in range(len(permeability)):
         if permeability[k]["frequency"] == frequency and permeability[k]["temperature"] == temperature_1:
@@ -215,20 +256,19 @@ def getdata_datasheet(permeability, variable, frequency, temperature_1, temperat
     mu_r = []
 
     for y in range(len(b_1)):
-        mu_r.append(t_mu_real_1(b_1[y]) + (t_mu_real_2(b_1[y]) - t_mu_real_1(b_1[y])) / (
-            temperature_2 - temperature_1) * (variable - temperature_1))
-        mu_i.append(t_mu_imag_1(b_1[y]) + (t_mu_imag_2(b_1[y]) - t_mu_imag_1(b_1[y])) / (
-            temperature_2 - temperature_1) * (variable - temperature_1))
+        mu_r.append(t_mu_real_1(b_1[y]) + (t_mu_real_2(b_1[y]) - t_mu_real_1(b_1[y])) / (temperature_2 - temperature_1) * (variable - temperature_1))
+        mu_i.append(t_mu_imag_1(b_1[y]) + (t_mu_imag_2(b_1[y]) - t_mu_imag_1(b_1[y])) / (temperature_2 - temperature_1) * (variable - temperature_1))
     return b_1, mu_r, mu_i
 
 
 def create_permeability_neighbourhood_datasheet(temperature, frequency, list_of_permeability_dicts):
     """
+    Create a neighbourhood for permeability data of a datasheet.
 
-    :param temperature:
-    :param frequency:
-    :param list_of_permeability_dicts:
-    :return:
+    :param temperature: temperature value in degree
+    :param frequency: frequency value in Hz
+    :param list_of_permeability_dicts: list of permeability data dicts
+    :return: neighbourhood
     """
     # Initialize dicts for the certain operation point its neighbourhood
     nbh = {
@@ -310,11 +350,12 @@ def create_permeability_neighbourhood_datasheet(temperature, frequency, list_of_
 
 def create_permeability_neighbourhood_measurement(temperature, frequency, list_of_permeability_dicts):
     """
+    Create a neighbourhood for permeability data of a measurement.
 
-    :param temperature:
-    :param frequency:
-    :param list_of_permeability_dicts:
-    :return:
+    :param temperature: temperature value in degree
+    :param frequency: frequency value in Hz
+    :param list_of_permeability_dicts: list of permeability dicts
+    :return: neighbourhood
     """
     # Initialize dicts for the certain operation point its neighbourhood
     nbh = {
@@ -395,6 +436,14 @@ def create_permeability_neighbourhood_measurement(temperature, frequency, list_o
 
 
 def find_nearest_neighbour_values_permeability(permeability_data, temperature, frequency):
+    """
+    Find the nearest temperature and frequency values for a given neighbourhood of permeability data.
+
+    :param permeability_data: permeability data
+    :param temperature: temperature value in degree
+    :param frequency: frequency value in Hz
+    :return: lower temperature value in degree, higher temperature value in degree, lower frequency value in Hz, higher frequency value in Hz
+    """
     temperatures = []
     frequencies = []
     for permeability_set in permeability_data:
@@ -412,32 +461,30 @@ def find_nearest_neighbour_values_permeability(permeability_data, temperature, f
 
 
 def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency, temperature_low, temperature_high, frequency_low, frequency_high,
-                                                                  b_t_low_f_low, f_b_T_low_f_low,
-                                                                  b_T_high_f_low, f_b_T_high_f_low,
-                                                                  b_T_low_f_high, f_b_T_low_f_high,
-                                                                  b_T_high_f_high, f_b_T_high_f_high,
-                                                                  no_interpolation_values: int = 8,
-                                                                  y_label: str = None, plot: bool = False):
+                                                                  b_t_low_f_low, f_b_T_low_f_low, b_T_high_f_low, f_b_T_high_f_low,
+                                                                  b_T_low_f_high, f_b_T_low_f_high, b_T_high_f_high, f_b_T_high_f_high,
+                                                                  no_interpolation_values: int = 8, y_label: str = None, plot: bool = False):
     """
+    Interpolate a magnet flux density dependent quantity in temperature and frequency.
 
-    :param y_label:
-    :param temperature:
-    :param frequency:b_ref_vec
-    :param temperature_low:
-    :param temperature_high:
-    :param frequency_low:
-    :param frequency_high:
-    :param b_t_low_f_low:
-    :param f_b_T_low_f_low:
-    :param b_T_high_f_low:
-    :param f_b_T_high_f_low:
-    :param b_T_low_f_high:
-    :param f_b_T_low_f_high:
-    :param b_T_high_f_high:
-    :param f_b_T_high_f_high:
-    :param no_interpolation_values:
-    :param plot:
-    :return:
+    :param temperature: desired temperature in degree
+    :param frequency: desired frequency  in Hz
+    :param temperature_low: lower temperature value in degree
+    :param temperature_high: higher temperature value in degree
+    :param frequency_low: lower frequency value in Hz
+    :param frequency_high: higher frequency value in Hz
+    :param b_t_low_f_low: magnetic flux density at the lower temperature in degree and the lower frequency value in Hz
+    :param f_b_T_low_f_low: function dependent of b at the lower temperature in degree and the lower frequency value in Hz
+    :param b_T_high_f_low: magnetic flux density at the higher temperature in degree and the lower frequency value in Hz
+    :param f_b_T_high_f_low: function dependent of b at the higher temperature in degree and the lower frequency value in Hz
+    :param b_T_low_f_high: magnetic flux density at the lower temperature in degree and the higher frequency value in Hz
+    :param f_b_T_low_f_high: function dependent of b at the lower temperature in degree and the higher frequency value in Hz
+    :param b_T_high_f_high: magnetic flux density at the higher temperature in degree and the higher frequency value in Hz
+    :param f_b_T_high_f_high: function dependent of b at the higher temperature in degree and the higher frequency value in Hz
+    :param no_interpolation_values: number of interpolation values
+    :param y_label: label of y-axes
+    :param plot: enable/disable plotting of data
+    :return: array of magnetic flux density, arrays of function dependent of b
     """
     if len(b_t_low_f_low) != len(f_b_T_low_f_low):
         raise ValueError(f"b_T_low_f_low and f_b_T_low_f_low must have the same lengths: \n"
@@ -516,12 +563,13 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
 
 def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, frequency, b_peak, p_hyst):
     """
+    Calculate the amplitude of the permeability given the peak value of the magnetic flux density, the hysteresis loss and the phase angle of the permeability.
 
-    :param mu_phi_deg:
-    :param frequency: frequency
-    :param b_peak: peak flux density
-    :param p_hyst: hysteresis losses
-    :return:
+    :param mu_phi_deg: phase angle of the permeability in degree
+    :param frequency: frequency in Hz
+    :param b_peak: peak flux density in T
+    :param p_hyst: hysteresis losses in W/m^3
+    :return: amplitude of the permeability
     """
     b_peak = np.array(b_peak)
     return b_peak ** 2 * np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) / p_hyst / mu_0
@@ -529,12 +577,13 @@ def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, frequency, b_peak, p_hyst):
 
 def p_hyst__from_mu_r_and_mu_phi_deg(frequency, b_peak, mu_r, mu_phi_deg):
     """
+    Calculate the hysteresis losses given the peak value of the magnetic flux density, the amplitude and phase angle of the permeability.
 
-    :param mu_phi_deg:
-    :param frequency: frequency
-    :param b_peak: peak flux density
-    :param p_hyst: hysteresis losses
-    :return:
+    :param frequency: frequency in Hz
+    :param b_peak: peak flux density in T
+    :param mu_r: amplitude of the permeability in unitless
+    :param mu_phi_deg: phase angle of the permeability in degree
+    :return: hysteresis losses in W/m^3
     """
     b_peak = np.array(b_peak)
     return np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) * mu_0 * mu_r * (b_peak / mu_0 / mu_r) ** 2
@@ -542,34 +591,37 @@ def p_hyst__from_mu_r_and_mu_phi_deg(frequency, b_peak, mu_r, mu_phi_deg):
 
 def mu_phi_deg__from_mu_r_and_p_hyst(frequency, b_peak, mu_r, p_hyst):
     """
+    Calculate the phase angle of the permeability given the peak value of the magnetic flux density, the hysteresis loss and the amplitude of permeability.
 
-    :param mu_phi_deg:
-    :param frequency: frequency
-    :param b_peak: peak flux density
-    :param p_hyst: hysteresis losses
-    :return:
+    :param frequency: frequency in Hz
+    :param b_peak: peak flux density in T
+    :param mu_r: amplitude of the permeability in unitless
+    :param p_hyst: hysteresis losses in W/m^3
+    :return: phase angle of the permeability in degree
     """
     b_peak = np.array(b_peak)
     return np.rad2deg(np.arcsin(p_hyst * mu_r * mu_0 / (np.pi * frequency * b_peak ** 2)))
 
 
-def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float = 0.05, b_max: float = 0.3,
-                              smooth_data: bool = False, crop_data: bool = False,
+def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float = 0.05, b_max: float = 0.3, smooth_data: bool = False, crop_data: bool = False,
                               plot_data: bool = False, ax=None, f=None, T=None):
     """
+    Post-Processing of raw data of the permeability.
 
-    :param T:
-    :param f:
-    :param ax:
-    :param b_max:
-    :param b_min:
-    :param b_ref_raw:
-    :param mu_r_raw:
-    :param mu_phi_deg_raw:
-    :param smooth_data:
-    :param crop_data:
-    :param plot_data:
-    :return:
+    Function can smooth, crop and plot the permeability data.
+
+    :param T: temperature value in degree
+    :param f: frequency value in Hz
+    :param ax: matplotlib axes for plotting
+    :param b_max: max value of the magnetic flux density for cropping
+    :param b_min: min value of the magnetic flux density for cropping
+    :param b_ref_raw: raw data of the magnetic flux density
+    :param mu_r_raw: raw data of the amplitude of the permeability
+    :param mu_phi_deg_raw: raw data of the angle of the permeability
+    :param smooth_data: enable/disable smoothing of data (savgol-filter)
+    :param crop_data: enable/disable cropping of data
+    :param plot_data: enable/disable plotting of data
+    :return: magnetic flux density and amplitude and angle of permeability
     """
     if crop_data:
         b_ref, mu_r, mu_phi_deg = crop_3_with_1(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min, b_max)
@@ -622,14 +674,15 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float 
         # plt.show()
 
     return b_ref, mu_r, mu_phi_deg
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# ---
-# Load Permittivity
-
+# Load Permittivity --------------------------------------------------------------------------------------------------------------------------------------------
 def find_nearest_neighbours(value, list_to_search_in):
     """
-    only works for sorted lists (small to big)
+    Return the two values with the wanted value in between and additional the indices of the corresponding values.
+
+    Only works for sorted lists (small to big).
 
     Case 0: if len(list_to_search_in) == 1: return duplicated
     Case 1: if value == any(list_to_search_in): return duplicated
@@ -638,9 +691,9 @@ def find_nearest_neighbours(value, list_to_search_in):
         a) if value smaller than data: return smallest two
         b) if value is bigger than data: return biggest two
 
-    :param value:
-    :param list_to_search_in:
-    :return:
+    :param value: desired value
+    :param list_to_search_in: array to search for value
+    :return: lower index, lower value, higher index, higher value
     """
     if isinstance(value, str):
         raise TypeError("value must be int or float or list")
@@ -678,11 +731,12 @@ def find_nearest_neighbours(value, list_to_search_in):
 
 def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivity_dicts):
     """
+    Create neighbourhood for permittivity data.
     
-    :param temperature: 
-    :param frequency: 
-    :param list_of_permittivity_dicts: 
-    :return: 
+    :param temperature: temperature value in degree
+    :param frequency: frequency value in Hz
+    :param list_of_permittivity_dicts: list of permittivity data dicts
+    :return: neighbourhood
     """
     # Initialize dicts for the certain operation point its neighbourhood
     nbh = {
@@ -739,14 +793,12 @@ def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivi
                 "epsilon_phi_deg": None
             },
     }
-
     # In permittivity data:
     # find two temperatures at which were measured that are closest to given T
     temperatures = []
     for permittivity_dict in list_of_permittivity_dicts:
         temperatures.append(permittivity_dict["temperature"])  # store them in a list
-    index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = \
-        find_nearest_neighbours(temperature, temperatures)
+    index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = find_nearest_neighbours(temperature, temperatures)
 
     nbh["T_low_f_low"]["temperature"]["value"], nbh["T_low_f_high"]["temperature"]["value"] = value_T_low_neighbour, value_T_low_neighbour
     nbh["T_low_f_low"]["temperature"]["index"], nbh["T_low_f_high"]["temperature"]["index"] = index_T_low_neighbour, index_T_low_neighbour
@@ -786,10 +838,11 @@ def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivi
 
 def create_steinmetz_neighbourhood(temperature, list_of_steinmetz_dicts):
     """
+    Create neighbourhood for steinmetz data.
 
-    :param temperature:
-    :param list_of_steinmetz_dicts:
-    :return:
+    :param temperature: temperature value in degree
+    :param list_of_steinmetz_dicts: list of steinmetz data dicts
+    :return: neighbourhood
     """
     # Initialize dicts for the certain operation point its neighbourhood
     nbh = {
@@ -820,8 +873,7 @@ def create_steinmetz_neighbourhood(temperature, list_of_steinmetz_dicts):
     temperatures = []
     for steinmetz_dict in list_of_steinmetz_dicts:
         temperatures.append(steinmetz_dict["temperature"])  # store them in a list
-    index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = \
-        find_nearest_neighbours(temperature, temperatures)
+    index_T_low_neighbour, value_T_low_neighbour, index_T_high_neighbour, value_T_high_neighbour = find_nearest_neighbours(temperature, temperatures)
 
     nbh["T_low"]["temperature"]["value"], nbh["T_low"]["temperature"]["index"] = value_T_low_neighbour, index_T_low_neighbour
     nbh["T_high"]["temperature"]["value"], nbh["T_high"]["temperature"]["index"] = value_T_high_neighbour, index_T_high_neighbour
@@ -831,9 +883,10 @@ def create_steinmetz_neighbourhood(temperature, list_of_steinmetz_dicts):
 
 def my_interpolate_linear(a, b, f_a, f_b, x):
     """
-    interpolates linear between to points 'a' and 'b'.
+    Interpolates linear between to points 'a' and 'b'.
+
     The return value is f_x in dependence of x
-    Tt applies: a < x < b.
+    It applies: a < x < b.
 
     :param a: input x-value for point a
     :param b: input x-value for point b
@@ -849,7 +902,7 @@ def my_interpolate_linear(a, b, f_a, f_b, x):
 
 def my_polate_linear(a, b, f_a, f_b, x):
     """
-    interpolates or extrapolates linear for a<x<b or x<a and x>b
+    Interpolates or extrapolates linear for a<x<b or x<a and x>b.
 
     :param a: input x-value for point a
     :param b: input x-value for point b
@@ -868,21 +921,20 @@ def my_polate_linear(a, b, f_a, f_b, x):
 
 def interpolate_neighbours_linear(temperature, frequency, neighbours):
     """
+    Linear interpolation of frequency and temperature between neighbours.
 
-    :param temperature:
-    :param frequency:
-    :param neighbours:
-    :return:
+    :param temperature: desired temperature value in degree
+    :param frequency: desired frequency value in Hz
+    :param neighbours: neighbours
+    :return: amplitude of the permittivity, angle of the permittivity
     """
     # Interpolation of Amplitude
     # in temperature at f_low
     epsilon_r_at_T_f_low = my_polate_linear(a=neighbours["T_low_f_low"]["temperature"]["value"], b=neighbours["T_high_f_low"]["temperature"]["value"],
-                                            f_a=neighbours["T_low_f_low"]["epsilon_r"], f_b=neighbours["T_high_f_low"]["epsilon_r"],
-                                            x=temperature)
+                                            f_a=neighbours["T_low_f_low"]["epsilon_r"], f_b=neighbours["T_high_f_low"]["epsilon_r"], x=temperature)
     # in temperature at f_high
     epsilon_r_at_T_f_high = my_polate_linear(a=neighbours["T_low_f_high"]["temperature"]["value"], b=neighbours["T_high_f_high"]["temperature"]["value"],
-                                             f_a=neighbours["T_low_f_high"]["epsilon_r"], f_b=neighbours["T_high_f_high"]["epsilon_r"],
-                                             x=temperature)
+                                             f_a=neighbours["T_low_f_high"]["epsilon_r"], f_b=neighbours["T_high_f_high"]["epsilon_r"], x=temperature)
     # between f_low and f_high
     epsilon_r = my_polate_linear(a=neighbours["T_low_f_low"]["frequency"]["value"], b=neighbours["T_low_f_high"]["frequency"]["value"],
                                  f_a=epsilon_r_at_T_f_low, f_b=epsilon_r_at_T_f_high, x=frequency)
@@ -901,15 +953,29 @@ def interpolate_neighbours_linear(temperature, frequency, neighbours):
                                        f_a=epsilon_phi_deg_at_T_f_low, f_b=epsilon_phi_deg_at_T_f_high, x=frequency)
 
     return epsilon_r, epsilon_phi_deg
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# ---
 # Add and remove data in Database
 
-# General
-# Permeability
-def create_permeability_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="",
-                                                toroid_dimensions="", measurement_method="", equipment_names="", comment=""):
+
+# General Permeability -----------------------------------------------------------------------------------------------------------------------------------------
+def create_permeability_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="", toroid_dimensions="",
+                                                measurement_method="", equipment_names="", comment=""):
+    """
+    Create a new permeability section in the database for a material.
+
+    :param material_name: name of the material
+    :param measurement_setup: name of the measurement setup
+    :param company: name of the company
+    :param date: date of measurement
+    :param test_setup_name: information of the test setup
+    :param toroid_dimensions: dimensions of the probe
+    :param measurement_method: name of the measurement method
+    :param equipment_names: name of the measurement equipment
+    :param comment: comment regarding the measurement
+    :return: None
+    """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
@@ -941,10 +1007,11 @@ def create_permeability_measurement_in_database(material_name, measurement_setup
 
 def clear_permeability_measurement_data_in_database(material_name, measurement_setup):
     """
+    Clear the permeability data in the database given a material and measurement setup.
 
-    :param material_name:
-    :param measurement_setup:
-    :return:
+    :param material_name: name of the material
+    :param measurement_setup: name of the measurement setup
+    :return: None
     """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
@@ -957,17 +1024,19 @@ def clear_permeability_measurement_data_in_database(material_name, measurement_s
 
 def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_abs, mu_phi_deg, material_name, measurement_setup, overwrite=False):
     """
-    CAUTION: This method only adds the given measurement series to the permeability data
-    without checking duplicates!
-    :param temperature:
-    :param frequency:
-    :param measurement_setup:
-    :param b_ref:
-    :param mu_r_abs:
-    :param mu_phi_deg:
-    :param material_name:
-    :param overwrite:
-    :return:
+    Write permeability data into the material database.
+
+    CAUTION: This method only adds the given measurement series to the permeability data without checking duplicates.
+
+    :param temperature: temperature value in degree
+    :param frequency: frequency value in Hz
+    :param measurement_setup: name of the measurement setup
+    :param b_ref: magnetic flux density value
+    :param mu_r_abs: amplitude of the permeability
+    :param mu_phi_deg: angle of the permeability
+    :param material_name: name of the material
+    :param overwrite: enable/disable overwritting of data
+    :return: None
     """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
@@ -995,22 +1064,23 @@ def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_ab
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# General
-# Steinmetz
+# General Steinmetz --------------------------------------------------------------------------------------------------------------------------------------------
 def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_name, measurement_setup):
     """
-    CAUTION: This method only adds the given measurement series to the steinmetz data
-    without checking duplicates!
+    Write steinmetz data into the material database.
 
-    :param temperature:
-    :param k:
-    :param beta:
-    :param alpha:
-    :param material_name:
-    :param measurement_setup:
-    :return:
+    CAUTION: This method only adds the given measurement series to the steinmetz data without checking duplicates.
+
+    :param temperature: temperature value in degree
+    :param k: k value of steinmetz parameters
+    :param beta: beta value of the steinmetz parameters
+    :param alpha: alpha value of the steinmetz parameters
+    :param material_name: name of the material
+    :param measurement_setup: name of the measurement setup
+    :return: None
     """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
@@ -1036,7 +1106,13 @@ def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_nam
 
 
 def create_empty_material(material_name: Material, manufacturer: Manufacturer):
+    """
+    Create an empty material slot in the database.
 
+    :param material_name: name of the material
+    :param manufacturer: name of the manufacturer
+    :return: None
+    """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
@@ -1051,12 +1127,26 @@ def create_empty_material(material_name: Material, manufacturer: Manufacturer):
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# General
-# Permittivity
-def create_permittivity_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="",
-                                                probe_dimensions="", measurement_method="", equipment_names="", comment=""):
+# General Permittivity -----------------------------------------------------------------------------------------------------------------------------------------
+def create_permittivity_measurement_in_database(material_name, measurement_setup, company="", date="", test_setup_name="", probe_dimensions="",
+                                                measurement_method="", equipment_names="", comment=""):
+    """
+    Create a new permittvity section in the database for a material.
+
+    :param material_name: name of the material
+    :param measurement_setup: name of the measurement setup
+    :param company: name of the company
+    :param date: date of measurement
+    :param test_setup_name: information of the test setup
+    :param probe_dimensions: dimensions of the probe
+    :param measurement_method: name of the measurement method
+    :param equipment_names: name of the measurement equipment
+    :param comment: comment regarding the measurement
+    :return: None
+    """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
 
@@ -1087,10 +1177,11 @@ def create_permittivity_measurement_in_database(material_name, measurement_setup
 
 def clear_permittivity_measurement_data_in_database(material_name, measurement_setup):
     """
+    Clear the permittivity data in the database for a specific material.
 
-    :param material_name:
-    :param measurement_setup:
-    :return:
+    :param material_name: name of material
+    :param measurement_setup: name of measurement setup
+    :return: None
     """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
@@ -1102,6 +1193,17 @@ def clear_permittivity_measurement_data_in_database(material_name, measurement_s
 
 
 def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, epsilon_phi_deg, material_name, measurement_setup):
+    """
+    Write permittivity data into the material database.
+
+    :param temperature: measurement point of the temperature in degree
+    :param frequencies: measurement points of the frequency in Hz
+    :param epsilon_r: amplitude of the permittivity
+    :param epsilon_phi_deg: angle of the permittivity
+    :param material_name: name of material
+    :param measurement_setup: name of measurement setup
+    :return: None
+    """
     # load data
 
     # mean of data
@@ -1128,15 +1230,25 @@ def write_permittivity_data_into_database(temperature, frequencies, epsilon_r, e
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# LEA_LK
-# Permeability
+# LEA_LK Permeability ------------------------------------------------------------------------------------------------------------------------------------------
 def get_permeability_data_from_lea_lk(location: str, frequency, temperature, material_name, no_interpolation_values: int = 20):
-    b_hys, p_hys = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="Core_Loss",
-                                                         quantity="p_hys", frequency=frequency, material_name=material_name, temperature=temperature)
-    b_phi, mu_phi_deg = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot",
-                                                              quantity="mu_phi", frequency=frequency, material_name=material_name, temperature=temperature)
+    """
+    Get the permeability data from LEA_LK.
+
+    :param location: location of the permeability data
+    :param frequency: frequency value in Hz
+    :param temperature: temperature value in degree
+    :param material_name: name of the material
+    :param no_interpolation_values: number of interpolation values
+    :return: magnetic flux density, amplitude of the permeability, angle of the permeability
+    """
+    b_hys, p_hys = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="Core_Loss", quantity="p_hys", frequency=frequency,
+                                                         material_name=material_name, temperature=temperature)
+    b_phi, mu_phi_deg = get_permeability_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="mu_phi_Plot", quantity="mu_phi",
+                                                              frequency=frequency, material_name=material_name, temperature=temperature)
 
     # Find the border of the common magnetic flux density values
     b_max_min = max(min(b_hys), min(b_phi), min(b_hys), min(b_phi))
@@ -1156,11 +1268,31 @@ def get_permeability_data_from_lea_lk(location: str, frequency, temperature, mat
 
 
 def create_permeability_file_name_lea_lk(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", temperature: int = 30):
+    """
+    Create the file name for permeability data of LEA_LK.
+
+    :param quantity: measured quantiy (e.g. p_hys)
+    :param frequency: frequency value in Hz
+    :param material_name: name of the material
+    :param temperature: temperature value in degree
+    :return: correct file name for LEA_LK
+    """
     return "_".join([quantity, f"{int(frequency / 1000)}kHz", material_name, f"{temperature}C.txt"])
 
 
-def get_permeability_property_from_lea_lk(path_to_parent_folder, quantity: str, frequency: int,
-                                          material_name: str, temperature: int, sub_folder_name: str = "Core_Loss"):
+def get_permeability_property_from_lea_lk(path_to_parent_folder, quantity: str, frequency: int, material_name: str, temperature: int,
+                                          sub_folder_name: str = "Core_Loss"):
+    """
+    Get the proberty of the permeability from LEA_LK.
+
+    :param path_to_parent_folder: path to permeability data
+    :param quantity: name of the measured quantity
+    :param frequency: frequency value in Hz
+    :param material_name: name of the material
+    :param temperature: temperature value in degree
+    :param sub_folder_name: name of the sub folder
+    :return: amplitude of the permeability, angle of the permeability
+    """
     filename = create_permeability_file_name_lea_lk(quantity, frequency, material_name, temperature)
     complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
     # mdb_print(complete_path)
@@ -1168,27 +1300,55 @@ def get_permeability_property_from_lea_lk(path_to_parent_folder, quantity: str, 
     data = np.loadtxt(complete_path)
     # mdb_print(data)
     return data[:, 0], data[:, 1]
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# Permittivity
+# Permittivity -------------------------------------------------------------------------------------------------------------------------------------------------
 def get_permittivity_data_from_lea_lk(location, temperature, frequency, material_name):
-    e_amplitude, epsilon_r_tilde = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_r_Plot",
-                                                                         quantity="eps_r_tilde", frequency=frequency,
-                                                                         material_name=material_name, temperature=temperature)
+    """
+    Get the permittivity data from LEA_LK.
 
-    e_phi, epsilon_phi_deg = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_phi_Plot",
-                                                                   quantity="eps_phi_tilde", frequency=frequency,
-                                                                   material_name=material_name, temperature=temperature)
+    :param location: location of the permittivity data
+    :param temperature: temperature value
+    :param frequency: frequency value in Hz
+    :param material_name: name of the material
+    :return: amplitude of the permittivity, angle of the permittivity
+    """
+    e_amplitude, epsilon_r_tilde = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_r_Plot", quantity="eps_r_tilde",
+                                                                         frequency=frequency, material_name=material_name, temperature=temperature)
+
+    e_phi, epsilon_phi_deg = get_permittivity_property_from_lea_lk(path_to_parent_folder=location, sub_folder_name="eps_phi_Plot", quantity="eps_phi_tilde",
+                                                                   frequency=frequency, material_name=material_name, temperature=temperature)
 
     return epsilon_r_tilde, epsilon_phi_deg
 
 
 def create_permittivity_file_name_lea_lk(quantity: str = "p_hys", frequency: int = 100000, material_name: str = "N49", temperature: int = 30):
+    """
+    Create the file name for permittivity data of LEA_LK.
+
+    :param quantity: measured quantiy (e.g. p_hys)
+    :param frequency: frequency value in Hz
+    :param material_name: name of the material
+    :param temperature: temperature value in degree
+    :return: correct file name for LEA_LK
+    """
     return "_".join([quantity, material_name, f"{temperature}C", f"{int(frequency / 1000)}kHz.txt"])
 
 
-def get_permittivity_property_from_lea_lk(path_to_parent_folder, quantity: str, frequency: int,
-                                          material_name: str, temperature: int, sub_folder_name: str = "Core_Loss"):
+def get_permittivity_property_from_lea_lk(path_to_parent_folder, quantity: str, frequency: int, material_name: str, temperature: int,
+                                          sub_folder_name: str = "Core_Loss"):
+    """
+    Get the proberty of the permittivity from LEA_LK.
+
+    :param path_to_parent_folder: path to permittivity data
+    :param quantity: name of the measured quantity
+    :param frequency: frequency value in Hz
+    :param material_name: name of the material
+    :param temperature: temperature value in degree
+    :param sub_folder_name: name of the sub folder
+    :return: amplitude of the permittivity, angle of the permittivity
+    """
     filename = create_permittivity_file_name_lea_lk(quantity, frequency, material_name, temperature)
     complete_path = os.path.join(path_to_parent_folder, sub_folder_name, filename)
     # mdb_print(complete_path)
@@ -1196,10 +1356,17 @@ def get_permittivity_property_from_lea_lk(path_to_parent_folder, quantity: str, 
     data = np.loadtxt(complete_path)
     # mdb_print(data)
     return data[:, 0], data[:, 1]
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# LEA_MTB
+# LEA_MTB ------------------------------------------------------------------------------------------------------------------------------------------------------
 def get_permeability_property_from_lea_mtb(path_to_parent_folder):
+    """
+    Get the proberty of the permeability from the material test bench.
+
+    :param path_to_parent_folder: path to permeability data
+    :return: magnetic flux density, amplitude of the permeability, angle of the permeability
+    """
     # hardcode: select the first file available in the directory
     # TODO: find a better solution
     new_list = [lis for lis in os.listdir(path_to_parent_folder) if '.csv' in lis]
@@ -1207,13 +1374,25 @@ def get_permeability_property_from_lea_mtb(path_to_parent_folder):
     return data[:, 4], abs(data[:, 2]), abs(data[:, 3])
 
 
-def get_permeability_data_from_lea_mtb(location: str, no_interpolation_values: int = 20):
+def get_permeability_data_from_lea_mtb(location: str):  # TODO: IS THIS FUNCTION NECESSARY, ONLY CALLS THE UPPER FUNCTION WITHOUT ADDITIONAL FUNCTIONALTY
+    """
+    Get the permeability data from the material test bench.
+
+    :param location: location of the permability data
+    :return: magnetic flux density, amplitude of the permeability, angle of the permeability
+    """
     b_hys, mu_r_abs, mu_phi_deg = get_permeability_property_from_lea_mtb(path_to_parent_folder=location)
 
     return b_hys, mu_r_abs, mu_phi_deg
 
 
 def get_all_frequencies_for_material(material_path):
+    """
+    Get all the frequency values for a given material.
+
+    :param material_path: path to the material
+    :return: all frequency values in Hz of the given material
+    """
     frequencies_str = os.listdir(material_path)
     print(frequencies_str)
     frequencies = []
@@ -1225,6 +1404,12 @@ def get_all_frequencies_for_material(material_path):
 
 
 def get_all_temperatures_for_directory(toroid_path):
+    """
+    Get all the temperature values for a given toroid probe.
+
+    :param toroid_path: path of the toroid probe
+    :return: all temperature values in degree of the specific toroid probe
+    """
     temperatures_str = os.listdir(toroid_path)
     temperatures = []
     for f_str in temperatures_str:
@@ -1236,15 +1421,28 @@ def get_all_temperatures_for_directory(toroid_path):
 
 
 def sigma_from_permittivity(amplitude_relative_equivalent_permittivity, phi_deg_relative_equivalent_permittivity, frequency):
-    return 2 * np.pi * frequency * amplitude_relative_equivalent_permittivity * \
-        (np.cos(np.deg2rad(phi_deg_relative_equivalent_permittivity)) + \
-         complex(0, 1) * np.sin(np.deg2rad(phi_deg_relative_equivalent_permittivity))) * epsilon_0 * complex(0, 1)
+    """
+    Calculate the conductivity based on the data of the permittivity.
+
+    :param amplitude_relative_equivalent_permittivity: amplitude of the permittivity
+    :param phi_deg_relative_equivalent_permittivity: angle of the permittivity
+    :param frequency: frequency value in Hz
+    :return: conductivity
+    """
+    return 2 * np.pi * frequency * amplitude_relative_equivalent_permittivity * epsilon_0 * j * \
+        (np.cos(np.deg2rad(phi_deg_relative_equivalent_permittivity)) + j * np.sin(np.deg2rad(phi_deg_relative_equivalent_permittivity)))
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-# ---
-# unused or externally used
-
+# unused or externally used ------------------------------------------------------------------------------------------------------------------------------------
 def find_nearest_frequencies(permeability, frequency):
+    """
+    Find the nearest frequency value for permeability data.
+
+    :param permeability: permeability data
+    :param frequency: desired frequency value in Hz
+    :return: two frequency values in Hz with the desired value in between
+    """
     freq_list = []
     # mdb_print(f"{freq_list = }")
     for j in range(len(permeability)):
@@ -1260,6 +1458,15 @@ def find_nearest_frequencies(permeability, frequency):
 
 
 def find_nearest_temperatures(permeability, f_l, f_h, temperature):
+    """
+    Find the nearest temperature value between two frequency points.
+
+    :param permeability: permeability data
+    :param f_l: lower frequency value in Hz
+    :param f_h: higher frequency value in Hz
+    :param temperature: desired temperature value in degree
+    :return: two temperature values in degree with the desired value in between
+    """
     # ------find nearby temperature------
     temp_list_l = []
     temp_list_h = []
@@ -1275,6 +1482,17 @@ def find_nearest_temperatures(permeability, f_l, f_h, temperature):
 
 
 def getdata_measurements(permeability, variable, frequency, temperature_1, temperature_2, b_t):
+    """
+    Linear interpolation of the permeability data between two temperatures at a constant frequency.
+
+    :param permeability: permeability data
+    :param variable: desired temperature variable in degree
+    :param frequency: frequency value in Hz
+    :param temperature_1: temperature value under the desired value in degree
+    :param temperature_2: temperature value above the desired value in degree
+    :param b_t: magnetic flux density
+    :return: amplitude of the permeability, angle of the permeability
+    """
     for k in range(len(permeability)):
         if permeability[k]["frequency"] == frequency and permeability[k]["temperature"] == temperature_1:
             t_mu_phi_1 = interp1d(permeability[k]["flux_density"], permeability[k]["mu_phi_deg"])
@@ -1293,15 +1511,17 @@ def getdata_measurements(permeability, variable, frequency, temperature_1, tempe
     return mu_r, mu_phi
 
 
-def export_data(parent_directory: str = "", file_format: str = None,
-                b_ref_vec: list = None, mu_r_real_vec: list = None, mu_r_imag_vec: list = None, silent: bool = False):
+def export_data(parent_directory: str = "", file_format: str = None, b_ref_vec: list = None, mu_r_real_vec: list = None, mu_r_imag_vec: list = None,
+                silent: bool = False):
     """
-    Method is used to export data from the material database in a certain file format.
+    Export data from the material database in a certain file format.
 
+    :param parent_directory:
     :param b_ref_vec: reference vector for mu_r_real and mu_r_imag
     :param mu_r_imag_vec: imaginary part of mu_r_abs as a vector
     :param mu_r_real_vec: real part of mu_r_abs as a vector
     :param file_format: export format, e.g. 'pro' to export a .pro-file
+    :param silent: enables/disables print
     :parent_directory:
     """
     if file_format == "pro":
@@ -1325,14 +1545,17 @@ def export_data(parent_directory: str = "", file_format: str = None,
         print(f"Data is exported to {parent_directory} in a {file_format}-file.")
 
 
-def plot_data(material_name: str = None, properties: str = None,
-              b_ref: list = None, mu_r_real=None, mu_r_imag: list = None):
+def plot_data(material_name: str = None, properties: str = None, b_ref: list = None, mu_r_real=None, mu_r_imag: list = None):
     """
-    Method is used to plot certain material properties of materials.
-    :param b_ref: TODO: parameter is new and will probably cause problems when plotting data, but previous implementation was very static...
-    :param properties:
-    :param material_name:
-    :return:
+    Plot certain material properties of materials.
+
+    TODO: parameter is new and will probably cause problems when plotting data, but previous implementation was very static...
+    :param b_ref: magnetic flux density value
+    :param properties: name of the material properties
+    :param material_name: name of the material
+    :param mu_r_real: real part of the permeability
+    :param mu_r_imag: imaginary part of the permeability
+    :return: None
     """
     if properties == "mu_r_real":
         plt.plot(b_ref, mu_r_real)
@@ -1348,3 +1571,4 @@ def plot_data(material_name: str = None, properties: str = None,
         plt.show()
 
     print(f"Material properties {properties} of {material_name} are plotted.")
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
