@@ -18,7 +18,7 @@ test_requirements = ['pytest']
 setup(
     author="LEA - Uni Paderborn",
     author_email='upblea@mail.upb.de',
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
@@ -26,9 +26,9 @@ setup(
         'Natural Language :: English',
         'Topic :: Scientific/Engineering',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.8',
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
         'Environment :: MacOS X'
