@@ -74,6 +74,9 @@ class MaterialDatabase:
         :param temperature: temperature in °C
         :type temperature: float
         """
+        if isinstance(material_name, str):
+            material_name = Material(material_name)
+
         material_flux_density_vec, material_mu_r_imag_vec, material_mu_r_real_vec = self.permeability_data_to_pro_file(
             temperature, fundamental_frequency, material_name, datasource=MaterialDataSource.ManufacturerDatasheet, datatype='permeability_data',
             plot_interpolation=False)
