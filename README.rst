@@ -1,10 +1,10 @@
 Material database for power electronic usage
-============================================
+===============================================
 
 The main purpose of the material database is to provide various materials for FEM simulations or other calculations in which material data from data sheets or own measurements are required.
 
 Possible application scenarios:
- - FEMMT loads the permeability or the conductivity of the core from the database, depending on the material.
+ - FEM Magnetics Toolbox (FEMMT) loads the permeability or the conductivity of the core from the database, depending on the material.
  - Graphical user interface (GUI) in FEMMT can compare properties of the material stored in material database.
 
 
@@ -37,6 +37,8 @@ Usable features
 * Output features:
     * Get the magnetic parameters from the database
 
+* Interpolation of material data (both electric and magnetic parameters)
+
 * GUI features (included in FEMMT):
     * Compare the datasheet values of differtent ferrites (e.g. BH-curves or powerloss)
     * Materials for comparison:
@@ -55,6 +57,10 @@ Planned features (Roadmap for 202x)
 * Output features:
     * Get the electric parameters from the database
     * Extract data from the database as a specific data file (e.g. .csv)
+
+* Plotting features:
+    * Plot the data of a specific ferrite material
+    * e.g. the amplitude of the permeability over the magnetic flux density
 
 * Filter features:
     * Get all available data for specfic filter keys (e.g. temperature, frequency, material etc.)
