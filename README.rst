@@ -1,5 +1,5 @@
 Material database for power electronic usage
-=============================
+============================================
 
 The main purpose of the material database is to provide various materials for FEM simulations or other calculations in which material data from data sheets or own measurements are required.
 
@@ -61,7 +61,7 @@ Planned features (Roadmap for 202x)
     * Filter for some specific value intervals (e.g. 10mT < B-flux < 30mT)
 
 Installation
--------------------
+---------------
 
 ::
 
@@ -69,7 +69,7 @@ Installation
 
 
 Basic usage and minimal example
--------------------
+------------------------------------
 Material properties:
 ::
 
