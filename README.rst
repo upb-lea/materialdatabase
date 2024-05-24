@@ -4,8 +4,8 @@ Material database for power electronic usage
 The main purpose of the material database is to provide various materials for FEM simulations or other calculations in which material data from data sheets or own measurements are required.
 
 Possible application scenarios:
- - FEM Magnetics Toolbox (FEMMT) loads the permeability or the conductivity of the core from the database, depending on the material.
- - Graphical user interface (GUI) in FEMMT can compare properties of the material stored in material database.
+* FEM Magnetics Toolbox (FEMMT) loads the permeability or the conductivity of the core from the database, depending on the material.
+* Graphical user interface (GUI) in FEMMT can compare properties of the material stored in material database.
 
 
 Overview features
@@ -14,33 +14,33 @@ Overview features
 Usable features
 ~~~~~~~~~~~~~~~~~
 
-* Human-Readable database based on a .json-file
+* Human-readable database based on a .json-file
 
 * Input features:
     * Write magnetic parameters into the database
-        * amplitude of permeability
-        * angle of permeability
-        * power loss density (hysteresis losses)
-        * magnetic flux density
-        * magnetic field strength
+        * Amplitude of permeability
+        * Angle of permeability
+        * Power loss density (hysteresis losses)
+        * Magnetic flux density
+        * Magnetic field strength
 
     * Write electric parameters into the database
-        * amplitude of permittivity
-        * angle of permittivity
-        * power loss density (eddy current losses)
-        * electric flux density
-        * electric field strength
+        * Amplitude of permittivity
+        * Angle of permittivity
+        * Power loss density (eddy current losses)
+        * Electric flux density
+        * Electric field strength
 
     * Write datasheet data into the database
 
-
 * Output features:
     * Get the magnetic parameters from the database
+    * Providing permeability and permittivity data for `FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__
 
 * Interpolation of material data (both electric and magnetic parameters)
 
-* GUI features (included in FEMMT):
-    * Compare the datasheet values of differtent ferrites (e.g. BH-curves or powerloss)
+* GUI features (included in `FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__):
+    * Compare the datasheet values of different ferrite cores (e.g. BH-curves or power-loss curves)
     * Materials for comparison:
         * N95
         * N87
@@ -59,11 +59,10 @@ Planned features (Roadmap for 202x)
     * Extract data from the database as a specific data file (e.g. .csv)
 
 * Plotting features:
-    * Plot the data of a specific ferrite material
-    * e.g. the amplitude of the permeability over the magnetic flux density
+    * Plot the data of a specific ferrite material, e.g. the amplitude of the permeability over the magnetic flux density
 
 * Filter features:
-    * Get all available data for specfic filter keys (e.g. temperature, frequency, material etc.)
+    * Get all available data for specific filter keys (e.g. temperature, frequency, material etc.)
     * Filter for some specific value intervals (e.g. 10mT < B-flux < 30mT)
 
 Installation
@@ -76,6 +75,7 @@ Installation
 
 Basic usage and minimal example
 ------------------------------------
+
 Material properties:
 ::
 
