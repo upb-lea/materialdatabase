@@ -221,7 +221,7 @@ def check_input_permeability_data(datasource: str, material_name: str, temperatu
         raise Exception("'datasource' must be 'manufacturer_datasheet' or 'measurements'.")
 
     if material_name is None or temperature is None or frequency is None:
-        raise Exception(f"Failure in selecting data from materialdatabase. {material_name = }, {temperature = }, {frequency =}.")
+        raise Exception(f"Failure in selecting data from materialdatabase. {material_name=}, {temperature=}, {frequency=}.")
 
 
 def getdata_datasheet(permeability, variable, frequency, temperature_1, temperature_2):

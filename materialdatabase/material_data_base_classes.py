@@ -108,12 +108,16 @@ class MaterialDatabase:
         >>>     material_name = "N95", datatype = "complex_permeability",
         >>>     datasource = mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory = "")
         """
+
+        if isinstance(material_name, str):
+            material_name = Material(material_name)
+
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         if datasource == MaterialDataSource.Measurement:
-            self.mdb_print(f"{material_name = }\n")
-            self.mdb_print(f"{datatype = }\n")
-            self.mdb_print(f"{measurement_setup = }\n")
+            self.mdb_print(f"{material_name=}\n")
+            self.mdb_print(f"{datatype=}\n")
+            self.mdb_print(f"{measurement_setup=}\n")
             permeability_data = self.data[f"{material_name.value}"]["measurements"][f"{datatype.value}"][f"{measurement_setup.value}"]["measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
@@ -147,8 +151,6 @@ class MaterialDatabase:
                                                                                               nbh["T_high_f_high"]["mu_phi_deg"],
                                                                                               y_label="hyst. loss angle in deg", plot=plot_interpolation)
 
-            # mdb_print(f"{b_ref, mu_r, mu_phi_deg = }")
-
             # Convert to cartesian
             mu_real_from_polar, mu_imag_from_polar = [], []
             for n in range(len(b_ref)):
@@ -160,11 +162,9 @@ class MaterialDatabase:
 
         elif datasource == MaterialDataSource.ManufacturerDatasheet:
             permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
-            # mdb_print(f"{permeability_data = }")
 
             # create_permeability_neighbourhood
             nbh = create_permeability_neighbourhood_datasheet(temperature, frequency, permeability_data)
-            # mdb_print(f"{nbh = }")
 
             b_ref, mu_r_real = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
                                                                                              nbh["T_low_f_low"]["temperature"],
@@ -194,7 +194,7 @@ class MaterialDatabase:
                                                                                              nbh["T_high_f_high"]["flux_density"],
                                                                                              nbh["T_high_f_high"]["mu_r_imag"], plot=plot_interpolation)
 
-            self.mdb_print(f"{b_ref, mu_r_real, mu_r_imag = }")
+            self.mdb_print(f"{b_ref, mu_r_real, mu_r_imag=}")
 
         # Write the .pro-file
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref), mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag),
@@ -650,10 +650,10 @@ class MaterialDatabase:
         :return: dictionary of required data
         """
         # Load all available permittivity data from datasource
-        self.mdb_print(f"{material_name = }\n"
-                       f"{datasource = }\n"
-                       f"{datatype = }\n"
-                       f"{measurement_setup =}")
+        self.mdb_print(f"{material_name=}\n"
+                       f"{datasource=}\n"
+                       f"{datatype=}\n"
+                       f"{measurement_setup=}")
 
         try:
             return self.data[material_name][datasource][datatype][measurement_setup]["measurement_data"]

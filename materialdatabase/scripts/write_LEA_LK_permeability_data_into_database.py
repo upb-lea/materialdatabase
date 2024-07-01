@@ -30,7 +30,7 @@ mdb = MaterialDatabase()
 fig, ax = plt.subplots(3)
 for f in [100000, 200000, 300000, 400000, 500000]:
     for T in [30]:
-        print(f"{f, T =}")
+        print(f"{f, T=}")
         b_ref, mu_r, mu_phi_deg = get_permeability_data_from_lea_lk(location, f, T, "N87")
 
         b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg, smooth_data=True, crop_data=True, plot_data=True, ax=ax, f=f)

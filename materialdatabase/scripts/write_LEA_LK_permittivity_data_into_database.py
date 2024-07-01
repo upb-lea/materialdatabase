@@ -33,7 +33,7 @@ for T in [60, 100]:
         epsilon_r_tilde_list.append(np.mean(epsilon_r_tilde))
         epsilon_phi_deg_list.append(np.mean(epsilon_phi_deg))
 
-    print(f"{frequency_list, epsilon_r_tilde_list, epsilon_phi_deg_list = }")
+    print(f"{frequency_list, epsilon_r_tilde_list, epsilon_phi_deg_list=}")
     # for each temperature store 3 lists
     # write_permittivity_data_into_database(T, frequency_list, epsilon_r_tilde_list, epsilon_phi_deg_list, "N95", "LEA_LK")
     write_permittivity_data_into_database(T, frequency_list, epsilon_r_tilde_list, epsilon_phi_deg_list, "custom_material", "custom_meas")

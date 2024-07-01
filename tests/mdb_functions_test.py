@@ -7,7 +7,7 @@ import deepdiff
 mdb_instance = mdb.MaterialDatabase()
 
 
-def test_get_material_property():
+def test_get_material_attribute():
     """
     Tests the functionality to get the material properties of a ferrite of the material database.
 
@@ -100,7 +100,7 @@ def test_neighbourhood():
     neighbourhood = mdb.create_permittivity_neighbourhood(temperature=T, frequency=f, list_of_permittivity_dicts=list_of_permittivity_dicts)
 
     difference = deepdiff.DeepDiff(neighbourhood, correct_result_neighbourhood, ignore_order=True, significant_digits=3)
-    print(f"{difference = }")
+    print(f"{difference=}")
 
     assert not deepdiff.DeepDiff(neighbourhood, correct_result_neighbourhood, ignore_order=True, significant_digits=3)
 
