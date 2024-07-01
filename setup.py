@@ -55,7 +55,7 @@ setup(
     extras_require={},
     url='https://github.com/upb-lea/materialdatabase',
     project_urls={
-        "Documentation": "",
+        "Documentation": "https://upb-lea.github.io/materialdatabase/",
         "Source Code": "https://github.com/upb-lea/materialdatabase",
     },
     version='0.3.0',
