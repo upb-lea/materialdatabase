@@ -108,7 +108,6 @@ class MaterialDatabase:
         >>>     material_name = "N95", datatype = "complex_permeability",
         >>>     datasource = mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory = "")
         """
-
         if isinstance(material_name, str):
             material_name = Material(material_name)
 
