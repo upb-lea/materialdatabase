@@ -11,6 +11,7 @@ tests/temp/
 build/
 dist/
 gpgit/
+docs/build
 
 # Files
 tests/core_materials_temp.pro

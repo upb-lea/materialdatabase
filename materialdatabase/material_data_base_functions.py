@@ -687,9 +687,8 @@ def find_nearest_neighbours(value, list_to_search_in):
     Case 0: if len(list_to_search_in) == 1: return duplicated
     Case 1: if value == any(list_to_search_in): return duplicated
     Case 2: if value inbetween: return neighbours
-    Case 3:
-        a) if value smaller than data: return smallest two
-        b) if value is bigger than data: return biggest two
+    Case 3a: value smaller than data: return smallest two
+    Case 3b: if value is bigger than data: return biggest two
 
     :param value: desired value
     :param list_to_search_in: array to search for value
