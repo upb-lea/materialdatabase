@@ -8297,9 +8297,9 @@
     },
     "measurements": {
       "complex_permeability": {
-        "ABC": {
+        "LEA_MTB": {
           "data_type": "complex_permeability_data",
-          "name": "ABC",
+          "name": "LEA_MTB",
           "company": "",
           "date": "",
           "test_setup": {
@@ -8533,9 +8533,9 @@
     },
     "measurements": {
       "complex_permeability": {
-        "ABC": {
+        "LEA_MTB": {
           "data_type": "complex_permeability_data",
-          "name": "ABC",
+          "name": "LEA_MTB",
           "company": "",
           "date": "",
           "test_setup": {
@@ -11252,7 +11252,11 @@
   },
   "3F46": {
     "Manufacturer": "Ferroxcube",
-    "manufacturer_datasheet": {},
+    "manufacturer_datasheet": {
+      "initial_permeability": 750,
+      "resistivity": 5,
+      "max_flux_density": 0.52,
+      "volumetric_mass_density": 4750},
     "measurements": {
       "complex_permeability": {
         "datasheet": {
