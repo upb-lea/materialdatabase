@@ -34,7 +34,7 @@ setup(
         'Environment :: MacOS X'
     ],
     description="materialdatabase",
-    install_requires=['numpy>=1.19.5',
+    install_requires=['numpy~=1.26.0',
                       'scipy>=1.6.0',
                       'setuptools>=49.2.1',
                       'matplotlib>=3.3.4',
@@ -55,10 +55,10 @@ setup(
     extras_require={},
     url='https://github.com/upb-lea/materialdatabase',
     project_urls={
-        "Documentation": "",
+        "Documentation": "https://upb-lea.github.io/materialdatabase/",
         "Source Code": "https://github.com/upb-lea/materialdatabase",
     },
-    version='0.2.0',
+    version='0.3.0',
     zip_safe=False,
     data_files=[('', ['CHANGELOG.md'])]
 )

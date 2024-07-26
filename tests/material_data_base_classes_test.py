@@ -28,7 +28,7 @@ def compare_pro_files(first_pro_filepath, second_pro_filepath, significant_digit
         else:
             difference.append(first_content[line_count])
             difference.append(second_content[line_count])
-    print(f"{difference = }")
+    print(f"{difference=}")
 
     assert difference == []
 
@@ -68,8 +68,8 @@ def test(temp_folder):
     pro_verification_filepath = os.path.join(os.path.dirname(__file__), "fixtures", "core_materials_temp_n95_100000Hz_100deg.pro")
     b_ref, mu_r_imag, mu_r_real = database.permeability_data_to_pro_file(temperature=T, frequency=f, material_name=material_name, datasource=datasource,
                                                                          datatype="complex_permeability", parent_directory=parent_directory)
-    print(f"{ b_ref = }")
-    print(f"{mu_r_imag = }")
-    print(f"{mu_r_real = }")
+    print(f"{b_ref=}")
+    print(f"{mu_r_imag=}")
+    print(f"{mu_r_real=}")
 
     compare_pro_files(pro_filepath, pro_verification_filepath)

@@ -1,3 +1,6 @@
+.. sectnum::
+
+
 Material database for power electronic usage
 ===============================================
 
@@ -85,7 +88,7 @@ Material properties:
     initial_u_r_abs = material_db.get_material_property(material_name="N95", property="initial_permeability")
     core_material_resistivity = material_db.get_material_property(material_name="N95", property="resistivity")
 
-.. image:: /docs/source/figures/database_json.png
+.. image:: figures/database_json.png
    :align: center
 
 Interpolated permeability and permittivity data of a Material:
@@ -129,5 +132,13 @@ Changelog
 
 Find the changelog `here <CHANGELOG.md>`__.
 
-.. |gui_database| image:: /docs/source/figures/gui_database.png
-.. |gui_database_loss| image:: /docs/source/figures/gui_database_loss.png
+.. |gui_database| image:: figures/gui_database.png
+.. |gui_database_loss| image:: figures/gui_database_loss.png
+
+Materialdatabase function documentation
+==================================================
+.. currentmodule:: materialdatabase.material_data_base_classes
+
+.. automodule:: materialdatabase.material_data_base_functions
+   :members:
+

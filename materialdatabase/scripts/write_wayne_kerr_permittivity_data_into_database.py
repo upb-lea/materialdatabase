@@ -1,9 +1,14 @@
 """Script to write permittivity data measured with the impedance analyzer into the database."""
-from scipy import constants
+# python libraries
+from datetime import date
+
+# own library imports
 from materialdatabase.utils import get_closest, Z_from_amplitude_and_angle
 from materialdatabase.material_data_base_classes import *
 from materialdatabase.paths import your_sciebo
-from datetime import date
+
+# 3rd party libraries
+from scipy import constants
 
 # Control
 write_data = False
@@ -27,7 +32,7 @@ for temperature_db in temperatures_db:
 
     # Read the impedance measurement data
     link_to_impedance_csv = [os.path.join(measurements_path, file_name)]
-    print(f"{link_to_impedance_csv = }")
+    print(f"{link_to_impedance_csv=}")
     f = np.genfromtxt(link_to_impedance_csv[0], delimiter=',', skip_header=True)[:, 0]
     Z_amplitude = np.genfromtxt(link_to_impedance_csv[0], delimiter=',', skip_header=True)[:, 1]
     phi_Z = np.genfromtxt(link_to_impedance_csv[0], delimiter=',', skip_header=True)[:, 2]
