@@ -1067,12 +1067,17 @@ def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_nam
         json.dump(data, jsonFile, indent=2)
 
 
-def create_empty_material(material_name: Material, manufacturer: Manufacturer):
+def create_empty_material(material_name: Material, manufacturer: Manufacturer, initial_permeability: float, resistivity: float,
+                          max_flux_density: float, volumetric_mass_density: float):
     """
     Create an empty material slot in the database.
 
     :param material_name: name of the material
     :param manufacturer: name of the manufacturer
+    :param initial_permeability: value of the initial permeability
+    :param resistivity: value of the resistivity
+    :param max_flux_density: saturation value of the magnetic flux density
+    :param volumetric_mass_density: value of the volumetric mass density
     :return: None
     """
     with open(relative_path_to_db, "r") as jsonFile:
@@ -1083,7 +1088,12 @@ def create_empty_material(material_name: Material, manufacturer: Manufacturer):
     else:
         data[material_name] = {
             "Manufacturer": manufacturer,
-            "manufacturer_datasheet": {},
+            "manufacturer_datasheet": {
+                "initial_permeability": initial_permeability,
+                "resistivity": resistivity,
+                "max_flux_density": max_flux_density,
+                "volumetric_mass_density": volumetric_mass_density
+            },
             "measurements": {}
         }
 
