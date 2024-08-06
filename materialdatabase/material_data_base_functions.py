@@ -561,48 +561,6 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, f
     return b_common, f_T_f_common
 
 
-def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, frequency, b_peak, p_hyst):
-    """
-    Calculate the amplitude of the permeability given the peak value of the magnetic flux density, the hysteresis loss and the phase angle of the permeability.
-
-    :param mu_phi_deg: phase angle of the permeability in degree
-    :param frequency: frequency in Hz
-    :param b_peak: peak flux density in T
-    :param p_hyst: hysteresis losses in W/m^3
-    :return: amplitude of the permeability
-    """
-    b_peak = np.array(b_peak)
-    return b_peak ** 2 * np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) / p_hyst / mu_0
-
-
-def p_hyst__from_mu_r_and_mu_phi_deg(frequency, b_peak, mu_r, mu_phi_deg):
-    """
-    Calculate the hysteresis losses given the peak value of the magnetic flux density, the amplitude and phase angle of the permeability.
-
-    :param frequency: frequency in Hz
-    :param b_peak: peak flux density in T
-    :param mu_r: amplitude of the permeability in unitless
-    :param mu_phi_deg: phase angle of the permeability in degree
-    :return: hysteresis losses in W/m^3
-    """
-    b_peak = np.array(b_peak)
-    return np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) * mu_0 * mu_r * (b_peak / mu_0 / mu_r) ** 2
-
-
-def mu_phi_deg__from_mu_r_and_p_hyst(frequency, b_peak, mu_r, p_hyst):
-    """
-    Calculate the phase angle of the permeability given the peak value of the magnetic flux density, the hysteresis loss and the amplitude of permeability.
-
-    :param frequency: frequency in Hz
-    :param b_peak: peak flux density in T
-    :param mu_r: amplitude of the permeability in unitless
-    :param p_hyst: hysteresis losses in W/m^3
-    :return: phase angle of the permeability in degree
-    """
-    b_peak = np.array(b_peak)
-    return np.rad2deg(np.arcsin(p_hyst * mu_r * mu_0 / (np.pi * frequency * b_peak ** 2)))
-
-
 def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float = 0.05, b_max: float = 0.3, smooth_data: bool = False, crop_data: bool = False,
                               plot_data: bool = False, ax=None, f=None, T=None):
     """
@@ -647,7 +605,7 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float 
     mu_phi_deg[mu_phi_deg < 0] = 0
 
     if plot_data:
-        # fig, ax = plt.subplots(3)
+        fig, ax = plt.subplots(3)
 
         # Amplitude Plot
         # ax[0].plot(b_ref_raw, mu_r_raw, label=f)
@@ -657,21 +615,21 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float 
 
         # Phase Plot
         # ax[1].plot(b_ref_raw, mu_phi_deg_raw)
-        if smooth_data:
-            ax[1].plot(1000*b_ref, mu_phi_deg, "-x", label=f"{f=}, {T=}")
+        # if smooth_data:
+        ax[1].plot(1000*b_ref, mu_phi_deg, "-x", label=f"{f=}, {T=}")
         ax[1].grid(True)
-        ax[1].legend()
+        # ax[1].legend()
 
         ax[1].set_ylabel("loss angle in deg")
 
         # Loss Plot
         loss_density = p_hyst__from_mu_r_and_mu_phi_deg(frequency=f, b_peak=b_ref, mu_r=mu_r, mu_phi_deg=mu_phi_deg)
-        ax[2].loglog(1000*b_ref, loss_density/1000, label=f"{f=}, {T=}")
+        ax[2].loglog(1000*b_ref, loss_density/1000, "-x", label=f"{f=}, {T=}")
         ax[2].grid(which="both", ls="-")
         ax[2].set_xlabel("magnetic flux density in mT")
         ax[2].set_ylabel("loss density in kW/m^3")
         # ax[2].legend()
-        # plt.show()
+        plt.show()
 
     return b_ref, mu_r, mu_phi_deg
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -731,7 +689,7 @@ def find_nearest_neighbours(value, list_to_search_in):
 def create_permittivity_neighbourhood(temperature, frequency, list_of_permittivity_dicts):
     """
     Create neighbourhood for permittivity data.
-    
+
     :param temperature: temperature value in degree
     :param frequency: frequency value in Hz
     :param list_of_permittivity_dicts: list of permittivity data dicts
@@ -1021,14 +979,17 @@ def clear_permeability_measurement_data_in_database(material_name, measurement_s
         json.dump(data, jsonFile, indent=2)
 
 
-def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_abs, mu_phi_deg, material_name, measurement_setup, overwrite=False):
+def write_permeability_data_into_database(current_shape, frequency, temperature, H_DC_offset, b_ref, mu_r_abs, mu_phi_deg, material_name, measurement_setup,
+                                          overwrite=False):
     """
     Write permeability data into the material database.
 
     CAUTION: This method only adds the given measurement series to the permeability data without checking duplicates.
 
+    :param current_shape: shape of the current (e.g. "sine", "triangle", "trapezoid")
     :param temperature: temperature value in degree
     :param frequency: frequency value in Hz
+    :param H_DC_offset: offset in the magnetic field strength in A/m
     :param measurement_setup: name of the measurement setup
     :param b_ref: magnetic flux density value
     :param mu_r_abs: amplitude of the permeability
@@ -1053,8 +1014,10 @@ def write_permeability_data_into_database(frequency, temperature, b_ref, mu_r_ab
 
     data[material_name]["measurements"]["complex_permeability"][measurement_setup]["measurement_data"].append(
         {
+            "signal_shape": current_shape,
             "temperature": temperature,
             "frequency": frequency,
+            "H_DC_offset": H_DC_offset,
             "flux_density": list(b_ref),
             "mu_r_abs": list(mu_r_abs),
             "mu_phi_deg": list(mu_phi_deg)
@@ -1104,12 +1067,17 @@ def write_steinmetz_data_into_database(temperature, k, beta, alpha, material_nam
         json.dump(data, jsonFile, indent=2)
 
 
-def create_empty_material(material_name: Material, manufacturer: Manufacturer):
+def create_empty_material(material_name: Material, manufacturer: Manufacturer, initial_permeability: float, resistivity: float,
+                          max_flux_density: float, volumetric_mass_density: float):
     """
     Create an empty material slot in the database.
 
     :param material_name: name of the material
     :param manufacturer: name of the manufacturer
+    :param initial_permeability: value of the initial permeability
+    :param resistivity: value of the resistivity
+    :param max_flux_density: saturation value of the magnetic flux density
+    :param volumetric_mass_density: value of the volumetric mass density
     :return: None
     """
     with open(relative_path_to_db, "r") as jsonFile:
@@ -1120,7 +1088,12 @@ def create_empty_material(material_name: Material, manufacturer: Manufacturer):
     else:
         data[material_name] = {
             "Manufacturer": manufacturer,
-            "manufacturer_datasheet": {},
+            "manufacturer_datasheet": {
+                "initial_permeability": initial_permeability,
+                "resistivity": resistivity,
+                "max_flux_density": max_flux_density,
+                "volumetric_mass_density": volumetric_mass_density
+            },
             "measurements": {}
         }
 
@@ -1430,6 +1403,203 @@ def sigma_from_permittivity(amplitude_relative_equivalent_permittivity, phi_deg_
     """
     return 2 * np.pi * frequency * amplitude_relative_equivalent_permittivity * epsilon_0 * j * \
         (np.cos(np.deg2rad(phi_deg_relative_equivalent_permittivity)) + j * np.sin(np.deg2rad(phi_deg_relative_equivalent_permittivity)))
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# mathematical functions----------------------------------------------------------------------------------------------------------------------------
+def remove_mean_of_signal(signal: np.array = None):
+    """
+    Remove the mean value of a signal.
+
+    :param signal: signal with mean value
+    :return: signal without mean value
+    """
+    return signal - (max(signal) - (max(signal) - min(signal)) / 2)
+
+
+def integrate(x_data, y_data):
+    """
+    Integrate the function y_data = f(x_data).
+
+    :param x_data: x-axis
+    :param y_data: y-axis
+    :return: defined integral of y_data
+    """
+    data = [np.trapz(y_data[0:index], x_data[0:index]) for index, value in enumerate(x_data)]
+    return np.array(data)
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# calculation functions magnetic field--------------------------------------------------------------------------------------------------------------------------
+def mu_r__from_p_hyst_and_mu_phi_deg(mu_phi_deg, frequency, b_peak, p_hyst):
+    """
+    Calculate the amplitude of the permeability given the peak value of the magnetic flux density, the hysteresis loss and the phase angle of the permeability.
+
+    :param mu_phi_deg: phase angle of the permeability in degree
+    :param frequency: frequency in Hz
+    :param b_peak: peak flux density in T
+    :param p_hyst: hysteresis losses in W/m^3
+    :return: amplitude of the permeability
+    """
+    b_peak = np.array(b_peak)
+    return b_peak ** 2 * np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) / p_hyst / mu_0
+
+
+def p_hyst__from_mu_r_and_mu_phi_deg(frequency, b_peak, mu_r, mu_phi_deg):
+    """
+    Calculate the hysteresis losses given the peak value of the magnetic flux density, the amplitude and phase angle of the permeability.
+
+    :param frequency: frequency in Hz
+    :param b_peak: peak flux density in T
+    :param mu_r: amplitude of the permeability in unitless
+    :param mu_phi_deg: phase angle of the permeability in degree
+    :return: hysteresis losses in W/m^3
+    """
+    b_peak = np.array(b_peak)
+    return np.pi * frequency * np.sin(np.deg2rad(mu_phi_deg)) * mu_0 * mu_r * (b_peak / mu_0 / mu_r) ** 2
+
+
+def mu_phi_deg__from_mu_r_and_p_hyst(frequency, b_peak, mu_r, p_hyst):
+    """
+    Calculate the phase angle of the permeability given the peak value of the magnetic flux density, the hysteresis loss and the amplitude of permeability.
+
+    :param frequency: frequency in Hz
+    :param b_peak: peak flux density in T
+    :param mu_r: amplitude of the permeability in unitless
+    :param p_hyst: hysteresis losses in W/m^3
+    :return: phase angle of the permeability in degree
+    """
+    b_peak = np.array(b_peak)
+    return np.rad2deg(np.arcsin(p_hyst * mu_r * mu_0 / (np.pi * frequency * b_peak ** 2)))
+
+
+def get_bh_integral(b, h, f):
+    """
+    Calculate the hysteresis loss density.
+
+    :param b: magnetic flux density
+    :param h: magnetic field strength
+    :param f: frequency
+    :return: hysteresis loss density
+    """
+    return f * 0.5 * np.abs(np.sum(b * (np.roll(h, 1, axis=0) - np.roll(h, -1, axis=0)), axis=0))  # shoelace formula
+
+
+def calc_magnetic_flux_density_based_on_voltage_array_and_frequency(voltage: np.ndarray = None, frequency: float = 1.0, secondary_winding: int = 1,
+                                                                    cross_section: float = 1.0):
+    """
+    Calculate the magnetic flux density based on the voltage and the frequency.
+
+    ASSUMPTION: EXACTLY ONE PERIOD!
+    Based on the length of the voltage array and the frequency the time-array is constructed for the integration.
+
+    :param voltage: array-like of the voltage in V
+    :param frequency: frequency value in Hz
+    :param secondary_winding: number of secondary windings
+    :param cross_section: value of the cross-section of the core in m^2
+    :return: np.array with magnetic flux density curve in T
+    """
+    voltage = np.array(voltage)
+    time = np.linspace(0, 1/frequency, voltage.shape[0])
+    return integrate(time, voltage) / secondary_winding / cross_section
+
+
+def calc_magnetic_flux_density_based_on_voltage_array_and_time_array(voltage: np.ndarray = None, time: np.ndarray = None, secondary_winding: int = 1,
+                                                                     cross_section: float = 1):
+    """
+    Calculate the magnetic flux density based on the voltage and the time.
+
+    ASSUMPTION: EXACTLY ONE PERIOD!
+
+    :param voltage: array-like of the voltage in V
+    :param time: array-like of the time in s
+    :param secondary_winding: number of secondary windings
+    :param cross_section: value of the cross-section of the core in m^2
+    :return: np.array with magnetic flux density curve in T
+    """
+    voltage, time = np.array(voltage), np.array(time)
+    return integrate(time, voltage) / secondary_winding / cross_section
+
+
+def calc_magnetic_field_strength_based_on_current_array(current: np.ndarray = None, primary_winding: int = 1, l_mag: float = 1.0):
+    """
+    Calculate the magnetic field strength based on the current.
+
+    :param current: array-like of the current in A
+    :param primary_winding: number of primary windings
+    :param l_mag: mean magnetic path length in m
+    :return: np.array with magnetic field strength curve in A/m
+    """
+    current = np.array(current)
+    return current * primary_winding / l_mag
+
+
+def calc_mu_r_from_b_and_h_array(b: np.ndarray, h: np.ndarray):
+    """
+    Calculate the amplitude of the relative permeability based on a magnetic flux density and a magnetic field strength array.
+
+    :param b: magnetic flux density array
+    :param h: magnetic field strength array
+    :return: amplitude of the relative permability
+    """
+    b, h = np.array(b), np.array(h)
+    mu_r = abs(max(b, key=abs)) / abs(max(h, key=abs)) / mu_0
+    return mu_r
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+# calculation functions electric field -------------------------------------------------------------------------------------------------------------------------
+def calc_electric_flux_density_based_on_current_array_and_frequency(current: np.array = None, frequency: float = 1.0, cross_section: float = 1.0):
+    """
+    Calculate the electric flux density based on the current and the frequency.
+
+    :param current: array-like of the current in A
+    :param frequency: frequency value in Hz
+    :param cross_section: cross-section of probe in m^2
+    :return: list of electric flux density values
+    """
+    current = np.array(current)
+    time = np.linspace(0, 1 / frequency, current.shape[0])
+    electric_flux_density = integrate(time, current) / cross_section
+    return electric_flux_density
+
+
+def calc_electric_flux_density_based_on_current_array_and_time_array(current_array: np.array = None, time: np.array = None, cross_section: float = 1.0):
+    """
+    Calculate the electric flux density based on the current data of a lecroy oscilloscope.
+
+    :param current_array: array-like of the current in A
+    :param time: array of time values of measurement in s
+    :param cross_section: cross-section of probe in m^2
+    :return: list of electric flux density values
+    """
+    electric_flux_density = integrate(time, current_array) / cross_section
+    return electric_flux_density
+
+
+def calc_electric_field_strength_from_lecroy_voltage_data(voltage: np.array = None, height=1.0):
+    """
+    Calculate the electric field strength based on the voltage data of a lecroy oscilloscope.
+
+    :param voltage: array-like of the voltage in V
+    :param height: height of probe in m
+    :return: list of electric field strength values
+    """
+    electric_field_strength = np.array(voltage) / height
+    return electric_field_strength
+
+
+def eps_phi_deg__from_eps_r_and_p_hyst(frequency, e_peak, eps_r, p_eddy):
+    """
+    Calculate the angle of the permittivity.
+
+    :param frequency: frequency
+    :param e_peak: peak value of the electric field strength
+    :param eps_r: peak value of the amplitude of the permittivity
+    :param p_eddy: eddy current loss density
+    :return: angle of permittivity in degree
+    """
+    return np.rad2deg(np.arcsin(p_eddy / (np.pi * frequency * eps_r * epsilon_0 * np.array(e_peak) ** 2)))
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 

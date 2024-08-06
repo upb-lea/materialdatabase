@@ -259,3 +259,23 @@ class ProbeDimensions(str, Enum):
     sec_winding = "secondary winding"
 
     l_mag = "lmag"
+
+
+class MagNetFileNames(str, Enum):
+    """Name of the MagNet .mat-files with the raw data."""
+
+    _3C90 = "3C90_TX-25-15-10_Data1_Cycle.mat"
+    _3C92 = "3C92_TX25-25-12_Data2_Cycle.mat"
+    _3C94 = "3C94_TX-20-10-7_Data1_Cycle.mat"
+    _3C95 = "3C95_TX25-25-12_Data2_Cycle.mat"
+    _3E6 = "3E6_TX-22-14-6.4_Data1_Cycle.mat"
+    _3F4 = "3F4_E-32-6-20-R_Data1_Cycle.mat"
+    _77 = "77_0014_Data1_Cycle.mat"
+    _78 = "78_0076_Data1_Cycle.mat"
+    _79 = "79_1801_Data12_Cycle.mat"
+    _ML95S = "ML95S_OR-14-5-8H_Data2_Cycle.mat"
+    _N27 = "N27_R20.0X10.0X7.0_Data1_Cycle.mat"
+    _N30 = "N30_22.1X13.7X6.35_Data1_Cycle.mat"
+    _N49 = "N49_R16.0X9.6X6.3_Data1_Cycle.mat"
+    _N87 = "N87_R34.0X20.5X12.5_Data5_Cycle.mat"
+    _T37 = "T37_TX25X14.8X10_Data1_Cycle.mat"
