@@ -24,7 +24,7 @@ material_db = mdb.MaterialDatabase()
   INSTRUCTIONS TO PUT DATA INTO DATABASE:
 
     0. CHOOSE SIGNAL-SHAPE, TO LOAD OR PROCESS THE DATA AND TO WRITE THE DATA INTO THE DATABASE
-    1. INPUT MATERIAL NAME AS STRING
+    1. INPUT MATERIAL NAME AS ENUMERATION (Material.XXX.value)
     2. INPUT MANUFACTURER NAME AS ENUMERATION (Manufacturer.XXX)
     3. INPUT BASIC DATASHEET PARAMETERS FOR MATERIAL
     4. INPUT PATH TO FOLDER CONTAINING MagNet-DATA
@@ -38,19 +38,19 @@ SINE = True  # SET TRUE TO RUN SINE DATA
 TRIANGLE = False  # SET TRUE TO RUN TRIANGULAR DATA  # TODO NOT IMPLEMENTED
 TRAPEZOID = False  # SET TRUE TO RUN TRAPEZOIDAL DATA  # TODO NOT IMPLEMENTED
 # PROCESS OF DATA
-PROCESS_DATA = False  # SET TRUE TO PROCESS DATA IF NOT DATA IS LOADED FROM GIVEN PATH
+PROCESS_DATA = True  # SET TRUE TO PROCESS DATA IF NOT DATA IS LOADED FROM GIVEN PATH
 # WRITE DATA INTO DATABASE
-WRITE = True  # SET TRUE TO WRITE DATA INTO DATABASE
+WRITE = False  # SET TRUE TO WRITE DATA INTO DATABASE
 
-material = "3C95"  # 1.  # TODO CHANGE TO ENUM
+material = Material.N87.value  # 1.
 manufacturer = Manufacturer.Ferroxcube  # 2.
-initial_permeability = 3000  # 3.
-resistivity = 5  # 3.
+initial_permeability = 2200  # 3.
+resistivity = 10  # 3.
 max_flux_density = 0.53  # 3.
-volumetric_mass_density = 4800  # 3.
+volumetric_mass_density = 4850  # 3.
 
 path = os.path.join(pt.my_MagNet_data_path, material)  # 4.
-data_dict = mat73.loadmat(os.path.join(path, MagNetFileNames._3C95.value))  # 5.
+data_dict = mat73.loadmat(os.path.join(path, MagNetFileNames._N87.value))  # 5.
 
 cross_section = data_dict["Data"]["Effective_Area"]
 l_mag = data_dict["Data"]["Effective_Length"]
@@ -148,7 +148,7 @@ if SINE:
                 print("Number of measurement points: ", df_sine.query(filter_string).shape[0])
                 if df_sine.query(filter_string).shape[0] > min_number_of_measurements:
                     b_ref = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["mag_flux_density"]) - \
-                            np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["B_DC"])
+                        np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["B_DC"])
                     mu_r = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_amplitude"])
                     mu_phi_deg = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_angle"])
 
