@@ -59,6 +59,13 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#module-materialdatabase.material_data_base_functions"><span class="sectnum">2 </span>Materialdatabase function documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data"><code class="docutils literal notranslate"><span class="pre">calc_electric_field_strength_from_lecroy_voltage_data()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency"><code class="docutils literal notranslate"><span class="pre">calc_electric_flux_density_based_on_current_array_and_frequency()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array"><code class="docutils literal notranslate"><span class="pre">calc_electric_flux_density_based_on_current_array_and_time_array()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_field_strength_based_on_current_array"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_field_strength_based_on_current_array()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_frequency"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_frequency()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_time_array"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_time_array()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_mu_r_from_b_and_h_array"><code class="docutils literal notranslate"><span class="pre">calc_mu_r_from_b_and_h_array()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.check_input_permeability_data"><code class="docutils literal notranslate"><span class="pre">check_input_permeability_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.clear_permeability_measurement_data_in_database"><code class="docutils literal notranslate"><span class="pre">clear_permeability_measurement_data_in_database()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.clear_permittivity_measurement_data_in_database"><code class="docutils literal notranslate"><span class="pre">clear_permittivity_measurement_data_in_database()</span></code></a></li>
@@ -73,6 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.create_steinmetz_neighbourhood"><code class="docutils literal notranslate"><span class="pre">create_steinmetz_neighbourhood()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.crop_3_with_1"><code class="docutils literal notranslate"><span class="pre">crop_3_with_1()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.crop_data_fixed"><code class="docutils literal notranslate"><span class="pre">crop_data_fixed()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_hyst"><code class="docutils literal notranslate"><span class="pre">eps_phi_deg__from_eps_r_and_p_hyst()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.export_data"><code class="docutils literal notranslate"><span class="pre">export_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest"><code class="docutils literal notranslate"><span class="pre">find_nearest()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest_frequencies"><code class="docutils literal notranslate"><span class="pre">find_nearest_frequencies()</span></code></a></li>
@@ -81,6 +89,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest_temperatures"><code class="docutils literal notranslate"><span class="pre">find_nearest_temperatures()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_all_frequencies_for_material"><code class="docutils literal notranslate"><span class="pre">get_all_frequencies_for_material()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_all_temperatures_for_directory"><code class="docutils literal notranslate"><span class="pre">get_all_temperatures_for_directory()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_bh_integral"><code class="docutils literal notranslate"><span class="pre">get_bh_integral()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permeability_data_from_lea_lk"><code class="docutils literal notranslate"><span class="pre">get_permeability_data_from_lea_lk()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permeability_data_from_lea_mtb"><code class="docutils literal notranslate"><span class="pre">get_permeability_data_from_lea_mtb()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permeability_property_from_lea_lk"><code class="docutils literal notranslate"><span class="pre">get_permeability_property_from_lea_lk()</span></code></a></li>
@@ -89,6 +98,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permittivity_property_from_lea_lk"><code class="docutils literal notranslate"><span class="pre">get_permittivity_property_from_lea_lk()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.getdata_datasheet"><code class="docutils literal notranslate"><span class="pre">getdata_datasheet()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.getdata_measurements"><code class="docutils literal notranslate"><span class="pre">getdata_measurements()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.integrate"><code class="docutils literal notranslate"><span class="pre">integrate()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.interpolate_a_b_c"><code class="docutils literal notranslate"><span class="pre">interpolate_a_b_c()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.interpolate_b_dependent_quantity_in_temperature_and_frequency"><code class="docutils literal notranslate"><span class="pre">interpolate_b_dependent_quantity_in_temperature_and_frequency()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.interpolate_neighbours_linear"><code class="docutils literal notranslate"><span class="pre">interpolate_neighbours_linear()</span></code></a></li>
@@ -102,6 +112,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.process_permeability_data"><code class="docutils literal notranslate"><span class="pre">process_permeability_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.rect"><code class="docutils literal notranslate"><span class="pre">rect()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.remove"><code class="docutils literal notranslate"><span class="pre">remove()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.remove_mean_of_signal"><code class="docutils literal notranslate"><span class="pre">remove_mean_of_signal()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.sigma_from_permittivity"><code class="docutils literal notranslate"><span class="pre">sigma_from_permittivity()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.sort_data"><code class="docutils literal notranslate"><span class="pre">sort_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.store_data"><code class="docutils literal notranslate"><span class="pre">store_data()</span></code></a></li>
@@ -295,6 +306,135 @@
 <span id="materialdatabase-function-documentation"></span><h1><span class="sectnum">2 </span>Materialdatabase function documentation<a class="headerlink" href="#module-materialdatabase.material_data_base_functions" title="Link to this heading"></a></h1>
 <p>Functions of the material database.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_field_strength_from_lecroy_voltage_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data" title="Link to this definition"></a></dt>
+<dd><p>Calculate the electric field strength based on the voltage data of a lecroy oscilloscope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>voltage</strong> – array-like of the voltage in V</p></li>
+<li><p><strong>height</strong> – height of probe in m</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of electric field strength values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_flux_density_based_on_current_array_and_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency" title="Link to this definition"></a></dt>
+<dd><p>Calculate the electric flux density based on the current and the frequency.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current</strong> – array-like of the current in A</p></li>
+<li><p><strong>frequency</strong> – frequency value in Hz</p></li>
+<li><p><strong>cross_section</strong> – cross-section of probe in m^2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of electric flux density values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_flux_density_based_on_current_array_and_time_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array" title="Link to this definition"></a></dt>
+<dd><p>Calculate the electric flux density based on the current data of a lecroy oscilloscope.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current_array</strong> – array-like of the current in A</p></li>
+<li><p><strong>time</strong> – array of time values of measurement in s</p></li>
+<li><p><strong>cross_section</strong> – cross-section of probe in m^2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>list of electric flux density values</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_magnetic_field_strength_based_on_current_array">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_magnetic_field_strength_based_on_current_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">primary_winding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l_mag</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_magnetic_field_strength_based_on_current_array" title="Link to this definition"></a></dt>
+<dd><p>Calculate the magnetic field strength based on the current.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>current</strong> – array-like of the current in A</p></li>
+<li><p><strong>primary_winding</strong> – number of primary windings</p></li>
+<li><p><strong>l_mag</strong> – mean magnetic path length in m</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.array with magnetic field strength curve in A/m</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_frequency">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_winding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_frequency" title="Link to this definition"></a></dt>
+<dd><p>Calculate the magnetic flux density based on the voltage and the frequency.</p>
+<p>ASSUMPTION: EXACTLY ONE PERIOD!
+Based on the length of the voltage array and the frequency the time-array is constructed for the integration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>voltage</strong> – array-like of the voltage in V</p></li>
+<li><p><strong>frequency</strong> – frequency value in Hz</p></li>
+<li><p><strong>secondary_winding</strong> – number of secondary windings</p></li>
+<li><p><strong>cross_section</strong> – value of the cross-section of the core in m^2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.array with magnetic flux density curve in T</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_time_array">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_time_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">secondary_winding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_time_array" title="Link to this definition"></a></dt>
+<dd><p>Calculate the magnetic flux density based on the voltage and the time.</p>
+<p>ASSUMPTION: EXACTLY ONE PERIOD!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>voltage</strong> – array-like of the voltage in V</p></li>
+<li><p><strong>time</strong> – array-like of the time in s</p></li>
+<li><p><strong>secondary_winding</strong> – number of secondary windings</p></li>
+<li><p><strong>cross_section</strong> – value of the cross-section of the core in m^2</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.array with magnetic flux density curve in T</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_mu_r_from_b_and_h_array">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_mu_r_from_b_and_h_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_mu_r_from_b_and_h_array" title="Link to this definition"></a></dt>
+<dd><p>Calculate the amplitude of the relative permeability based on a magnetic flux density and a magnetic field strength array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – magnetic flux density array</p></li>
+<li><p><strong>h</strong> – magnetic field strength array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>amplitude of the relative permability</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.check_input_permeability_data">
 <span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">check_input_permeability_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasource</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#materialdatabase.material_data_base_functions.check_input_permeability_data" title="Link to this definition"></a></dt>
 <dd><p>Check input permeability data for correct input parameters.</p>
@@ -358,13 +498,17 @@
 
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.create_empty_material">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">create_empty_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manufacturer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Manufacturer</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.create_empty_material" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">create_empty_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">manufacturer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Manufacturer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_permeability</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resistivity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_flux_density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">volumetric_mass_density</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.create_empty_material" title="Link to this definition"></a></dt>
 <dd><p>Create an empty material slot in the database.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>material_name</strong> – name of the material</p></li>
 <li><p><strong>manufacturer</strong> – name of the manufacturer</p></li>
+<li><p><strong>initial_permeability</strong> – value of the initial permeability</p></li>
+<li><p><strong>resistivity</strong> – value of the resistivity</p></li>
+<li><p><strong>max_flux_density</strong> – saturation value of the magnetic flux density</p></li>
+<li><p><strong>volumetric_mass_density</strong> – value of the volumetric mass density</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -570,6 +714,25 @@
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_hyst">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">eps_phi_deg__from_eps_r_and_p_hyst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_peak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_eddy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_hyst" title="Link to this definition"></a></dt>
+<dd><p>Calculate the angle of the permittivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequency</strong> – frequency</p></li>
+<li><p><strong>e_peak</strong> – peak value of the electric field strength</p></li>
+<li><p><strong>eps_r</strong> – peak value of the amplitude of the permittivity</p></li>
+<li><p><strong>p_eddy</strong> – eddy current loss density</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>angle of permittivity in degree</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.export_data">
 <span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">export_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_directory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_ref_vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_r_real_vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_r_imag_vec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">silent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.export_data" title="Link to this definition"></a></dt>
 <dd><p>Export data from the material database in a certain file format.</p>
@@ -707,6 +870,24 @@ Case 3b: if value is bigger than data: return biggest two</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>all temperature values in degree of the specific toroid probe</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.get_bh_integral">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_bh_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.get_bh_integral" title="Link to this definition"></a></dt>
+<dd><p>Calculate the hysteresis loss density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – magnetic flux density</p></li>
+<li><p><strong>h</strong> – magnetic field strength</p></li>
+<li><p><strong>f</strong> – frequency</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>hysteresis loss density</p>
 </dd>
 </dl>
 </dd></dl>
@@ -858,6 +1039,23 @@ Case 3b: if value is bigger than data: return biggest two</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>amplitude of the permeability, angle of the permeability</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.integrate">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">integrate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.integrate" title="Link to this definition"></a></dt>
+<dd><p>Integrate the function y_data = f(x_data).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x_data</strong> – x-axis</p></li>
+<li><p><strong>y_data</strong> – y-axis</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>defined integral of y_data</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1122,6 +1320,20 @@ It applies: a &lt; x &lt; b.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.remove_mean_of_signal">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">remove_mean_of_signal</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signal</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.remove_mean_of_signal" title="Link to this definition"></a></dt>
+<dd><p>Remove the mean value of a signal.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>signal</strong> – signal with mean value</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>signal without mean value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.sigma_from_permittivity">
 <span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">sigma_from_permittivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">amplitude_relative_equivalent_permittivity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phi_deg_relative_equivalent_permittivity</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.sigma_from_permittivity" title="Link to this definition"></a></dt>
 <dd><p>Calculate the conductivity based on the data of the permittivity.</p>
@@ -1197,14 +1409,16 @@ It applies: a &lt; x &lt; b.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.write_permeability_data_into_database">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">write_permeability_data_into_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_r_abs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_phi_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_setup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.write_permeability_data_into_database" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">write_permeability_data_into_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">H_DC_offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_ref</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_r_abs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mu_phi_deg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_setup</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.write_permeability_data_into_database" title="Link to this definition"></a></dt>
 <dd><p>Write permeability data into the material database.</p>
 <p>CAUTION: This method only adds the given measurement series to the permeability data without checking duplicates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>current_shape</strong> – shape of the current (e.g. “sine”, “triangle”, “trapezoid”)</p></li>
 <li><p><strong>temperature</strong> – temperature value in degree</p></li>
 <li><p><strong>frequency</strong> – frequency value in Hz</p></li>
+<li><p><strong>H_DC_offset</strong> – offset in the magnetic field strength in A/m</p></li>
 <li><p><strong>measurement_setup</strong> – name of the measurement setup</p></li>
 <li><p><strong>b_ref</strong> – magnetic flux density value</p></li>
 <li><p><strong>mu_r_abs</strong> – amplitude of the permeability</p></li>
