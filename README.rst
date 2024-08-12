@@ -16,6 +16,9 @@ Usable features
 ~~~~~~~~~~~~~~~~~
 
 * Human-readable database based on a .json-file
+    * The database currently contains 19 different materials as shown in the following table
+
+|material_overview|
 
 * Input features:
     * Write magnetic parameters into the database
@@ -37,6 +40,9 @@ Usable features
 * Output features:
     * Get the magnetic parameters from the database
     * Providing permeability and permittivity data for `FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__
+
+* Simulation features:
+    * All the material-data in the database can be used in the FEM-Magnetics-Toolbox for FEM-Simulations
 
 * Interpolation of material data (both electric and magnetic parameters)
 
@@ -131,3 +137,4 @@ Find the changelog `here <CHANGELOG.md>`__.
 
 .. |gui_database| image:: /docs/source/figures/gui_database.png
 .. |gui_database_loss| image:: /docs/source/figures/gui_database_loss.png
+.. |material_overview| image:: /docs/source/figures/Material_Database_Overview.png
