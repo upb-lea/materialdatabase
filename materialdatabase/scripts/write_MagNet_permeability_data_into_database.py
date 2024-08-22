@@ -7,7 +7,7 @@ from materialdatabase import paths as pt
 import pandas as pd
 import math
 import os
-from scipy import constants
+# from scipy import constants
 import materialdatabase as mdb
 
 material_db = mdb.MaterialDatabase()
@@ -24,12 +24,13 @@ material_db = mdb.MaterialDatabase()
   INSTRUCTIONS TO PUT DATA INTO DATABASE:
 
     0. CHOOSE SIGNAL-SHAPE, TO LOAD OR PROCESS THE DATA AND TO WRITE THE DATA INTO THE DATABASE
-    1. INPUT MATERIAL NAME AS ENUMERATION (Material.XXX.value)
-    2. INPUT MANUFACTURER NAME AS ENUMERATION (Manufacturer.XXX)
-    3. INPUT BASIC DATASHEET PARAMETERS FOR MATERIAL
-    4. INPUT PATH TO FOLDER CONTAINING MagNet-DATA
-    5. CHANGE ENUMERATION IN VARIABLE datadict TO DESIRED MATERIAl (MagNetFileNames._XXX.value)
-    6. RUN SCRIPT
+    1. SET MINIMUM NUMBER OF MEASUREMENT POINTS (START WITH LOW VALUE)
+    2. INPUT MATERIAL NAME AS ENUMERATION (Material.XXX.value)
+    3. INPUT MANUFACTURER NAME AS ENUMERATION (Manufacturer.XXX)
+    4. INPUT BASIC DATASHEET PARAMETERS FOR MATERIAL
+    5. INPUT PATH TO FOLDER CONTAINING MagNet-DATA
+    6. CHANGE ENUMERATION IN VARIABLE datadict TO DESIRED MATERIAl (MagNetFileNames._XXX.value)
+    7. RUN SCRIPT
     
 """
 
@@ -38,19 +39,21 @@ SINE = True  # SET TRUE TO RUN SINE DATA
 TRIANGLE = False  # SET TRUE TO RUN TRIANGULAR DATA  # TODO NOT IMPLEMENTED
 TRAPEZOID = False  # SET TRUE TO RUN TRAPEZOIDAL DATA  # TODO NOT IMPLEMENTED
 # PROCESS OF DATA
-PROCESS_DATA = True  # SET TRUE TO PROCESS DATA IF NOT DATA IS LOADED FROM GIVEN PATH
+PROCESS_DATA = False  # SET TRUE TO PROCESS DATA IF NOT DATA IS LOADED FROM GIVEN PATH
 # WRITE DATA INTO DATABASE
-WRITE = False  # SET TRUE TO WRITE DATA INTO DATABASE
+WRITE = True  # SET TRUE TO WRITE DATA INTO DATABASE
 
-material = Material.N87.value  # 1.
-manufacturer = Manufacturer.Ferroxcube  # 2.
-initial_permeability = 2200  # 3.
-resistivity = 10  # 3.
-max_flux_density = 0.53  # 3.
-volumetric_mass_density = 4850  # 3.
+min_number_of_measurements = 7  # 1.
 
-path = os.path.join(pt.my_MagNet_data_path, material)  # 4.
-data_dict = mat73.loadmat(os.path.join(path, MagNetFileNames._N87.value))  # 5.
+material = Material._3F4.value   # 2.
+manufacturer = Manufacturer.Ferroxcube  # 3.
+initial_permeability = 900  # 4.
+resistivity = 10  # 4.
+max_flux_density = 0.41  # 4.
+volumetric_mass_density = 4700  # 4.
+
+path = os.path.join(pt.my_MagNet_data_path, material)  # 5.
+data_dict = mat73.loadmat(os.path.join(path, MagNetFileNames._3F4.value))  # 6.
 
 cross_section = data_dict["Data"]["Effective_Area"]
 l_mag = data_dict["Data"]["Effective_Length"]
@@ -92,46 +95,44 @@ if SINE:
         permeability_amplitude = [calc_mu_r_from_b_and_h_array(b=b, h=h) for b, h in zip(mag_flux_density, mag_field_strength_without_offset)]
 
         # B_DC = np.array(H_DC_Bias) * mu
-        B_DC = np.array(H_DC_Bias) * constants.mu_0 * np.array(permeability_amplitude)
-        mag_flux_density_offset = [b + offset for b, offset in zip(mag_flux_density, B_DC)]
+        # B_DC = np.array(H_DC_Bias) * constants.mu_0 * np.array(permeability_amplitude)
+        # mag_flux_density_offset = [b + offset for b, offset in zip(mag_flux_density, B_DC)]
 
-        powerloss = [get_bh_integral(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density_offset, mag_field_strength_offset, frequency)]
+        powerloss = [get_bh_integral(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_without_offset, frequency)]
 
         permeability_angle = [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=abs(max(b, key=abs)), mu_r=mu, p_hyst=p)
-                              for f, b, mu, p in zip(frequency, mag_flux_density_offset, permeability_amplitude, powerloss)]
+                              for f, b, mu, p in zip(frequency, mag_flux_density, permeability_amplitude, powerloss)]
 
         np.savetxt(os.path.join(path, "sine/Voltage[V].csv"), voltage, delimiter=",")
         np.savetxt(os.path.join(path, "sine/Current[A].csv"), current, delimiter=",")
         np.savetxt(os.path.join(path, "sine/Frequency[Hz].csv"), frequency, delimiter=",")
         np.savetxt(os.path.join(path, "sine/Temperature[C].csv"), temperature, delimiter=",")
-        np.savetxt(os.path.join(path, "sine/H_waveform[Am-1].csv"), mag_field_strength_offset, delimiter=",")
+        np.savetxt(os.path.join(path, "sine/H_waveform[Am-1].csv"), mag_field_strength_without_offset, delimiter=",")
         np.savetxt(os.path.join(path, "sine/H_DC_Bias[Am-1].csv"), H_DC_Bias, delimiter=",")
-        np.savetxt(os.path.join(path, "sine/B_waveform[T].csv"), mag_flux_density_offset, delimiter=",")
-        np.savetxt(os.path.join(path, "sine/B_DC[T].csv"), B_DC, delimiter=",")
+        np.savetxt(os.path.join(path, "sine/B_waveform[T].csv"), mag_flux_density, delimiter=",")
         np.savetxt(os.path.join(path, "sine/Volumetric_losses[Wm-3].csv"), powerloss, delimiter=",")
         np.savetxt(os.path.join(path, "sine/Permeability_amplitude[_].csv"), permeability_amplitude, delimiter=",")
         np.savetxt(os.path.join(path, "sine/Permeability_angle[°].csv"), permeability_angle, delimiter=",")
 
         dict_sine = {"temperature": temperature,
-                     "mag_flux_density": [abs(max(x, key=abs)) for x in mag_flux_density_offset],
+                     "mag_flux_density": [abs(max(x, key=abs)) for x in mag_flux_density],
                      "frequency": (np.array(frequency)/1000).astype(int)*1000,  # round up to kHz
                      "powerloss": powerloss,
                      "H_DC_Bias": H_DC_Bias,
-                     "B_DC": B_DC,
                      "permeability_amplitude": permeability_amplitude,
                      "permeability_angle": permeability_angle}
 
         df_sine = pd.DataFrame.from_dict(dict_sine)
         df_sine.to_csv(os.path.join(path, "sine/data_sine.csv"), index=False)
-        print("Sine data processed and saved!")
+        print("\n Sine data processed and saved!")
 
     else:
         df_sine = pd.read_csv(os.path.join(path, "sine/data_sine.csv"), encoding='latin1')
 
     unique_frequency = sorted(set(df_sine["frequency"]))
-    unique_H_DC_offset = sorted(set(df_sine["H_DC_Bias"]))
+    # unique_H_DC_offset = sorted(set(df_sine["H_DC_Bias"]))
+    unique_H_DC_offset = [0]  # only the data for an H_DC of 0 A/m
     unique_temperature = sorted(set(df_sine["temperature"]))
-    min_number_of_measurements = 8
 
     # Init the database entry
     if WRITE:
@@ -146,9 +147,8 @@ if SINE:
         for H_DC in unique_H_DC_offset:
             for frequency in unique_frequency:
                 print("Number of measurement points: ", df_sine.query(filter_string).shape[0])
-                if df_sine.query(filter_string).shape[0] > min_number_of_measurements:
-                    b_ref = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["mag_flux_density"]) - \
-                        np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["B_DC"])
+                if df_sine.query(filter_string).shape[0] >= min_number_of_measurements:
+                    b_ref = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["mag_flux_density"])
                     mu_r = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_amplitude"])
                     mu_phi_deg = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_angle"])
 
@@ -189,13 +189,13 @@ if TRIANGLE:
         permeability_amplitude = [calc_mu_r_from_b_and_h_array(b=b, h=h) for b, h in zip(mag_flux_density, mag_field_strength_without_offset)]
 
         # B_DC = np.array(H_DC_Bias) * mu
-        B_DC = np.array(H_DC_Bias) * constants.mu_0 * np.array(permeability_amplitude)
-        mag_flux_density_offset = [b + offset for b, offset in zip(mag_flux_density, B_DC)]
+        # B_DC = np.array(H_DC_Bias) * constants.mu_0 * np.array(permeability_amplitude)
+        # mag_flux_density_offset = [b + offset for b, offset in zip(mag_flux_density, B_DC)]
 
-        powerloss = [get_bh_integral(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density_offset, mag_field_strength_offset, frequency)]
+        powerloss = [get_bh_integral(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_offset, frequency)]
 
         permeability_angle = [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=abs(max(b, key=abs)), mu_r=mu, p_hyst=p)
-                              for f, b, mu, p in zip(frequency, mag_flux_density_offset, permeability_amplitude, powerloss)]
+                              for f, b, mu, p in zip(frequency, mag_flux_density, permeability_amplitude, powerloss)]
 
         np.savetxt(os.path.join(path, "triangle/Voltage[V].csv"), voltage, delimiter=",")
         np.savetxt(os.path.join(path, "triangle/Current[A].csv"), current, delimiter=",")
@@ -204,18 +204,16 @@ if TRIANGLE:
         np.savetxt(os.path.join(path, "triangle/Duty_cycle[_].csv"), duty_cycle, delimiter=",")
         np.savetxt(os.path.join(path, "triangle/H_waveform[Am-1].csv"), mag_field_strength_offset, delimiter=",")
         np.savetxt(os.path.join(path, "triangle/H_DC_Bias[Am-1].csv"), H_DC_Bias, delimiter=",")
-        np.savetxt(os.path.join(path, "triangle/B_waveform[T].csv"), mag_flux_density_offset, delimiter=",")
-        np.savetxt(os.path.join(path, "triangle/B_DC[T].csv"), B_DC, delimiter=",")
+        np.savetxt(os.path.join(path, "triangle/B_waveform[T].csv"), mag_flux_density, delimiter=",")
         np.savetxt(os.path.join(path, "triangle/Volumetric_losses[Wm-3].csv"), powerloss, delimiter=",")
         np.savetxt(os.path.join(path, "triangle/Permeability_amplitude[_].csv"), permeability_amplitude, delimiter=",")
         np.savetxt(os.path.join(path, "triangle/Permeability_angle[°].csv"), permeability_angle, delimiter=",")
 
         dict_triangle = {"temperature": temperature,
-                         "mag_flux_density": [abs(max(x, key=abs)) for x in mag_flux_density_offset],
+                         "mag_flux_density": [abs(max(x, key=abs)) for x in mag_flux_density],
                          "frequency": (np.array(frequency)/1000).astype(int)*1000,  # round up to kHz
                          "powerloss": powerloss,
                          "H_DC_Bias": H_DC_Bias,
-                         "B_DC": B_DC,
                          "duty_cycle": duty_cycle,
                          "permeability_amplitude": permeability_amplitude,
                          "permeability_angle": permeability_angle}

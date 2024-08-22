@@ -42,6 +42,8 @@ class Manufacturer(str, Enum):
     Ferroxcube = "Ferroxcube"
     DMEGC = "DMEGC"
     SUMIDA = "Sumida"
+    FairRite = "Fair-Rite"
+    Proterial = "Proterial"
 
 
 class MeasurementDataType(str, Enum):
@@ -151,7 +153,19 @@ class Material(str, Enum):
 
     TEST = "TEST"  # FOR TESTING STUFF
     _3F46 = "3F46"
+    _3C90 = "3C90"
+    _3C92 = "3C92"
+    _3C94 = "3C94"
     _3C95 = "3C95"
+    _3E6 = "3E6"
+    _3F4 = "3F4"
+    _77 = "77"
+    _78 = "78"
+    _79 = "79"
+    ML95S = "ML95S"
+    T37 = "T37"
+    N27 = "N27"
+    N30 = "N30"
     N49 = "N49"
     N87 = "N87"
     N95 = "N95"
