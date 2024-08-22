@@ -5,7 +5,7 @@ The main purpose of the material database is to provide various materials for FE
 
 Possible application scenarios:
 
-* FEM Magnetics Toolbox (FEMMT) loads the permeability or the conductivity of the core from the database, depending on the material.
+* FEM Magnetics Toolbox (`FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__) loads the permeability or the conductivity of the core from the database, depending on the material.
 * Graphical user interface (GUI) in FEMMT can compare properties of the material stored in material database.
 
 
@@ -17,7 +17,7 @@ Usable features
 
 * Human-readable database based on a .json-file
     * The database currently contains 19 different ferrite materials as shown in the following table
-    * The database includes data from manufacturer datasheets,the Princeton MagNet project and self measured data
+    * The database includes data from manufacturer datasheets, the Princeton `MagNet <https://mag-net.princeton.edu/>`__ project and self measured data
 
 |material_overview|
 

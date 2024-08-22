@@ -98,7 +98,7 @@ if SINE:
         # B_DC = np.array(H_DC_Bias) * constants.mu_0 * np.array(permeability_amplitude)
         # mag_flux_density_offset = [b + offset for b, offset in zip(mag_flux_density, B_DC)]
 
-        powerloss = [get_bh_integral(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_without_offset, frequency)]
+        powerloss = [get_bh_integral_shoelace(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_without_offset, frequency)]
 
         permeability_angle = [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=abs(max(b, key=abs)), mu_r=mu, p_hyst=p)
                               for f, b, mu, p in zip(frequency, mag_flux_density, permeability_amplitude, powerloss)]
@@ -192,7 +192,7 @@ if TRIANGLE:
         # B_DC = np.array(H_DC_Bias) * constants.mu_0 * np.array(permeability_amplitude)
         # mag_flux_density_offset = [b + offset for b, offset in zip(mag_flux_density, B_DC)]
 
-        powerloss = [get_bh_integral(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_offset, frequency)]
+        powerloss = [get_bh_integral_shoelace(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_offset, frequency)]
 
         permeability_angle = [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=abs(max(b, key=abs)), mu_r=mu, p_hyst=p)
                               for f, b, mu, p in zip(frequency, mag_flux_density, permeability_amplitude, powerloss)]

@@ -1474,7 +1474,7 @@ def mu_phi_deg__from_mu_r_and_p_hyst(frequency, b_peak, mu_r, p_hyst):
     return np.rad2deg(np.arcsin(p_hyst * mu_r * mu_0 / (np.pi * frequency * b_peak ** 2)))
 
 
-def get_bh_integral(b, h, f):
+def get_bh_integral_shoelace(b, h, f):
     """
     Calculate the hysteresis loss density.
 
@@ -1484,6 +1484,18 @@ def get_bh_integral(b, h, f):
     :return: hysteresis loss density in W/m^3
     """
     return f * 0.5 * np.abs(np.sum(b * (np.roll(h, 1, axis=0) - np.roll(h, -1, axis=0)), axis=0))  # shoelace formula
+
+
+def get_bh_integral_trapezoid(b, h, f):
+    """
+    Calculate the hysteresis loss density.
+
+    :param b: magnetic flux density in T
+    :param h: magnetic field strength in A/m
+    :param f: frequency in Hz
+    :return: hysteresis loss density in W/m^3
+    """
+    return f * np.trapezoid(h * np.gradient(b))
 
 
 def calc_magnetic_flux_density_based_on_voltage_array_and_frequency(voltage: np.ndarray = None, frequency: float = 1.0, secondary_winding: int = 1,
