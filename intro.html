@@ -80,7 +80,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.create_steinmetz_neighbourhood"><code class="docutils literal notranslate"><span class="pre">create_steinmetz_neighbourhood()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.crop_3_with_1"><code class="docutils literal notranslate"><span class="pre">crop_3_with_1()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.crop_data_fixed"><code class="docutils literal notranslate"><span class="pre">crop_data_fixed()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_hyst"><code class="docutils literal notranslate"><span class="pre">eps_phi_deg__from_eps_r_and_p_hyst()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_eddy"><code class="docutils literal notranslate"><span class="pre">eps_phi_deg__from_eps_r_and_p_eddy()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.export_data"><code class="docutils literal notranslate"><span class="pre">export_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest"><code class="docutils literal notranslate"><span class="pre">find_nearest()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest_frequencies"><code class="docutils literal notranslate"><span class="pre">find_nearest_frequencies()</span></code></a></li>
@@ -89,7 +89,8 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest_temperatures"><code class="docutils literal notranslate"><span class="pre">find_nearest_temperatures()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_all_frequencies_for_material"><code class="docutils literal notranslate"><span class="pre">get_all_frequencies_for_material()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_all_temperatures_for_directory"><code class="docutils literal notranslate"><span class="pre">get_all_temperatures_for_directory()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_bh_integral"><code class="docutils literal notranslate"><span class="pre">get_bh_integral()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_bh_integral_shoelace"><code class="docutils literal notranslate"><span class="pre">get_bh_integral_shoelace()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_bh_integral_trapezoid"><code class="docutils literal notranslate"><span class="pre">get_bh_integral_trapezoid()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permeability_data_from_lea_lk"><code class="docutils literal notranslate"><span class="pre">get_permeability_data_from_lea_lk()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permeability_data_from_lea_mtb"><code class="docutils literal notranslate"><span class="pre">get_permeability_data_from_lea_mtb()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permeability_property_from_lea_lk"><code class="docutils literal notranslate"><span class="pre">get_permeability_property_from_lea_lk()</span></code></a></li>
@@ -714,8 +715,8 @@ Based on the length of the voltage array and the frequency the time-array is con
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_hyst">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">eps_phi_deg__from_eps_r_and_p_hyst</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_peak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_eddy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_hyst" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_eddy">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">eps_phi_deg__from_eps_r_and_p_eddy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_peak</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_eddy</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_eddy" title="Link to this definition"></a></dt>
 <dd><p>Calculate the angle of the permittivity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -875,19 +876,37 @@ Case 3b: if value is bigger than data: return biggest two</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.get_bh_integral">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_bh_integral</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.get_bh_integral" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.get_bh_integral_shoelace">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_bh_integral_shoelace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.get_bh_integral_shoelace" title="Link to this definition"></a></dt>
 <dd><p>Calculate the hysteresis loss density.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>b</strong> – magnetic flux density</p></li>
-<li><p><strong>h</strong> – magnetic field strength</p></li>
-<li><p><strong>f</strong> – frequency</p></li>
+<li><p><strong>b</strong> – magnetic flux density in T</p></li>
+<li><p><strong>h</strong> – magnetic field strength in A/m</p></li>
+<li><p><strong>f</strong> – frequency in Hz</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>hysteresis loss density</p>
+<dd class="field-even"><p>hysteresis loss density in W/m^3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.get_bh_integral_trapezoid">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_bh_integral_trapezoid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">b</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">f</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.get_bh_integral_trapezoid" title="Link to this definition"></a></dt>
+<dd><p>Calculate the hysteresis loss density.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>b</strong> – magnetic flux density in T</p></li>
+<li><p><strong>h</strong> – magnetic field strength in A/m</p></li>
+<li><p><strong>f</strong> – frequency in Hz</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>hysteresis loss density in W/m^3</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1391,7 +1410,7 @@ It applies: a &lt; x &lt; b.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.updates_x_ticks_for_graph">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">updates_x_ticks_for_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_new</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.updates_x_ticks_for_graph" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">updates_x_ticks_for_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x_new</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'linear'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.updates_x_ticks_for_graph" title="Link to this definition"></a></dt>
 <dd><p>Update the x-values of the given (x_data,y_data)-dataset and returns y_new based on x_new.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -1399,6 +1418,7 @@ It applies: a &lt; x &lt; b.</p>
 <li><p><strong>x_data</strong> – x-data given</p></li>
 <li><p><strong>y_data</strong> – y-data given</p></li>
 <li><p><strong>x_new</strong> – new x-values</p></li>
+<li><p><strong>kind</strong> – kind of interpolation</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
