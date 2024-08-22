@@ -186,16 +186,17 @@ def interpolate_a_b_c(a, b, c, no_interpolation_values=20):
 
 
 # Load Permeability --------------------------------------------------------------------------------------------------------------------------------------------
-def updates_x_ticks_for_graph(x_data: list, y_data: list, x_new: list):
+def updates_x_ticks_for_graph(x_data: list, y_data: list, x_new: list, kind: str = "linear"):
     """
     Update the x-values of the given (x_data,y_data)-dataset and returns y_new based on x_new.
 
     :param x_data: x-data given
     :param y_data: y-data given
     :param x_new: new x-values
+    :param kind: kind of interpolation
     :return: y_new-data corresponding to the x_new-data
     """
-    f_linear = interp1d(x_data, y_data, fill_value="extrapolate")
+    f_linear = interp1d(x_data, y_data, kind=kind, fill_value="extrapolate")
     return f_linear(x_new)
 
 
@@ -608,13 +609,13 @@ def process_permeability_data(b_ref_raw, mu_r_raw, mu_phi_deg_raw, b_min: float 
         fig, ax = plt.subplots(3)
 
         # Amplitude Plot
-        # ax[0].plot(b_ref_raw, mu_r_raw, label=f)
+        ax[0].plot(b_ref_raw*1000, mu_r_raw, label="raw")
         ax[0].plot(1000*b_ref, mu_r, "-x", label=f"{f=}, {T=}")
         ax[0].grid(True)
         ax[0].set_ylabel("rel. permeability")
 
         # Phase Plot
-        # ax[1].plot(b_ref_raw, mu_phi_deg_raw)
+        ax[1].plot(b_ref_raw*1000, mu_phi_deg_raw, label="raw")
         # if smooth_data:
         ax[1].plot(1000*b_ref, mu_phi_deg, "-x", label=f"{f=}, {T=}")
         ax[1].grid(True)
@@ -1473,16 +1474,28 @@ def mu_phi_deg__from_mu_r_and_p_hyst(frequency, b_peak, mu_r, p_hyst):
     return np.rad2deg(np.arcsin(p_hyst * mu_r * mu_0 / (np.pi * frequency * b_peak ** 2)))
 
 
-def get_bh_integral(b, h, f):
+def get_bh_integral_shoelace(b, h, f):
     """
     Calculate the hysteresis loss density.
 
-    :param b: magnetic flux density
-    :param h: magnetic field strength
-    :param f: frequency
-    :return: hysteresis loss density
+    :param b: magnetic flux density in T
+    :param h: magnetic field strength in A/m
+    :param f: frequency in Hz
+    :return: hysteresis loss density in W/m^3
     """
     return f * 0.5 * np.abs(np.sum(b * (np.roll(h, 1, axis=0) - np.roll(h, -1, axis=0)), axis=0))  # shoelace formula
+
+
+def get_bh_integral_trapezoid(b, h, f):
+    """
+    Calculate the hysteresis loss density.
+
+    :param b: magnetic flux density in T
+    :param h: magnetic field strength in A/m
+    :param f: frequency in Hz
+    :return: hysteresis loss density in W/m^3
+    """
+    return f * np.trapezoid(h * np.gradient(b))
 
 
 def calc_magnetic_flux_density_based_on_voltage_array_and_frequency(voltage: np.ndarray = None, frequency: float = 1.0, secondary_winding: int = 1,
@@ -1589,7 +1602,7 @@ def calc_electric_field_strength_from_lecroy_voltage_data(voltage: np.array = No
     return electric_field_strength
 
 
-def eps_phi_deg__from_eps_r_and_p_hyst(frequency, e_peak, eps_r, p_eddy):
+def eps_phi_deg__from_eps_r_and_p_eddy(frequency, e_peak, eps_r, p_eddy):
     """
     Calculate the angle of the permittivity.
 
