@@ -4,15 +4,18 @@ import materialdatabase as mdb
 import os
 
 
-def compare_pro_files(first_pro_filepath, second_pro_filepath, significant_digits=6):
+def compare_pro_files(first_pro_filepath: str, second_pro_filepath: str, significant_digits: int = 6):
     """
     Compare two files of possible differences.
 
     If differences exist -> function raises AssertionError
+
     :param first_pro_filepath: path of first file
+    :type first_pro_filepath: str
     :param second_pro_filepath: path of second file
+    :type second_pro_filepath: str
     :param significant_digits: number of significant digits
-    :return: None
+    :type significant_digits: int
     """
     difference = []
 
@@ -35,11 +38,7 @@ def compare_pro_files(first_pro_filepath, second_pro_filepath, significant_digit
 
 @pytest.fixture
 def temp_folder():
-    """
-    Create a folder with name temp in same path as this file.
-
-    :return: None
-    """
+    """Create a folder with name temp in same path as this file."""
     # Setup temp folder
     temp_folder_path = os.path.join(os.path.dirname(__file__), "temp")
 
@@ -50,12 +49,12 @@ def temp_folder():
     yield temp_folder_path
 
 
-def test(temp_folder):
+def test(temp_folder: str):
     """
     Tests the path of the created temporary folder.
 
     :param temp_folder: path to folder temp
-    :return: None
+    :type temp_folder: str
     """
     database = mdb.MaterialDatabase(is_silent=False)
 

@@ -118,8 +118,13 @@ class CuboidCodeNames(str, Enum):
     H382 = "C25,07x2,02x21,55"
 
     @classmethod
-    def has_member_key(cls, key):
-        """Check if key is part of class."""
+    def has_member_key(cls, key: str):
+        """
+        Check if key is part of class.
+
+        :param key: variable to check
+        :type key: str
+        """
         return key in cls.__members__
 
 
@@ -143,8 +148,13 @@ class ToroidCodeNames(str, Enum):
     U175 = "R24,7x20,3x20,5"
 
     @classmethod
-    def has_member_key(cls, key):
-        """Check if key is part of class."""
+    def has_member_key(cls, key: str):
+        """
+        Check if key is part of class.
+
+        :param key: variable to check
+        :type key: str
+        """
         return key in cls.__members__
 
 

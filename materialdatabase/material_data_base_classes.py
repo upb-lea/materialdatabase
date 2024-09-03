@@ -4,6 +4,7 @@ import logging
 
 # 3rd party libraries
 import mplcursors
+import matplotlib as mpl
 
 # local libraries
 from materialdatabase.material_data_base_functions import *
@@ -28,7 +29,9 @@ class MaterialDatabase:
         Constructor for MaterialDatabase. If is_silent is true nothing will be printet. If a logging_file is set the prints are written to a file.
 
         :param is_silent: enable/disable of plotting
+        :type is_silent: bool
         :param logging_file: path to save the plots
+        :type logging_file: str
         """
         self.database_file_directory = 'data/'
         self.database_file_name = 'material_data_base.json'
@@ -49,13 +52,13 @@ class MaterialDatabase:
 
         self.mdb_print("The material database is now initialized")
 
-    def mdb_print(self, text: str, end='\n') -> None:
+    def mdb_print(self, text: str, end: str = '\n') -> None:
         r"""
         Print function that checks the silent-mode-flag.
 
         Print only in case of no-silent-mode.
 
-        :param text: Text to print
+        :param text: text to print
         :type text: str
         :param end: command for end of line, e.g. '\n' or '\t'
         :type end: str
@@ -86,20 +89,27 @@ class MaterialDatabase:
         return MaterialCurve(material_name, material_mu_r_initial, material_flux_density_vec, material_mu_r_imag_vec, material_mu_r_real_vec,
                              saturation_flux_density, boundary_frequency=fundamental_frequency, boundary_temperature=temperature)
 
-    def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str, datatype: MeasurementDataType,
-                                      datasource: MaterialDataSource = None, measurement_setup: str = None, parent_directory: str = "",
-                                      plot_interpolation: bool = False):
+    def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str, datatype: str, datasource: str = None,
+                                      measurement_setup: str = None, parent_directory: str = "", plot_interpolation: bool = False):
         """
         Read permeability data from the material database.
 
-        :param plot_interpolation:
-        :param temperature: temperature in degree
+        :param temperature: temperature in °C
+        :type temperature: float
         :param frequency: Frequency in Hz
+        :type frequency: float
         :param material_name: "N95","N87"....
-        :param datasource: "measurements" or "manufacturer_datasheet"
+        :type material_name: str
         :param datatype: "complex_permeability", "complex_permittivity" or "Steinmetz"
+        :type datatype: str
+        :param datasource: "measurements" or "manufacturer_datasheet"
+        :type datasource: str
         :param measurement_setup: name of measuerement setup
+        :type measurement_setup: str
         :param parent_directory: location of solver file
+        :type parent_directory: str
+        :param plot_interpolation: enables interpolation for plots
+        :type plot_interpolation: bool
 
         :Example:
         >>> import materialdatabase as mdb
@@ -113,11 +123,15 @@ class MaterialDatabase:
 
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
-        if datasource == MaterialDataSource.Measurement:
+        if datasource == MaterialDataSource.Measurement:  # or datasource == MaterialDataSource.ManufacturerDatasheet:
             self.mdb_print(f"{material_name=}\n")
             self.mdb_print(f"{datatype=}\n")
             self.mdb_print(f"{measurement_setup=}\n")
-            permeability_data = self.data[f"{material_name.value}"]["measurements"][f"{datatype.value}"][f"{measurement_setup.value}"]["measurement_data"]
+
+            if datasource == MaterialDataSource.ManufacturerDatasheet:
+                permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
+            elif datasource == MaterialDataSource.Measurement:
+                permeability_data = self.data[f"{material_name.value}"]["measurements"][f"{datatype.value}"][f"{measurement_setup.value}"]["measurement_data"]
             # mdb_print(f"{permeability_data = }")
             # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
 
@@ -210,8 +224,10 @@ class MaterialDatabase:
 
         All dicts can be accessed under 'manufacturer_datasheet'. See example below.
 
-        :param material_name: str: N95,N87.....
-        :param attribute: str:  initial_permeability, resistivity, max_flux_density, weight_density
+        :param material_name: N95,N87.....
+        :type material_name: str
+        :param attribute: initial_permeability, resistivity, max_flux_density, weight_density
+        :type attribute: str
 
         :Example to get the initial permeability:
         >>> import materialdatabase as mdb
@@ -254,8 +270,11 @@ class MaterialDatabase:
         Get the coefficients of the Steinmetz-Formula of the database.
 
         :param material_name: material name, e.g. "N95"
-        :param datasource: measurement or datasheet
+        :type material_name: str
         :param loss_type: steinmetz or generalized steinmetz
+        :type loss_type: str
+        :param datasource: measurement or datasheet
+        :type datasource: str
         """
         s_data = self.data[f"{material_name.value}"][f"{datasource}"]
         if loss_type == "Steinmetz":
@@ -284,13 +303,20 @@ class MaterialDatabase:
         Return a list temp, freq and flux to GUI from database to used as dropdown list.
 
         :param material_name: material name, e.g. "N95"
-        :param temperature: boolean to get temp list
-        :param flux_density: boolean to get flux list
-        :param frequency: boolean to get freq list
-        :param datatype: needed for load measurement readings
-        :param measurement_name: test setup name, of which data is to be plotted
+        :type material_name: str
         :param comparison_type: datasheet vs datasheet ="dvd", measurement vs measurement = "mvm", datasheet vs measurement = "dvm"
-        :return: temp_list or freq_list or flux_list
+        :type comparison_type: str
+        :param datatype: needed for load measurement readings
+        :type datatype: str
+        :param measurement_name: test setup name, of which data is to be plotted
+        :type measurement_name: str
+        :param temperature: boolean to get temp list
+        :type temperature: bool
+        :param flux_density: boolean to get flux list
+        :type flux_density: bool
+        :param frequency: boolean to get freq list
+        :type frequency: bool
+        :return: temp_list xor freq_list xor flux_list
         """
         global temp_list, flux_list, freq_list_new, temp_list_new, flux_list_new
 
@@ -351,14 +377,16 @@ class MaterialDatabase:
         materials.remove('custom_material')
         return materials
 
-    def compare_core_loss_flux_density_data(self, matplotlib_widget, material_list: list, temperature_list: list = None):
+    def compare_core_loss_flux_density_data(self, matplotlib_widget: mpl.axes, material_list: list, temperature_list: list = None):
         """
         Compare the core loss of a material at different temperatures over the magnetic flux density from datasheet.
 
         :param matplotlib_widget: plotting parameter for GUI
+        :type matplotlib_widget: matplotlib.axes
         :param material_list:[material1, material2, .....]
+        :type material_list: list
         :param temperature_list: [temp1, temp2,..]
-        :return: return plotting data in two list, power_loss and flux
+        :type temperature_list: list
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         # mdb_print(material_list)
@@ -394,14 +422,16 @@ class MaterialDatabase:
 
         self.mdb_print(f"Material properties of {material_list} are compared.")
 
-    def compare_core_loss_temperature(self, matplotlib_widget, material_list: list, flux_density_list: list = None):
+    def compare_core_loss_temperature(self, matplotlib_widget: mpl.axes, material_list: list, flux_density_list: list = None):
         """
         Compare the core loss of a material at different magnetic flux densities over the temperature from datasheet.
 
         :param matplotlib_widget: plot parameter for GUI
+        :type matplotlib_widget: matplotlib.axes
         :param material_list:[material1, material2, ....]
+        :type material_list: list
         :param flux_density_list: [flux1, flux2,..]
-        :return: return plotting data in two list, power_loss and temperature
+        :type flux_density_list: list
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         # mdb_print(material_list)
@@ -435,15 +465,18 @@ class MaterialDatabase:
         # plt.show()
         self.mdb_print(f"Material properties of {material_list} are compared.")
 
-    def compare_core_loss_frequency(self, matplotlib_widget, material_list: list, temperature_list: list = None, flux_density_list: list = None):
+    def compare_core_loss_frequency(self, matplotlib_widget: mpl.axes, material_list: list, temperature_list: list = None, flux_density_list: list = None):
         """
         Compare the core loss of a material at different temperatures over the frequency from datasheet.
 
         :param matplotlib_widget: plot parameter for GUI
+        :type matplotlib_widget: matplotlib.axes
         :param material_list:[material1, material2, ....]
-        :param flux_density_list: [flux1, flux2, ....]
+        :type material_list: list
         :param temperature_list: [temp1, temp2, ....]
-        :return: return plotting data in two list, power_loss and frequency
+        :type temperature_list: list
+        :param flux_density_list: [flux1, flux2, ....]
+        :type flux_density_list: list
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
 
@@ -473,13 +506,16 @@ class MaterialDatabase:
         # plt.show()
         self.mdb_print(f"Material properties of {material_list} are compared.")
 
-    def compare_b_h_curve(self, matplotlib_widget, material_list: list, temperature_list: list = None):
+    def compare_b_h_curve(self, matplotlib_widget: mpl.axes, material_list: list, temperature_list: list = None):
         """
         Compare the B-H curve of a material at different temperatures from datasheet.
 
         :param matplotlib_widget: plot parameter for GUI
+        :type matplotlib_widget: matplotlib.axes
         :param material_list: [material1, material2, ...]
+        :type material_list: list
         :param temperature_list: [temp1, temp2, ...]
+        :type temperature_list: list
         :return plotting data two vector,B and H
         """
         # -------B_H Curve-------
@@ -512,18 +548,23 @@ class MaterialDatabase:
         # plt.show()
         self.mdb_print(f"Material properties of {material_list} are compared.")
 
-    def compare_permeability_measurement_data(self, matplotlib_widget, material_list: list, measurement_name: list, frequency_list: list = None,
+    def compare_permeability_measurement_data(self, matplotlib_widget: mpl.axes, material_list: list, measurement_name: list, frequency_list: list = None,
                                               temperature_list: list = None, plot_real_part: bool = False):
         """
         Compare the permeability data of a material at different temperatures and frequencies from datasheet.
 
         :param matplotlib_widget: plotting parameter for GUI
-        :param material_list:[material1, material2, .....]
-        :param plot_real_part: True for plot real part of mu/ False for plots imaginary part of mu
-        :type temperature_list: [temp1, temp2, ...]
+        :type matplotlib_widget: matplotlib.axes
+        :param material_list: [material1, material2, .....]
+        :type material_list: list
         :param measurement_name: Name from database
+        :type measurement_name: list
         :param frequency_list: [freq1, freq2, ...]
-        :return: Plotting data list for GUI
+        :type frequency_list: list
+        :param temperature_list: [temp1, temp2, ...]
+        :type temperature_list: list
+        :param plot_real_part: True for plot real part of mu/ False for plot imaginary part of mu
+        :type plot_real_part: bool
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
 
@@ -578,15 +619,18 @@ class MaterialDatabase:
         # plt.show()
         self.mdb_print(f"Material properties of {material_list} are compared.")
 
-    def compare_core_loss_flux_datasheet_measurement(self, matplotlib_widget, material: str, measurement_name: list, temperature_list: list = None):
+    def compare_core_loss_flux_datasheet_measurement(self, matplotlib_widget: mpl.axes, material: str, measurement_name: str, temperature_list: list = None):
         """
         Compare the core loss of a material at different temperatures between the datasheet and measurement.
 
         :param matplotlib_widget: For GUI plot
+        :type matplotlib_widget: matplotlib.axes
         :param material: [material1, material2, ...]
+        :type material: str
         :param measurement_name: Name from database
+        :type measurement_name: str
         :param temperature_list: [temp1, temp2, ...]
-        :return: Plotting data for GUI
+        :type temperature_list: list
         """
         color_list = ['red', 'blue', 'green', 'yellow', 'orange']
         line_style = [(0, (5, 1)), (0, (1, 1)), (0, (3, 1, 1, 1, 1, 1)), (0, (3, 5, 1, 5)), (0, (5, 10)),
@@ -637,15 +681,19 @@ class MaterialDatabase:
         self.mdb_print(f"Material properties of {material} are compared.")
 
     # Permittivity Data
-    def load_permittivity_measurement(self, material_name: str, datasource: str = "measurements",
-                                      datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity, measurement_setup: str = None):
+    def load_permittivity_measurement(self, material_name: str, datasource: str = "measurements", datatype: str = "complex_permittivity",
+                                      measurement_setup: str = None):
         """
         Load permittivity data.
 
         :param material_name: name of material of which data to be loaded
+        :type material_name: str
         :param datasource: "measurements"
+        :type datasource: str
         :param datatype: MeasurementDataType
+        :type datatype: str
         :param measurement_setup: "complex_permittivity"
+        :type measurement_setup: str
         :return: dictionary of required data
         """
         # Load all available permittivity data from datasource
@@ -660,24 +708,24 @@ class MaterialDatabase:
             raise ValueError("Requested measurement data not available.") from err
 
     def get_permittivity(self, temperature: float, frequency: float, material_name: str, datasource: str = "measurements",
-                         datatype: MeasurementDataType = MeasurementDataType.ComplexPermittivity, measurement_setup: str = None,
-                         interpolation_type: str = "linear"):
+                         datatype: str = "complex_permittivity", measurement_setup: str = None, interpolation_type: str = "linear"):
         """
         Return the complex permittivity for a certain operation point defined by temperature and frequency.
 
-        :param measurement_setup: Name of the test-setup, e.g. "LEA_LK"
-        :type measurement_setup: str
-        :param datatype: e.g. MeasurementDataType.ComplexPermittivity
-        :type datatype: MeasurementDataType
-        :param interpolation_type: "linear" (as of now, this is the only supported type)
-        :param datasource: datasource, e.g. "measurements"
-        :type datasource: str
-        :param temperature: temperature in degree
+        :param temperature: temperature in °C
         :type temperature: float
         :param frequency: frequency in Hz
         :type frequency: float
         :param material_name: material name, e.g. "N95"
         :type material_name: str
+        :param datasource: datasource, e.g. "measurements"
+        :type datasource: str
+        :param datatype: e.g. MeasurementDataType.ComplexPermittivity
+        :type datatype: str
+        :param measurement_setup: Name of the test-setup, e.g. "LEA_LK"
+        :type measurement_setup: str
+        :param interpolation_type: "linear" (as of now, this is the only supported type)
+        :type interpolation_type: str
         :return: amplitude of the permittivity, angle of the permittivity
 
         :Example:
@@ -701,17 +749,23 @@ class MaterialDatabase:
 
         return epsilon_r, epsilon_phi_deg
 
-    def get_steinmetz(self, temperature: float, material_name: str, datasource: str = "measurements",
-                      datatype: MeasurementDataType = MeasurementDataType.Steinmetz, measurement_setup: str = None, interpolation_type: str = "linear"):
+    def get_steinmetz(self, temperature: float, material_name: str, datasource: str = "measurements", datatype: str = "Steinmetz",
+                      measurement_setup: str = None, interpolation_type: str = "linear"):
         """
         Return the complex permittivity for a certain operation point defined by temperature and frequency.
 
         :param temperature: temperature value
+        :type temperature: float
         :param material_name: name of the material
+        :type material_name: str
         :param datasource: datasource, e.g. "measurements"
+        :type datasource: str
         :param datatype: e.g. MeasurementDataType.ComplexPermittivity
+        :type datatype: str
         :param measurement_setup: Name of the test-setup, e.g. "LEA_LK"
+        :type measurement_setup: str
         :param interpolation_type: "linear" (as of now, this is the only supported type)
+        :type interpolation_type: str
         :return: steinmetz parameter (alpha, beta, k)
 
         :Example:
@@ -749,7 +803,9 @@ class MaterialDatabase:
         Make a list of available measurements in database.
 
         :param material_name: "N95"
+        :type material_name: str
         :param datatype: complex_permittivity or complex_permeability
+        :type datatype: str
         :return: Names of measurement in database
         """
         names = []
