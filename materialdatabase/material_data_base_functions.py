@@ -501,7 +501,7 @@ def interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature: f
                                                                   frequency_low: float, frequency_high: float,
                                                                   b_t_low_f_low: np.ndarray, f_b_T_low_f_low: np.ndarray,
                                                                   b_T_high_f_low: np.ndarray, f_b_T_high_f_low: np.ndarray,
-                                                                  b_T_low_f_high: np.ndarray, f_b_T_low_f_high: np.ndarry,
+                                                                  b_T_low_f_high: np.ndarray, f_b_T_low_f_high: np.ndarray,
                                                                   b_T_high_f_high: np.ndarray, f_b_T_high_f_high: np.ndarray,
                                                                   no_interpolation_values: int = 8, y_label: str = None, plot: bool = False):
     """
