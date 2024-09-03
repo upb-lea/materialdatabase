@@ -8,11 +8,7 @@ mdb_instance = mdb.MaterialDatabase()
 
 
 def test_get_material_attribute():
-    """
-    Tests the functionality to get the material properties of a ferrite of the material database.
-
-    :return: None
-    """
+    """Tests the functionality to get the material properties of a ferrite of the material database."""
     initial_mu_r_abs = mdb_instance.get_material_attribute(material_name=mdb.Material.N95, attribute="initial_permeability")
     assert initial_mu_r_abs == pytest.approx(3000, rel=1e-3)
 
@@ -42,11 +38,7 @@ def test_get_material_attribute():
 
 
 def test_interpolation():
-    """
-    Tests the function interpolate_b_dependent_quantity_in_temperature_and_frequency().
-
-    :return: None
-    """
+    """Tests the function interpolate_b_dependent_quantity_in_temperature_and_frequency()."""
     temperature = 45
     frequency = 140000
     T_low = 25
@@ -78,11 +70,7 @@ def test_interpolation():
 
 
 def test_neighbourhood():
-    """
-    Tests the class neighbourhood.
-
-    :return: None
-    """
+    """Tests the class neighbourhood."""
     correct_result_neighbourhood = {'T_low_f_low': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 300000, 'index': 2},
                                     'epsilon_r': 40993.333333333336, 'epsilon_phi_deg': 24.637},
                                     'T_low_f_high': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 400000, 'index': 3},
@@ -106,11 +94,7 @@ def test_neighbourhood():
 
 
 def test_load_permittivity_measurement():
-    """
-    Tests the function load_permittivity_measurement().
-
-    :return: None
-    """
+    """Tests the function load_permittivity_measurement()."""
     load_permittivity_measurement_result = {'T_low_f_low': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
                                                             'epsilon_r': 61294.333333333336, 'epsilon_phi_deg': 36.85999999999999},
                                             'T_low_f_high': {'temperature': {'value': 60, 'index': 0}, 'frequency': {'value': 100000.0, 'index': 0},
@@ -128,11 +112,7 @@ def test_load_permittivity_measurement():
 
 
 def test_mypolate():
-    """
-    Tests the function my_polate_linear().
-
-    :return: None
-    """
+    """Tests the function my_polate_linear()."""
     a = 10
     b = 20
     f_a = 100
@@ -180,11 +160,7 @@ def test_mypolate():
 
 
 def test_find_nearest_neighbours():
-    """
-    Tests the function find_nearest_neighbours().
-
-    :return: None
-    """
+    """Tests the function find_nearest_neighbours()."""
     list_to_search_in = [10]
 
     print("Case 0")
