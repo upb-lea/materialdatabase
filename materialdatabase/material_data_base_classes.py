@@ -123,7 +123,7 @@ class MaterialDatabase:
 
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
-        if datasource == MaterialDataSource.Measurement:  # or datasource == MaterialDataSource.ManufacturerDatasheet:
+        if datasource == MaterialDataSource.Measurement or datasource == MaterialDataSource.ManufacturerDatasheet:
             self.mdb_print(f"{material_name=}\n")
             self.mdb_print(f"{datatype=}\n")
             self.mdb_print(f"{measurement_setup=}\n")
@@ -173,41 +173,41 @@ class MaterialDatabase:
             mu_r_real = mu_real_from_polar
             mu_r_imag = mu_imag_from_polar
 
-        elif datasource == MaterialDataSource.ManufacturerDatasheet:
-            permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
-
-            # create_permeability_neighbourhood
-            nbh = create_permeability_neighbourhood_datasheet(temperature, frequency, permeability_data)
-
-            b_ref, mu_r_real = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                             nbh["T_low_f_low"]["temperature"],
-                                                                                             nbh["T_high_f_low"]["temperature"],
-                                                                                             nbh["T_low_f_low"]["frequency"],
-                                                                                             nbh["T_low_f_high"]["frequency"],
-                                                                                             nbh["T_low_f_low"]["flux_density"],
-                                                                                             nbh["T_low_f_low"]["mu_r_real"],
-                                                                                             nbh["T_high_f_low"]["flux_density"],
-                                                                                             nbh["T_high_f_low"]["mu_r_real"],
-                                                                                             nbh["T_low_f_high"]["flux_density"],
-                                                                                             nbh["T_low_f_high"]["mu_r_real"],
-                                                                                             nbh["T_high_f_high"]["flux_density"],
-                                                                                             nbh["T_high_f_high"]["mu_r_real"], plot=plot_interpolation)
-
-            b_ref, mu_r_imag = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                             nbh["T_low_f_low"]["temperature"],
-                                                                                             nbh["T_high_f_low"]["temperature"],
-                                                                                             nbh["T_low_f_low"]["frequency"],
-                                                                                             nbh["T_low_f_high"]["frequency"],
-                                                                                             nbh["T_low_f_low"]["flux_density"],
-                                                                                             nbh["T_low_f_low"]["mu_r_imag"],
-                                                                                             nbh["T_high_f_low"]["flux_density"],
-                                                                                             nbh["T_high_f_low"]["mu_r_imag"],
-                                                                                             nbh["T_low_f_high"]["flux_density"],
-                                                                                             nbh["T_low_f_high"]["mu_r_imag"],
-                                                                                             nbh["T_high_f_high"]["flux_density"],
-                                                                                             nbh["T_high_f_high"]["mu_r_imag"], plot=plot_interpolation)
-
-            self.mdb_print(f"{b_ref, mu_r_real, mu_r_imag=}")
+        # elif datasource == MaterialDataSource.ManufacturerDatasheet:
+        #     permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
+        #
+        #     # create_permeability_neighbourhood
+        #     nbh = create_permeability_neighbourhood_datasheet(temperature, frequency, permeability_data)
+        #
+        #     b_ref, mu_r_real = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
+        #                                                                                      nbh["T_low_f_low"]["temperature"],
+        #                                                                                      nbh["T_high_f_low"]["temperature"],
+        #                                                                                      nbh["T_low_f_low"]["frequency"],
+        #                                                                                      nbh["T_low_f_high"]["frequency"],
+        #                                                                                      nbh["T_low_f_low"]["flux_density"],
+        #                                                                                      nbh["T_low_f_low"]["mu_r_real"],
+        #                                                                                      nbh["T_high_f_low"]["flux_density"],
+        #                                                                                      nbh["T_high_f_low"]["mu_r_real"],
+        #                                                                                      nbh["T_low_f_high"]["flux_density"],
+        #                                                                                      nbh["T_low_f_high"]["mu_r_real"],
+        #                                                                                      nbh["T_high_f_high"]["flux_density"],
+        #                                                                                      nbh["T_high_f_high"]["mu_r_real"], plot=plot_interpolation)
+        #
+        #     b_ref, mu_r_imag = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
+        #                                                                                      nbh["T_low_f_low"]["temperature"],
+        #                                                                                      nbh["T_high_f_low"]["temperature"],
+        #                                                                                      nbh["T_low_f_low"]["frequency"],
+        #                                                                                      nbh["T_low_f_high"]["frequency"],
+        #                                                                                      nbh["T_low_f_low"]["flux_density"],
+        #                                                                                      nbh["T_low_f_low"]["mu_r_imag"],
+        #                                                                                      nbh["T_high_f_low"]["flux_density"],
+        #                                                                                      nbh["T_high_f_low"]["mu_r_imag"],
+        #                                                                                      nbh["T_low_f_high"]["flux_density"],
+        #                                                                                      nbh["T_low_f_high"]["mu_r_imag"],
+        #                                                                                      nbh["T_high_f_high"]["flux_density"],
+        #                                                                                      nbh["T_high_f_high"]["mu_r_imag"], plot=plot_interpolation)
+        #
+        #     self.mdb_print(f"{b_ref, mu_r_real, mu_r_imag=}")
 
         # Write the .pro-file
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref), mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag),
