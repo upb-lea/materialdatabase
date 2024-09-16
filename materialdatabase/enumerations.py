@@ -73,11 +73,16 @@ class PlotLabels(str, Enum):
     frequency_kHz = "frequency in kHz"
     frequency_MHz = "frequency in MHz"
 
+    temperature_in_C = "temperature in °C"
+    temperature_in_K = "temperature in K"
+
     powerloss_density_mW = r"powerloss density  in mW/cm^3"
     powerloss_density_kW = r"powerloss density  in kW/m^3"
+    powerloss_density_W = r"powerloss density  in W/m^3"
 
     h_field = "magnetic field strength in A/m"
     b_field = "magnetic flux density in T"
+    b_field_mT = "magnetic flux density in mT"
     e_field = "electric field strength in V/m"
     d_field = r"electric flux density in As/m^2"
 
@@ -90,6 +95,7 @@ class PlotLabels(str, Enum):
 
     mu_ampl = r"rel. permeability amplitude $\mu_\mathrm{r}}$"
     mu_angle = r"rel. permeability angle $\mu_\mathrm{r}}$ in degree"
+    mu_init = r"rel. permeability initial $\mu_\mathrm{r}}$"
     eps_ampl = r"rel. permittivity amplitude  $\tilde{\epsilon}_\mathrm{r}}$"
     eps_angle = r"rel. permittivity angle  $\tilde{\epsilon}_\mathrm{r}}$ in degree"
 
