@@ -1,3 +1,4 @@
+"""Script to write data of datasheet plots into the database."""
 import numpy as np
 from materialdatabase.material_data_base_classes import *
 from materialdatabase.material_data_base_functions import *
@@ -92,7 +93,8 @@ mu_phi_deg_500kHz_100C = mu_phi_deg__from_mu_r_and_p_hyst(frequency=frequency[2]
 mu_phi_deg_750kHz_100C = mu_phi_deg__from_mu_r_and_p_hyst(frequency=frequency[3], b_peak=np.array(powerloss_750kHz_100C[0])/10000,
                                                           mu_r=amplitude_permeability_flux_density_750kHz_100C, p_hyst=np.array(powerloss_750kHz_100C[1])*1000)
 mu_phi_deg_1000kHz_100C = mu_phi_deg__from_mu_r_and_p_hyst(frequency=frequency[4], b_peak=np.array(powerloss_1000kHz_100C[0])/10000,
-                                                           mu_r=amplitude_permeability_flux_density_1000kHz_100C, p_hyst=np.array(powerloss_1000kHz_100C[1])*1000)
+                                                           mu_r=amplitude_permeability_flux_density_1000kHz_100C,
+                                                           p_hyst=np.array(powerloss_1000kHz_100C[1])*1000)
 
 # print(mu_phi_deg_25kHz)
 # print(mu_phi_deg_50kHz)
@@ -119,7 +121,7 @@ else:
 
 data_list = []
 for index, value in enumerate(frequency):
-    print(frequency[index])
+    print(value)
     print(temperature[index])
     # print(np.array(flux_density[index]))
     # print(mu_r_list[index])
