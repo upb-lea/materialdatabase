@@ -2,7 +2,6 @@
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.paths import *
 import numpy as np
-from matplotlib import pyplot as plt
 
 
 WRITE = False
@@ -57,7 +56,7 @@ for index, file in enumerate(files_20C):
                  "mu_phi_deg": [np.rad2deg(np.arctan(1/mu_r))] + [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=b, mu_r=mu, p_hyst=p*1000)
                                                                   for b, f, mu, p in
                                                                   zip(b_list, read_in_digitized_datasheet_plot(path=os.path.join(path_to_data, file))[0],
-                                                                      mu_values,  read_in_digitized_datasheet_plot(path=os.path.join(path_to_data, file))[1])]
+                                                                      mu_values, read_in_digitized_datasheet_plot(path=os.path.join(path_to_data, file))[1])]
                  }
     permeability_data.append(data_dict)
 
@@ -96,7 +95,7 @@ for index, file in enumerate(files_100C):
                  "mu_phi_deg": [np.rad2deg(np.arctan(1/mu_r))] + [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=b, mu_r=mu, p_hyst=p*1000)
                                                                   for b, f, mu, p in
                                                                   zip(b_list, read_in_digitized_datasheet_plot(path=os.path.join(path_to_data, file))[0],
-                                                                      mu_values,  read_in_digitized_datasheet_plot(path=os.path.join(path_to_data, file))[1])]
+                                                                      mu_values, read_in_digitized_datasheet_plot(path=os.path.join(path_to_data, file))[1])]
                  }
     permeability_data.append(data_dict)
 

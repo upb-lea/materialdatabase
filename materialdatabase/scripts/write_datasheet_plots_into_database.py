@@ -4,7 +4,6 @@ import numpy as np
 from materialdatabase.enumerations import *
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.paths import *
-from scipy import interpolate
 import os
 
 """
@@ -72,7 +71,7 @@ manufacturer = str(Manufacturer.Ferroxcube.value)
 # PATHS TO DATA | DATA FORMAT UNDER VARIABLE
 # complex_permeability_frequency = []
 complex_permeability_frequency = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "complex_permeability_real.csv"),
-                                   os.path.join(datasheet_path, manufacturer, material + "_digitized",  "complex_permeability_imag.csv"), 25)]
+                                   os.path.join(datasheet_path, manufacturer, material + "_digitized", "complex_permeability_imag.csv"), 25)]
 # [(path to .csv-file with real part, path to .csv-file with imagnary part, temperature), ...]
 
 # initial_permeability_temperature = []
