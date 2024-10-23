@@ -1,4 +1,4 @@
-"""Script to write data of datasheet plots into the database."""
+"""Script to write permeability_data of datasheet data into the database."""
 import numpy as np
 from materialdatabase.material_data_base_classes import *
 from materialdatabase.material_data_base_functions import *
