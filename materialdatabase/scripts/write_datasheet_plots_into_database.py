@@ -172,7 +172,7 @@ else:
                      "temperature": data[2]}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["complex_permeability"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.complex_permeability] = data_list
 
 # INITIAL PERMEABILITY VERSUS FREQUENCY ------------------------------------------------------------------------------------------------------------------
 if not initial_permeability_frequency:
@@ -195,7 +195,7 @@ else:
                      "frequency": list(df[0])}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["initial_permeability_frequency"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.initial_permeability_frequency] = data_list
 
 
 # INITIAL PERMEABILITY VERSUS TEMPERATURE ------------------------------------------------------------------------------------------------------------------
@@ -219,7 +219,7 @@ else:
                      "temperature": list(df[0])}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["initial_permeability_temperature"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.initial_permeability_temperature] = data_list
 
 
 # INCREMENTAL PERMEABILITY VERSUS FIELD STRENGTH----------------------------------------------------------------------------------------------------------------
@@ -245,7 +245,7 @@ else:
                      "temperature": data[2]}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["incremental_permeability_field_strength"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.incremental_permeability_field_strength] = data_list
 
 # AMPLITUDE PERMEABILITY VERSUS FLUX DENSITY ---------------------------------------------------------------------------------------------------------------
 if not amplitude_permeability_flux_density:
@@ -270,7 +270,7 @@ else:
                      "temperature": data[2]}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["amplitude_permeability_flux_density"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.amplitude_permeability_flux_density] = data_list
 
 # HYSTERESIS-CURVE -----------------------------------------------------------------------------------------------------------------------------------------
 if not bh_curves:
@@ -298,7 +298,7 @@ else:
                      "temperature": data[3]}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["b_h_curve"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.b_h_curve] = data_list
 
 # RELATIVE CORE LOSS VERSUS FLUX DENSITY -------------------------------------------------------------------------------------------------------------------
 if not relative_core_loss_flux_density:
@@ -323,7 +323,7 @@ else:
                      "temperature": data[2]}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["relative_core_loss_flux_density"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.relative_core_loss_flux_density] = data_list
 
 # RELATIVE CORE LOSS VERSUS TEMPERATURE --------------------------------------------------------------------------------------------------------------------
 if not relative_core_loss_temperature:
@@ -348,7 +348,7 @@ else:
                      "flux_density": data[2]}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["relative_core_loss_temperature"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.relative_core_loss_temperature] = data_list
 
 # RELATIVE CORE LOSS VERSUS FREQUENCY ----------------------------------------------------------------------------------------------------------------------
 if not relative_core_loss_frequency:
@@ -372,7 +372,7 @@ else:
                      "flux_density": data[2]}
         data_list.append(data_dict)
 
-    database[material]["manufacturer_datasheet"]["relative_core_loss_frequency"] = data_list
+    database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.relative_core_loss_frequency] = data_list
 
 if WRITE:
     with open(relative_path_to_db, "w") as jsonFile:
