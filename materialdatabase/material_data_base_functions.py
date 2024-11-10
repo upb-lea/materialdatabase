@@ -10,6 +10,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
+from scipy.optimize import curve_fit
 
 # local libraries
 from materialdatabase.constants import *
@@ -17,7 +18,8 @@ from materialdatabase.enumerations import *
 
 # Relative path to the database json file
 global relative_path_to_db
-relative_path_to_db = "../data/material_data_base.json"
+# relative_path_to_db = "../data/material_data_base.json"
+relative_path_to_db = "C:/Users/sebas/Desktop/Python/materialdatabase/materialdatabase/data/material_data_base.json"
 
 
 # Auxiliary functions ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1100,7 +1102,99 @@ def write_permeability_data_into_database(frequency: float, temperature: float, 
 
 
 # General Steinmetz --------------------------------------------------------------------------------------------------------------------------------------------
-def write_steinmetz_data_into_database(temperature: float, k: float, beta: float, alpha: float, material_name: str, measurement_setup: str):
+def get_steinmetz_parameters_from_mdb(material_name: str, measurement_setup: str, temperature: float):
+    """
+    Get the steinmetz parameters from the MaterialDataBase for a specific temperature.
+
+    :param material_name: name of the material
+    :type material_name: str
+    :param measurement_setup: name of the measurement setup
+    :type material_name: str
+    :param temperature: temperature of the core
+    :type temperature: float
+    :return: result of the polynomical function for given temperature
+    """
+    # read in MDB
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+    # find index of desired temperature value  # TODO find nearest steinmetz parameter
+    temperature_in_database = [x["temperature"] for x in data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"]]
+    index = temperature_in_database.index(temperature)
+    # get steinmetz parameter
+    param = data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"][index]
+    return param
+
+
+def calc_steinmetz_temperature_model(material_name: str, temperature: float):
+    """
+    Calculate polynomical function for the steinmetz modells.
+
+    :param material_name: name of the material
+    :type material_name: str
+    :param temperature: temperature of the core
+    :type temperature: float
+    :return: result of the polynomical function to adjust temperature  # TODO better description!!!
+    """
+    tau = temperature/70  # TODO changing relative temperature of the calculation (right now 70°C)
+    ct0, ct1, ct2 = 1, 1, 1  # TODO read coefficient out of MDB
+    poly_func = ct0 - ct1*tau + ct2*tau**2
+    poly_func = 1  # TODO REMOVE AFTER IMPLEMENTATION
+    return poly_func
+
+def calc_steinmetz_equation(material_name: str, measurement_setup: str, frequency: np.array, b_field: np.array, temperature: float):
+    """
+    Calculate powerloss density with the standard Steinmetz equation.
+
+    :param material_name: name of the material
+    :type material_name: str
+    :param measurement_setup: name of the measurement setup
+    :type measurement_setup: str
+    :param frequency: array containing frequency values
+    :type frequency: np.array
+    :param b_field: array containing magnetic flux density values
+    :type b_field: np.array
+    :param temperature: temperature of the core
+    :type temperature: float
+    :return: return powerloss density
+    """
+    # calculate temperature model
+    c_function = calc_steinmetz_temperature_model(material_name=material_name, temperature=temperature)
+    # read in steinmetz parameter from MDB
+    param = get_steinmetz_parameters_from_mdb(material_name=material_name, measurement_setup=measurement_setup, temperature=temperature)
+    # steinmetz equation: p_loss = k * f^alpha * b_ampl^beta * c(T)
+    powerloss_density = param["k"]*(frequency**param["alpha"])*(b_field**param["beta"]) * c_function
+
+    return powerloss_density
+
+def fit_steinmetz_parameters(frequency: np.array, b_field: np.array, powerloss: np.array, guesses: int = 10000):
+    """
+    Calculate the steinmetz parameters k, alpha and beta based on curve_fit.
+
+    :param frequency: array containing frequency values
+    :type frequency: np.array
+    :param b_field: array containing magnetic flux density values
+    :type b_field: np.array
+    :param powerloss: array containing powerloss values
+    :type powerloss: np.array
+    :param guesses: number of guesses
+    :type guesses: int
+    :return: np.array containing k, alpha and beta
+    """
+    def func(fb, k, alpha, beta):
+        f, b = fb
+        return k*(f**alpha)*(b**beta)
+
+    parameter_bounds = ([0, 1, 2], [np.inf, 2, 3])
+
+    frequency, b_field, powerloss = np.array(frequency), np.array(b_field), np.array(powerloss)
+
+    popt, pcov = curve_fit(f=func, xdata=(frequency, b_field), ydata=powerloss, maxfev=guesses, bounds=parameter_bounds)
+
+    return popt
+
+
+def write_steinmetz_data_into_database(temperature: float, k: float, beta: float, alpha: float, material_name: str, measurement_setup: str,
+                                       overwrite_data: bool):
     """
     Write steinmetz data into the material database.
 
@@ -1118,6 +1212,8 @@ def write_steinmetz_data_into_database(temperature: float, k: float, beta: float
     :type material_name: str
     :param measurement_setup: name of the measurement setup
     :type measurement_setup: str
+    :param overwrite_data: overwrite existing data with new data
+    :type overwrite_data: bool
     """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
@@ -1129,19 +1225,31 @@ def write_steinmetz_data_into_database(temperature: float, k: float, beta: float
             "data": []
         }
 
-    data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
-        {
-            "temperature": float(temperature),
-            "k": k,
-            "alpha": alpha,
-            "beta": beta,
-        }
+    temperature_in_database = [x["temperature"] for x in data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"]]
+
+    if temperature in temperature_in_database and not overwrite_data:
+        pass  # if steinmetz parameter at given temperature are already in the MDB and the data should not be overwritten -> don't put data into MDB
+    else:
+        # over
+        if overwrite_data:
+            # find the index to overwrite
+            index_overwrite = temperature_in_database.index(temperature)
+            data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].pop(index_overwrite)
+        data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
+            {
+                "temperature": float(temperature),
+                "k": k,
+                "alpha": alpha,
+                "beta": beta,
+            }
     )
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+# General Database Functions -----------------------------------------------------------------------------------------------------------------------------------
 def create_empty_material(material_name: str, manufacturer: str, initial_permeability: float, resistivity: float,
                           max_flux_density: float, volumetric_mass_density: float):
     """
