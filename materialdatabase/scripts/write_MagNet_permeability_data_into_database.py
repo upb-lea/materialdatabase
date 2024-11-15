@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.enumerations import *
-# from materialdatabase import paths as pt
+from materialdatabase import paths as pt
 import pandas as pd
 import math
 import os
@@ -194,17 +194,20 @@ if SINE:
         if PLOT_DATA_STEINMETZ:
             for frequency in unique_frequency:
                 fig, ax = plt.subplots(1, 1)
-                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"]),
+                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
                           param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2]), label="fitted")
-                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"]), np.array(df_sine.query(filter_string)["powerloss"]), label="original")
+                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                          np.array(df_sine.query(filter_string)["powerloss"]), label="original")
                 plt.grid(True, which="both")
                 plt.legend()
-                plt.title(frequency)
+                plt.title(str(frequency/1000) + " kHz")
+                ax.set_xlabel(PlotLabels.b_field_mT.value)
+                ax.set_ylabel(PlotLabels.powerloss_density_W.value)
                 plt.show()
 
         if WRITE_STEINMETZ:
-            fit_steinmetz_parameters(temperature=temperature, k=param[0], alpha=param[1], beta=param[2], material_name=material,
-                                     measurement_setup=MeasurementSetup.MagNet, overwrite_data=True)
+            write_steinmetz_data_into_database(temperature=temperature, k=param[0], alpha=param[1], beta=param[2], material_name=material,
+                                               measurement_setup=MeasurementSetup.MagNet, overwrite_data=True)
 
     print(steinmetz_parameters)
 
