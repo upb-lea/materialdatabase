@@ -1110,7 +1110,7 @@ def calc_powerloss_from_MagNet_model(material_name: str, team_name: str, b_wave:
 
     :param material_name: Name of the material
     :type material_name: str
-    :param team_name: Name of the participating team
+    :param team_name: Name of the participating team (e.g "paderborn" or "sydney")
     :type team_name: str
     :param b_wave: array containing the shape of the magnetic flux density in time domain in T
     :type b_wave: np.array
@@ -1124,6 +1124,21 @@ def calc_powerloss_from_MagNet_model(material_name: str, team_name: str, b_wave:
     powerloss, h_wave = mdl(b_wave, frequency, temperature)
 
     return powerloss
+
+def calc_MagNet_FEM_simulation(material_name: str, b_wave: np.array, frequency: float, temperature: float, core_volume: float,
+                               MagNet_PB: bool=True, MagNet_Sydney: bool=False):
+
+    MagNet_losses = {}
+
+    if MagNet_PB:
+        MagNet_losses["MagNet_PB_hyst_losses"] = calc_powerloss_from_MagNet_model(material_name=material_name, team_name="paderborn", b_wave=b_wave,
+                                                                                  frequency=frequency, temperature=temperature) * core_volume
+
+    if MagNet_Sydney:
+        MagNet_losses["MagNet_Sydney_hyst_losses"] = calc_powerloss_from_MagNet_model(material_name=material_name, team_name="sydney", b_wave=b_wave,
+                                                                                      frequency=frequency, temperature=temperature) * core_volume
+
+    return MagNet_losses
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -1261,18 +1276,17 @@ def calc_IGSE_equation(material_name: str, measurement_setup: str, frequency: fl
     c_function = calc_steinmetz_temperature_model(material_name=material_name, temperature=temperature)
     # read in steinmetz parameter from MDB
     param = get_steinmetz_parameters_from_mdb(material_name=material_name, measurement_setup=measurement_setup, temperature=temperature)
+    # define time_array based on frequency value
+    time_array = np.linspace(start=0, endpoint=1/frequency, num=1000)
     # calc derivation of magnetic flux density
-    derivation = np.gradient(f=b_wave, varargs=1/frequency)
+    derivation = np.gradient(b_wave, time_array)
     # calc delta_B
     delta_B = max(b_wave) - min(b_wave)
     # calc k_i
-    k_i = param["k"]\
-          / ((2*np.pi)**(param["alpha"]-1))/np.trapz(y=np.abs(np.cos(np.linspace(start=0, endpoint=2*np.pi, num=1000)))*2**(param["beta"]-param["alpha"]),
-                                                     x=np.linspace(start=0, endpoint=2*np.pi, num=1000))
-    # define time_array based on frequency value
-    time_array = np.linspace(start=0, endpoint=1/frequency, num=1000)
+    phi_array = np.linspace(start=0, endpoint=2*np.pi, num=1000)
+    k_i = param["k"] / ((2*np.pi)**(param["alpha"]-1))/np.trapz(y=np.abs(np.cos(phi_array))*2**(param["beta"]-param["alpha"]), x=phi_array)
     # calc powerloss with IGSE
-    powerloss = frequency * np.mean(np.trapz(y=k_i*(np.abs(derivation)**param["alpha"])*(delta_B**(param["beta"]-param["alpha"])), x=time_array)) * c_function
+    powerloss = frequency * np.trapz(y=k_i*(np.abs(derivation)**param["alpha"])*(delta_B**(param["beta"]-param["alpha"])), x=time_array) * c_function
 
     return powerloss
 
