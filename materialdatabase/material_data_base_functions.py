@@ -1223,9 +1223,9 @@ def calc_steinmetz_temperature_model(material_name: str, temperature: float):
     :type temperature: float
     :return: result of the polynomical function to adjust temperature
     """
-    # tau = temperature/70  # TODO changing relative temperature of the calculation (right now 70°C)
-    # ct0, ct1, ct2 = 1, 1, 1  # TODO read coefficient out of MDB
-    # poly_func = ct0 - ct1*tau + ct2*tau**2
+    tau = temperature/90  # TODO changing relative temperature of the calculation (right now 70°C)
+    ct0, ct1, ct2 = 1, 1, 1  # TODO read coefficient out of MDB
+    poly_func = ct0 - ct1*tau + ct2*tau**2
     poly_func = 1  # TODO REMOVE AFTER IMPLEMENTATION
     return poly_func
 
@@ -1283,7 +1283,7 @@ def calc_IGSE_equation(material_name: str, measurement_setup: str, frequency: fl
     # calc delta_B
     delta_B = max(b_wave) - min(b_wave)
     # calc k_i
-    phi_array = np.linspace(start=0, endpoint=2*np.pi, num=1000)
+    phi_array = np.linspace(start=0, stop=2*np.pi, num=1000)
     k_i = param["k"] / ((2*np.pi)**(param["alpha"]-1))/np.trapz(y=np.abs(np.cos(phi_array))*2**(param["beta"]-param["alpha"]), x=phi_array)
     # calc powerloss with IGSE
     powerloss = frequency * np.trapz(y=k_i*(np.abs(derivation)**param["alpha"])*(delta_B**(param["beta"]-param["alpha"])), x=time_array) * c_function
