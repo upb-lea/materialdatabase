@@ -1342,6 +1342,35 @@ def fit_steinmetz_parameters(frequency: np.array, b_field: np.array, powerloss: 
     return popt
 
 
+def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.array, b_field: np.array, powerloss: np.array, guesses: int = 10000):
+    """
+    Calculate the steinmetz parameters k, alpha and beta based on curve_fit.
+
+    :param tau: array containing tau values (temperature_core/25°C)
+    :type tau: np.array
+    :param frequency: array containing frequency values in Hz
+    :type frequency: np.array
+    :param b_field: array containing magnetic flux density values in T
+    :type b_field: np.array
+    :param powerloss: array containing powerloss values in W/m^3
+    :type powerloss: np.array
+    :param guesses: number of guesses
+    :type guesses: int
+    :return: np.array containing k, alpha and beta
+    """
+    def func(tfb, k, alpha, beta, ct0, ct1, ct2):
+        t, f, b = tfb
+        return k*(f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
+
+    parameter_bounds = ([0, 1, 2, -np.inf, -np.inf, -np.inf], [np.inf, 2, 3, np.inf, np.inf, np.inf])
+
+    tau, frequency, b_field, powerloss = np.array(tau), np.array(frequency), np.array(b_field), np.array(powerloss)
+
+    popt, pcov = curve_fit(f=func, xdata=(tau, frequency, b_field), ydata=powerloss, maxfev=guesses, bounds=parameter_bounds)
+
+    return popt
+
+
 def write_steinmetz_data_into_database(temperature: float, k: float, beta: float, alpha: float, material_name: str, measurement_setup: str,
                                        overwrite_data: bool):
     """

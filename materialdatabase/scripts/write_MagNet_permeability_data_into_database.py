@@ -47,7 +47,8 @@ WRITE_PERMEABILITY = False  # SET TRUE TO WRITE PERMEABILITY DATA INTO DATABASE
 WRITE_STEINMETZ = False  # SET TRUE TO WRITE STEINMETZ DATA INTO DATABASE
 # PLOT DATA
 PLOT_DATA_PERMEABILITY = False
-PLOT_DATA_STEINMETZ = True
+PLOT_DATA_STEINMETZ = False
+PLOT_DATA_STEINMETZ_new = True
 
 min_number_of_measurements = 7  # 1.
 
@@ -208,6 +209,45 @@ if SINE:
         if WRITE_STEINMETZ:
             write_steinmetz_data_into_database(temperature=temperature, k=param[0], alpha=param[1], beta=param[2], material_name=material,
                                                measurement_setup=MeasurementSetup.MagNet, overwrite_data=True)
+
+    # Write Steinmetz parameters into database
+    filter_string = "H_DC_Bias == 0"
+
+    tau = np.array(df_sine.query(filter_string)["temperature"])/25
+    powerloss = np.array(df_sine.query(filter_string)["powerloss"])
+    frequency = np.array(df_sine.query(filter_string)["frequency"])
+    mag_flux_density = np.array(df_sine.query(filter_string)["mag_flux_density"])
+
+    param = fit_steinmetz_parameters_and_temperature_model(tau=tau, frequency=frequency, b_field=mag_flux_density, powerloss=powerloss)
+    print(param)
+
+    steinmetz_dict = {"k": param[0],
+                      "alpha": param[1],
+                      "beta": param[2],
+                      "ct0": param[3],
+                      "ct1": param[4],
+                      "ct2": param[5]}
+
+    filter_string = "temperature == @temperature and H_DC_Bias == 0 and frequency == @frequency"
+    if PLOT_DATA_STEINMETZ_new:
+        for temperature in unique_temperature:
+            for frequency in unique_frequency:
+                fig, ax = plt.subplots(1, 1)
+                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                          param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
+                          * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)), label="fitted")
+                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                          np.array(df_sine.query(filter_string)["powerloss"]), label="original")
+                plt.grid(True, which="both")
+                plt.legend()
+                plt.title(str(frequency/1000) + "kHz" + " | " + str(temperature) + "°C")
+                ax.set_xlabel(PlotLabels.b_field_mT.value)
+                ax.set_ylabel(PlotLabels.powerloss_density_W.value)
+                plt.show()
+
+    if WRITE_STEINMETZ:
+        write_steinmetz_data_into_database(temperature=temperature, k=param[0], alpha=param[1], beta=param[2], material_name=material,
+                                           measurement_setup=MeasurementSetup.MagNet, overwrite_data=True)
 
     print(steinmetz_parameters)
 
