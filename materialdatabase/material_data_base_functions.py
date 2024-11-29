@@ -1358,15 +1358,22 @@ def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.
     :type guesses: int
     :return: np.array containing k, alpha and beta
     """
-    def func(tfb, k, alpha, beta, ct0, ct1, ct2):
+    # def func(tfb, k, alpha, beta, ct0, ct1, ct2):
+    #     t, f, b = tfb
+    #     return k*(f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
+    def func(tfb, alpha, beta, ct0, ct1, ct2):
         t, f, b = tfb
-        return k*(f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
+        return (f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
 
-    parameter_bounds = ([0, 1, 2, -np.inf, -np.inf, -np.inf], [np.inf, 2, 3, np.inf, np.inf, np.inf])
+    # parameter_bounds = ([0, -np.inf, -np.inf, -np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf])
+    parameter_bounds = ([-np.inf, -np.inf, -np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf, np.inf, np.inf])
 
     tau, frequency, b_field, powerloss = np.array(tau), np.array(frequency), np.array(b_field), np.array(powerloss)
 
     popt, pcov = curve_fit(f=func, xdata=(tau, frequency, b_field), ydata=powerloss, maxfev=guesses, bounds=parameter_bounds)
+
+    # print("pcov: ", pcov)
+    print(np.sqrt(np.diag(pcov)))
 
     return popt
 

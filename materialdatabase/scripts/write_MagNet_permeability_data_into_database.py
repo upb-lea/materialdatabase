@@ -49,6 +49,9 @@ WRITE_STEINMETZ = False  # SET TRUE TO WRITE STEINMETZ DATA INTO DATABASE
 PLOT_DATA_PERMEABILITY = False
 PLOT_DATA_STEINMETZ = False
 PLOT_DATA_STEINMETZ_new = True
+# CALC
+CALC_PERMEABILITY_DATA = False
+
 
 min_number_of_measurements = 7  # 1.
 
@@ -151,28 +154,29 @@ if SINE:
     filter_string = "temperature == @temperature and H_DC_Bias == @H_DC and frequency == @frequency"
 
     # Write permeability data into database
-    for temperature in unique_temperature:
-        for H_DC in unique_H_DC_offset:
-            for frequency in unique_frequency:
-                print("Number of measurement points: ", df_sine.query(filter_string).shape[0])
-                if df_sine.query(filter_string).shape[0] >= min_number_of_measurements:
-                    b_ref = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["mag_flux_density"])
-                    mu_r = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_amplitude"])
-                    mu_phi_deg = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_angle"])
+    if CALC_PERMEABILITY_DATA:
+        for temperature in unique_temperature:
+            for H_DC in unique_H_DC_offset:
+                for frequency in unique_frequency:
+                    print("Number of measurement points: ", df_sine.query(filter_string).shape[0])
+                    if df_sine.query(filter_string).shape[0] >= min_number_of_measurements:
+                        b_ref = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["mag_flux_density"])
+                        mu_r = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_amplitude"])
+                        mu_phi_deg = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_angle"])
 
-                    print("Temperature: ", temperature)
-                    print("H_DC: ", H_DC)
-                    print("Frequency: ", frequency)
+                        print("Temperature: ", temperature)
+                        print("H_DC: ", H_DC)
+                        print("Frequency: ", frequency)
 
-                    b_ref, mu_r, mu_phi_deg = sort_data(b_ref, mu_r, mu_phi_deg)
-                    b_ref, mu_r, mu_phi_deg = interpolate_a_b_c(b_ref, mu_r, mu_phi_deg)
-                    b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg, smooth_data=True, crop_data=True,
-                                                                        plot_data=PLOT_DATA_PERMEABILITY, f=frequency, b_min=0.005, b_max=0.4)
+                        b_ref, mu_r, mu_phi_deg = sort_data(b_ref, mu_r, mu_phi_deg)
+                        b_ref, mu_r, mu_phi_deg = interpolate_a_b_c(b_ref, mu_r, mu_phi_deg)
+                        b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref, mu_r, mu_phi_deg, smooth_data=True, crop_data=True,
+                                                                            plot_data=PLOT_DATA_PERMEABILITY, f=frequency, b_min=0.005, b_max=0.4)
 
-                    if WRITE_PERMEABILITY:
-                        write_permeability_data_into_database(current_shape="sine", frequency=frequency, temperature=temperature, H_DC_offset=H_DC, b_ref=b_ref,
-                                                              mu_r_abs=mu_r, mu_phi_deg=mu_phi_deg, material_name=material,
-                                                              measurement_setup=MeasurementSetup.MagNet)
+                        if WRITE_PERMEABILITY:
+                            write_permeability_data_into_database(current_shape="sine", frequency=frequency, temperature=temperature, H_DC_offset=H_DC, b_ref=b_ref,
+                                                                  mu_r_abs=mu_r, mu_phi_deg=mu_phi_deg, material_name=material,
+                                                                  measurement_setup=MeasurementSetup.MagNet)
 
     # Write Steinmetz parameters into database
     steinmetz_parameters = []
@@ -218,16 +222,21 @@ if SINE:
     frequency = np.array(df_sine.query(filter_string)["frequency"])
     mag_flux_density = np.array(df_sine.query(filter_string)["mag_flux_density"])
 
+    # calculate k, alpha, beta, ct0, ct1 and ct2
     param = fit_steinmetz_parameters_and_temperature_model(tau=tau, frequency=frequency, b_field=mag_flux_density, powerloss=powerloss)
     print(param)
+    # calculate ki
+    phi_array = np.linspace(start=0, stop=2 * np.pi, num=100000)
+    ki = param[0] / ((2 * np.pi) ** (param[1] - 1)) / np.trapz(y=(np.abs(np.cos(phi_array))**param[1]) * (2 ** (param[2] - param[1])),
+                                                               x=phi_array)
 
-    steinmetz_dict = {"k": param[0],
-                      "alpha": param[1],
-                      "beta": param[2],
-                      "ct0": param[3],
-                      "ct1": param[4],
-                      "ct2": param[5]}
-
+    # steinmetz_dict = {"k": param[0],
+    #                   "alpha": param[1],
+    #                   "beta": param[2],
+    #                   "ct0": param[3],
+    #                   "ct1": param[4],
+    #                   "ct2": param[5]}
+    # param = [3.36549227, 1.33177808, 2.82347468, 5.28790401, 1.31104719, 0.37419776]
     filter_string = "temperature == @temperature and H_DC_Bias == 0 and frequency == @frequency"
     if PLOT_DATA_STEINMETZ_new:
         for temperature in unique_temperature:
@@ -236,14 +245,22 @@ if SINE:
                 ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
                           param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
                           * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)), label="fitted")
+                # ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                #           (frequency**param[0])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[1])
+                #           * (param[2] - param[3]*(temperature/25) + (param[4]*(temperature/25)**2)), label="fitted")
+                # print(param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
+                #       * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)))
                 ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
                           np.array(df_sine.query(filter_string)["powerloss"]), label="original")
+                # print(np.array(df_sine.query(filter_string)["powerloss"]))
                 plt.grid(True, which="both")
                 plt.legend()
                 plt.title(str(frequency/1000) + "kHz" + " | " + str(temperature) + "°C")
                 ax.set_xlabel(PlotLabels.b_field_mT.value)
                 ax.set_ylabel(PlotLabels.powerloss_density_W.value)
                 plt.show()
+                # plt.savefig("C:/Users/schacht/sciebo/Master/4. Semester/Masterprojekt_FEMMT/fitting/"
+                #             + str(frequency/1000) + "kHz" + "__" + str(temperature) + "C.png")
 
     if WRITE_STEINMETZ:
         write_steinmetz_data_into_database(temperature=temperature, k=param[0], alpha=param[1], beta=param[2], material_name=material,
