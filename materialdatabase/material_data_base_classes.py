@@ -92,6 +92,7 @@ class MaterialDatabase:
     def get_permeability_data(self, temperature: float, frequency: float, material_name: str, datatype: str, datasource: str = None,
                               measurement_setup: str = None, plot_interpolation: bool = False):
         """
+        Read permeability data from the material database.
 
         :param temperature: temperature in °C
         :type temperature: float
@@ -163,7 +164,7 @@ class MaterialDatabase:
     def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str, datatype: str, datasource: str = None,
                                       measurement_setup: str = None, parent_directory: str = "", plot_interpolation: bool = False):
         """
-        Read permeability data from the material database.
+        Write permeability data from the material database in apro file.
 
         :param temperature: temperature in °C
         :type temperature: float
