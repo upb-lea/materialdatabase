@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.enumerations import *
-from materialdatabase import paths as pt
+# from materialdatabase import paths as pt
 import pandas as pd
 import math
 import os
@@ -48,30 +48,31 @@ WRITE_STEINMETZ = False  # SET TRUE TO WRITE STEINMETZ DATA INTO DATABASE
 # PLOT DATA
 PLOT_DATA_PERMEABILITY = False
 PLOT_DATA_STEINMETZ = False
-PLOT_DATA_STEINMETZ_new = True
+PLOT_DATA_STEINMETZ_new = False
 # CALC
 CALC_PERMEABILITY_DATA = False
 
 
 min_number_of_measurements = 7  # 1.
 
-material = Material.N49.value   # 2.
-manufacturer = Manufacturer.TDK  # 3.
+material = Material._3F4.value   # 2.
+manufacturer = Manufacturer.Ferroxcube  # 3.
 initial_permeability = 1500  # 4.
 resistivity = 17  # 4.
 max_flux_density = 0.49  # 4.
 volumetric_mass_density = 4750  # 4.
 
-path = os.path.join(pt.my_MagNet_data_path, material)  # 5.
-data_dict = mat73.loadmat(os.path.join(path, MagNetFileNames._N49.value))  # 6.
+# path = os.path.join(pt.my_MagNet_data_path, material)  # 5.
+path = os.path.join("D:/Sciebo/material_Data", material)  # 5.
+# data_dict = mat73.loadmat(os.path.join(path, MagNetFileNames._N49.value))  # 6.
 
-cross_section = data_dict["Data"]["Effective_Area"]
-l_mag = data_dict["Data"]["Effective_Length"]
-volume = data_dict["Data"]["Effective_Volume"]
-primary_windings = data_dict["Data"]["Primary_Turns"]
-secondary_windings = data_dict["Data"]["Secondary_Turns"]
-date = data_dict["Data"]["Date_processing"]
-probe = data_dict["Data"]["Shape"]
+# cross_section = data_dict["Data"]["Effective_Area"]
+# l_mag = data_dict["Data"]["Effective_Length"]
+# volume = data_dict["Data"]["Effective_Volume"]
+# primary_windings = data_dict["Data"]["Primary_Turns"]
+# secondary_windings = data_dict["Data"]["Secondary_Turns"]
+# date = data_dict["Data"]["Date_processing"]
+# probe = data_dict["Data"]["Shape"]
 
 if PROCESS_DATA:
     # filter for duty-cycle is NaN
@@ -217,18 +218,23 @@ if SINE:
     # Write Steinmetz parameters into database
     filter_string = "H_DC_Bias == 0"
 
-    tau = np.array(df_sine.query(filter_string)["temperature"])/25
+    tau = np.array(df_sine.query(filter_string)["temperature"])/1
     powerloss = np.array(df_sine.query(filter_string)["powerloss"])
     frequency = np.array(df_sine.query(filter_string)["frequency"])
     mag_flux_density = np.array(df_sine.query(filter_string)["mag_flux_density"])
 
     # calculate k, alpha, beta, ct0, ct1 and ct2
-    param = fit_steinmetz_parameters_and_temperature_model(tau=tau, frequency=frequency, b_field=mag_flux_density, powerloss=powerloss)
-    print(param)
+    param, param_optuna = fit_steinmetz_parameters_and_temperature_model(tau=tau, frequency=frequency, b_field=mag_flux_density, powerloss=powerloss,
+                                                                         guesses=100000)
+    print("Scipy", param)
+    print("Optuna", param_optuna)
     # calculate ki
     phi_array = np.linspace(start=0, stop=2 * np.pi, num=100000)
     ki = param[0] / ((2 * np.pi) ** (param[1] - 1)) / np.trapz(y=(np.abs(np.cos(phi_array))**param[1]) * (2 ** (param[2] - param[1])),
                                                                x=phi_array)
+
+    # Scipy[1.33177780e+00 2.82347441e+00 1.77964796e+01 1.76493631e-01 2.01498484e-03]
+    # Optuna {'aa': 1.0331844104303878, 'bb': 3.5687817923678216, 'ct0': -48.7703968286785, 'ct1': -78.06040488456371, 'ct2': -0.46136710651960366}
 
     # steinmetz_dict = {"k": param[0],
     #                   "alpha": param[1],
@@ -242,16 +248,19 @@ if SINE:
         for temperature in unique_temperature:
             for frequency in unique_frequency:
                 fig, ax = plt.subplots(1, 1)
-                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
-                          param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
-                          * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)), label="fitted")
                 # ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
-                #           (frequency**param[0])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[1])
-                #           * (param[2] - param[3]*(temperature/25) + (param[4]*(temperature/25)**2)), label="fitted")
+                #           param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
+                #           * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)), label="fitted")
+                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                          (frequency**param[0])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[1])
+                          * (param[2] - param[3]*(temperature/1) + (param[4]*(temperature/1)**2)), label="CurveFit")
+                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                          (frequency**param_optuna["aa"])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param_optuna["bb"])
+                          * (param_optuna["ct0"] - param_optuna["ct1"]*(temperature/1) + (param_optuna["ct2"]*(temperature/1)**2)), label="Optuna")
                 # print(param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
                 #       * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)))
                 ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
-                          np.array(df_sine.query(filter_string)["powerloss"]), label="original")
+                          np.array(df_sine.query(filter_string)["powerloss"]), label="MagNet")
                 # print(np.array(df_sine.query(filter_string)["powerloss"]))
                 plt.grid(True, which="both")
                 plt.legend()
@@ -259,7 +268,7 @@ if SINE:
                 ax.set_xlabel(PlotLabels.b_field_mT.value)
                 ax.set_ylabel(PlotLabels.powerloss_density_W.value)
                 plt.show()
-                # plt.savefig("C:/Users/schacht/sciebo/Master/4. Semester/Masterprojekt_FEMMT/fitting/"
+                # plt.savefig("D:/Sciebo/Master/4. Semester/Masterprojekt_FEMMT/fitting/Optuna vs CurveFit/"
                 #             + str(frequency/1000) + "kHz" + "__" + str(temperature) + "C.png")
 
     if WRITE_STEINMETZ:

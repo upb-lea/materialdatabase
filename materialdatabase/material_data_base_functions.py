@@ -12,6 +12,7 @@ from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
 from scipy.optimize import curve_fit
 import magnethub as mh
+import optuna
 
 # local libraries
 from materialdatabase.constants import *
@@ -1365,6 +1366,32 @@ def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.
         t, f, b = tfb
         return (f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
 
+    # def steinmetz(f, b, alpha, beta, k):
+    #     return k * f ** alpha * b ** beta
+
+    # def estimated_loss(alpha, beta, k, f_vec, b_vec):
+    #     return steinmetz(f_vec, b_vec, alpha, beta, k)
+
+    def estimated_loss(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec):
+        return func((tau_vec, f_vec, b_vec), alpha, beta, ct0, ct1, ct2)
+
+    def normalized_error(alpha, beta, ct0, ct1, ct2, f_vec, b_vec, p_loss_reference):
+        return np.mean(abs((estimated_loss(alpha, beta, ct0, ct1, ct2, tau, f_vec, b_vec) - p_loss_reference) / p_loss_reference))
+
+    def objective(trial):
+        # kk = trial.suggest_float('kk', 0.1, 100)
+        aa = trial.suggest_float('aa', 1, 2.5)
+        bb = trial.suggest_float('bb', 2, 4)
+        ct0 = trial.suggest_float('ct0', -100, 100)
+        ct1 = trial.suggest_float('ct1', -100, 100)
+        ct2 = trial.suggest_float('ct2', -100, 100)
+        return normalized_error(aa, bb, ct0, ct1, ct2, frequency, b_field, powerloss)
+
+    study = optuna.create_study()
+    study.optimize(objective, n_trials=5000)
+
+    # print("Optuna best params", study.best_params)
+
     # parameter_bounds = ([0, -np.inf, -np.inf, -np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf])
     parameter_bounds = ([-np.inf, -np.inf, -np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf, np.inf, np.inf])
 
@@ -1375,7 +1402,7 @@ def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.
     # print("pcov: ", pcov)
     print(np.sqrt(np.diag(pcov)))
 
-    return popt
+    return popt, study.best_params
 
 
 def write_steinmetz_data_into_database(temperature: float, k: float, beta: float, alpha: float, material_name: str, measurement_setup: str,
