@@ -195,7 +195,7 @@ class MaterialDatabase:
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
         b_ref, mu_r_real, mu_r_imag = self.get_permeability_data(temperature, frequency, material_name, datatype, datasource,
-                                                                 measurement_setup, parent_directory, plot_interpolation)
+                                                                 measurement_setup, plot_interpolation)
 
         # Write the .pro-file
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref), mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag),
