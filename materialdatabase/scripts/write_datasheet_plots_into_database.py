@@ -33,7 +33,7 @@ import os
        - Powerloss in Watt per cubic Meter
 """
 
-WRITE = False
+WRITE = True
 # MAGNETIC FIELD STRENGTH
 Oersted_TO_Ampere_Per_Meter = False
 h_field_factor = 1
@@ -65,8 +65,8 @@ if MegaHertz_TO_Hertz:
 if KiloHertz_TO_Hertz:
     frequency_factor = 1e-3
 
-material = str(Material._3F46.value)
-manufacturer = str(Manufacturer.Ferroxcube.value)
+material = str(Material.PC200.value)
+manufacturer = str(Manufacturer.TDK.value)
 
 # PATHS TO DATA | DATA FORMAT UNDER VARIABLE
 # complex_permeability_frequency = []
@@ -74,8 +74,8 @@ complex_permeability_frequency = [(os.path.join(datasheet_path, manufacturer, ma
                                    os.path.join(datasheet_path, manufacturer, material + "_digitized", "complex_permeability_imag.csv"), 25)]
 # [(path to .csv-file with real part, path to .csv-file with imagnary part, temperature), ...]
 
-# initial_permeability_temperature = []
-initial_permeability_temperature = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "init_permeability_temperature.csv"))]
+initial_permeability_temperature = []
+# initial_permeability_temperature = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "init_permeability_temperature.csv"))]
 # [(path to .csv-file), ...]
 
 initial_permeability_frequency = []
@@ -86,37 +86,37 @@ incremental_permeability_field_strength = []
 # incremental_permeability_field_strength = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "permeability_over_h_dc.csv"), 10e3, 25)]
 # [(path to .csv-file), ...]
 
-# amplitude_permeability_flux_density = []
-amplitude_permeability_flux_density = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_25C_25kHz.csv"), 25e3,
-                                        25),
-                                       (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_25kHz.csv"), 25e3,
-                                        100),
-                                       (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_1000kHz.csv"), 1000e3,
-                                        100),
-                                       (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_3000kHz.csv"), 3000e3,
-                                        100)]
+amplitude_permeability_flux_density = []
+# amplitude_permeability_flux_density = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_25C_25kHz.csv"), 25e3,
+#                                         25),
+#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_25kHz.csv"), 25e3,
+#                                         100),
+#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_1000kHz.csv"), 1000e3,
+#                                         100),
+#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_3000kHz.csv"), 3000e3,
+#                                         100)]
 # [(path to .csv-file, frequency, temperature), ...]
 
-# bh_curves = []
-bh_curves = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_25C_lower.csv"),
-              os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_25C_upper.csv"), 10e3, 25),
-             (os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_100C_lower.csv"),
-              os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_100C_upper.csv"), 10e3, 100)]
+bh_curves = []
+# bh_curves = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_25C_lower.csv"),
+#               os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_25C_upper.csv"), 10e3, 25),
+#              (os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_100C_lower.csv"),
+#               os.path.join(datasheet_path, manufacturer, material + "_digitized", "bh_curve_100C_upper.csv"), 10e3, 100)]
 # [(path to .csv-file (lower_curve), path to .csv-file (upper_curve), frequency, temperature), ...]
 
-# relative_core_loss_flux_density = []
-relative_core_loss_flux_density = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_flux_density_100C_1000kHz.csv"),
-                                    1000e3, 100),
-                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_flux_density_100C_2000kHz.csv"),
-                                    2000e3, 100),
-                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_flux_density_100C_3000kHz.csv"),
-                                    3000e3, 100)]
+relative_core_loss_flux_density = []
+# relative_core_loss_flux_density = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_flux_density_100C_1000kHz.csv"),
+#                                     1000e3, 100),
+#                                    (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_flux_density_100C_2000kHz.csv"),
+#                                     2000e3, 100),
+#                                    (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_flux_density_100C_3000kHz.csv"),
+#                                     3000e3, 100)]
 # [(path to .csv-file, frequency, temperature), ...]
 
-# relative_core_loss_temperature = []
-relative_core_loss_temperature = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_1000kHz_50mT.csv"), 1000e3, 0.05),
-                                  (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_10mT.csv"), 3000e3, 0.01),
-                                  (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_30mT.csv"), 3000e3, 0.03)]
+relative_core_loss_temperature = []
+# relative_core_loss_temperature = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_1000kHz_50mT.csv"), 1000e3, 0.05),
+#                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_10mT.csv"), 3000e3, 0.01),
+#                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_30mT.csv"), 3000e3, 0.03)]
 # [(path to .csv-file, frequency, flux_density), ...]
 
 relative_core_loss_frequency = []
@@ -152,9 +152,9 @@ else:
         imag_part_interpolated = np.array([x if x >= 1 else 1 for x in imag_part_interpolated])  # set imag part to 1 if value less than 1 (AFTER INTERPOLATION)
 
         fig, ax = plt.subplots(1, 1)
-        plt.loglog(np.array(df_real[0])*frequency_factor, df_real[1], label="original real")
-        plt.loglog(np.array(df_imag[0])*frequency_factor, df_imag[1], label="original imag")
-        plt.loglog(np.array(df_real[0])*frequency_factor, imag_part_interpolated, label="interpolate imag", linestyle="--")
+        plt.loglog(np.array(df_real[0])*frequency_factor, df_real[1], label="original real", marker="x", markersize=3)
+        plt.loglog(np.array(df_imag[0])*frequency_factor, df_imag[1], label="original imag", marker="x", markersize=3)
+        plt.loglog(np.array(df_real[0])*frequency_factor, imag_part_interpolated, label="interpolate imag", linestyle="--", marker="x", markersize=3)
         ax.set_xlabel(PlotLabels.frequency_Hz.value)
         ax.set_ylabel(PlotLabels.mu_ampl.value)
         plt.title("Complex-Permeability")
@@ -166,10 +166,13 @@ else:
         mu_r_abs = abs(mu_r_complex)
         mu_phi_deg = np.angle(mu_r_complex, deg=True)
 
-        data_dict = {"mu_r_abs": list(mu_r_abs),
-                     "mu_phi_deg": list(mu_phi_deg),
-                     "frequency": list(np.array(df_imag[0])*frequency_factor),
-                     "temperature": data[2]}
+        if mu_r_abs.shape[0] == mu_phi_deg.shape[0] == len(df_real[0]):
+            data_dict = {"mu_r_abs": list(mu_r_abs),
+                         "mu_phi_deg": list(mu_phi_deg),
+                         "frequency": list(np.array(df_real[0])*frequency_factor),
+                         "temperature": data[2]}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.complex_permeability] = data_list
@@ -191,8 +194,11 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"initial_permeability": list(df[1]),
-                     "frequency": list(df[0])}
+        if len(df[0]) == len(df[1]):
+            data_dict = {"initial_permeability": list(df[1]),
+                         "frequency": list(df[0])}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.initial_permeability_frequency] = data_list
@@ -215,8 +221,11 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"initial_permeability": list(df[1]),
-                     "temperature": list(df[0])}
+        if len(df[0]) == len(df[1]):
+            data_dict = {"initial_permeability": list(df[1]),
+                         "temperature": list(df[0])}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.initial_permeability_temperature] = data_list
@@ -239,10 +248,13 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"incremental_permeability": list(df[1]),
-                     "field_strength": list(np.array(df[0])*h_field_factor),
-                     "frequency": data[1],
-                     "temperature": data[2]}
+        if len(df[0]) == len(df[1]):
+            data_dict = {"incremental_permeability": list(df[1]),
+                         "field_strength": list(np.array(df[0])*h_field_factor),
+                         "frequency": data[1],
+                         "temperature": data[2]}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.incremental_permeability_field_strength] = data_list
@@ -264,10 +276,13 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"mu_r_abs": list(df[1]),
-                     "flux_density": list(np.array(df[0])*b_field_factor),
-                     "frequency": data[1],
-                     "temperature": data[2]}
+        if len(df[0]) == len(df[1]):
+            data_dict = {"mu_r_abs": list(df[1]),
+                         "flux_density": list(np.array(df[0])*b_field_factor),
+                         "frequency": data[1],
+                         "temperature": data[2]}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.amplitude_permeability_flux_density] = data_list
@@ -292,10 +307,13 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"flux_density": list(np.array(complete_bh_curve[1])*b_field_factor),
-                     "field_strength": list(np.array(complete_bh_curve[0])*h_field_factor),
-                     "frequency": data[2],
-                     "temperature": data[3]}
+        if len(complete_bh_curve[0]) == len(complete_bh_curve[1]):
+            data_dict = {"flux_density": list(np.array(complete_bh_curve[1])*b_field_factor),
+                         "field_strength": list(np.array(complete_bh_curve[0])*h_field_factor),
+                         "frequency": data[2],
+                         "temperature": data[3]}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.b_h_curve] = data_list
@@ -317,10 +335,13 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"flux_density": list(np.array(df[0])*b_field_factor),
-                     "power_loss": list(np.array(df[1])*powerloss_factor),
-                     "frequency": data[1],
-                     "temperature": data[2]}
+        if len(df[0]) == len(df[1]):
+            data_dict = {"flux_density": list(np.array(df[0])*b_field_factor),
+                         "power_loss": list(np.array(df[1])*powerloss_factor),
+                         "frequency": data[1],
+                         "temperature": data[2]}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.relative_core_loss_flux_density] = data_list
@@ -342,10 +363,13 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"temperature": list(df[0]),
-                     "power_loss": list(np.array(df[1])*powerloss_factor),
-                     "frequency": data[1],
-                     "flux_density": data[2]}
+        if len(df[0]) == len(df[1]):
+            data_dict = {"temperature": list(df[0]),
+                         "power_loss": list(np.array(df[1])*powerloss_factor),
+                         "frequency": data[1],
+                         "flux_density": data[2]}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.relative_core_loss_temperature] = data_list
@@ -366,10 +390,13 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        data_dict = {"frequency": list(np.array(df[0])*frequency_factor),
-                     "power_loss": list(np.array(df[1])*powerloss_factor),
-                     "temperature": data[1],
-                     "flux_density": data[2]}
+        if len(df[0]) == len(df[1]):
+            data_dict = {"frequency": list(np.array(df[0])*frequency_factor),
+                         "power_loss": list(np.array(df[1])*powerloss_factor),
+                         "temperature": data[1],
+                         "flux_density": data[2]}
+        else:
+            raise ValueError('Input arrays dont have the same length!')
         data_list.append(data_dict)
 
     database[material][MaterialDataSource.ManufacturerDatasheet][DatasheetPlotName.relative_core_loss_frequency] = data_list
