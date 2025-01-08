@@ -87,14 +87,14 @@ incremental_permeability_field_strength = []
 # [(path to .csv-file), ...]
 
 amplitude_permeability_flux_density = []
-# amplitude_permeability_flux_density = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_25C_25kHz.csv"), 25e3,
-#                                         25),
-#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_25kHz.csv"), 25e3,
-#                                         100),
-#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_1000kHz.csv"), 1000e3,
-#                                         100),
-#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_3000kHz.csv"), 3000e3,
-#                                         100)]
+# amplitude_permeability_flux_density = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_25C_25kHz.csv"),
+#                                         25e3, 25),
+#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_25kHz.csv"),
+#                                         25e3, 100),
+#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_1000kHz.csv"),
+#                                         1000e3, 100),
+#                                        (os.path.join(datasheet_path, manufacturer, material + "_digitized", "amplitude_permeability_100C_3000kHz.csv"),
+#                                         3000e3, 100)]
 # [(path to .csv-file, frequency, temperature), ...]
 
 bh_curves = []
@@ -114,9 +114,12 @@ relative_core_loss_flux_density = []
 # [(path to .csv-file, frequency, temperature), ...]
 
 relative_core_loss_temperature = []
-# relative_core_loss_temperature = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_1000kHz_50mT.csv"), 1000e3, 0.05),
-#                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_10mT.csv"), 3000e3, 0.01),
-#                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_30mT.csv"), 3000e3, 0.03)]
+# relative_core_loss_temperature = [(os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_1000kHz_50mT.csv"),
+#                                    1000e3, 0.05),
+#                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_10mT.csv"),
+#                                    3000e3, 0.01),
+#                                   (os.path.join(datasheet_path, manufacturer, material + "_digitized", "powerloss_temperature_3000kHz_30mT.csv"),
+#                                    3000e3, 0.03)]
 # [(path to .csv-file, frequency, flux_density), ...]
 
 relative_core_loss_frequency = []
