@@ -151,13 +151,9 @@ else:
         df_real = read_in_digitized_datasheet_plot(data[0])
         df_imag = read_in_digitized_datasheet_plot(data[1])
 
-        imag_part_interpolated = updates_x_ticks_for_graph(x_data=df_imag[0], y_data=df_imag[1], x_new=df_real[0], kind="linear")
-        imag_part_interpolated = np.array([x if x >= 1 else 1 for x in imag_part_interpolated])  # set imag part to 1 if value less than 1 (AFTER INTERPOLATION)
-
         fig, ax = plt.subplots(1, 1)
-        plt.loglog(np.array(df_real[0])*frequency_factor, df_real[1], label="original real", marker="x", markersize=3)
-        plt.loglog(np.array(df_imag[0])*frequency_factor, df_imag[1], label="original imag", marker="x", markersize=3)
-        plt.loglog(np.array(df_real[0])*frequency_factor, imag_part_interpolated, label="interpolate imag", linestyle="--", marker="x", markersize=3)
+        plt.loglog(np.array(df_real[0])*frequency_factor, df_real[1], label="real")
+        plt.loglog(np.array(df_imag[0])*frequency_factor, df_imag[1], label="imag")
         ax.set_xlabel(PlotLabels.frequency_Hz.value)
         ax.set_ylabel(PlotLabels.mu_ampl.value)
         plt.title("Complex-Permeability")
@@ -165,14 +161,11 @@ else:
         plt.grid(True, which="both")
         plt.show()
 
-        mu_r_complex = np.array(df_real[1]) + j*imag_part_interpolated
-        mu_r_abs = abs(mu_r_complex)
-        mu_phi_deg = np.angle(mu_r_complex, deg=True)
-
-        if mu_r_abs.shape[0] == mu_phi_deg.shape[0] == len(df_real[0]):
-            data_dict = {"mu_r_abs": list(mu_r_abs),
-                         "mu_phi_deg": list(mu_phi_deg),
-                         "frequency": list(np.array(df_real[0])*frequency_factor),
+        if (len(df_real[0]) == len(df_real[1])) and (len(df_imag[0]) == len(df_imag[1])):
+            data_dict = {"mu_r_real": df_real[1],
+                         "mu_r_real_frequency": df_real[0],
+                         "mu_r_imag": df_imag[1],
+                         "mu_r_imag_frequency": df_imag[0],
                          "temperature": data[2]}
         else:
             raise ValueError('Input arrays dont have the same length!')
