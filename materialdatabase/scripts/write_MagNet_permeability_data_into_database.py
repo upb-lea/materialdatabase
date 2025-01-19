@@ -55,8 +55,8 @@ CALC_PERMEABILITY_DATA = False
 
 min_number_of_measurements = 7  # 1.
 
-material = Material._3F4.value   # 2.
-manufacturer = Manufacturer.Ferroxcube  # 3.
+material = Material.N49.value   # 2.
+manufacturer = Manufacturer.TDK  # 3.
 initial_permeability = 1500  # 4.
 resistivity = 17  # 4.
 max_flux_density = 0.49  # 4.
@@ -228,6 +228,16 @@ if SINE:
                                                                          guesses=100000)
     print("Scipy", param)
     print("Optuna", param_optuna)
+
+    def estimated_loss(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec):
+        return (f_vec**alpha)*(b_vec**beta) * (ct0 - ct1*tau_vec + ct2*tau_vec**2)
+
+    print("Scipy Error", np.mean(abs((estimated_loss(param[0], param[1], param[2], param[3], param[4],
+                                                     tau, frequency, mag_flux_density) - powerloss) / powerloss))*100)
+
+    print("Optuna Error", np.mean(abs((estimated_loss(param_optuna["aa"], param_optuna["bb"], param_optuna["ct0"], param_optuna["ct1"], param_optuna["ct2"],
+                                                      tau, frequency, mag_flux_density) - powerloss) / powerloss))*100)
+
     # calculate ki
     phi_array = np.linspace(start=0, stop=2 * np.pi, num=100000)
     ki = param[0] / ((2 * np.pi) ** (param[1] - 1)) / np.trapz(y=(np.abs(np.cos(phi_array))**param[1]) * (2 ** (param[2] - param[1])),
