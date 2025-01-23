@@ -1344,12 +1344,10 @@ def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.
         # return normalized_error(aa, bb, ct0, ct1, ct2, tau, frequency, b_field, powerloss)
         return np.mean(abs((((frequency**aa)*(b_field**bb) * (ct0 - ct1*tau + ct2*tau**2)) - powerloss) / powerloss))
 
-    study = optuna.create_study()
+    study = optuna.create_study(sampler=optuna.samplers.NSGAIIISampler())
     study.optimize(objective, n_trials=5000)
 
     # print("Optuna best params", study.best_params)
-
-
 
     # print("pcov: ", pcov)
     print(np.sqrt(np.diag(pcov)))
@@ -1406,7 +1404,7 @@ def write_steinmetz_data_into_database(temperature: float, k: float, beta: float
                 "alpha": alpha,
                 "beta": beta,
             }
-    )
+        )
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
@@ -1467,7 +1465,6 @@ def check_if_MagNet_model_exists_for_material(material_name: Material):
 
     if material_name in data:
         print(f"Material {material_name.value} exists in materialdatabase.")
-        print(data[material_name.value][MaterialDataSource.Measurement.value][MeasurementDataType.ComplexPermeability.value].keys())
         if "MagNet" in data[material_name.value][MaterialDataSource.Measurement.value][MeasurementDataType.ComplexPermeability.value].keys():
             print(f"MagNet Model exists for Material {material_name.value}.")
             return True
