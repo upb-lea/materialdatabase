@@ -5,7 +5,6 @@ from materialdatabase.enumerations import *
 from materialdatabase.material_data_base_functions import *
 from materialdatabase import paths as pt
 import pandas as pd
-import math
 import os
 # from scipy import constants
 import materialdatabase as mdb
@@ -13,16 +12,13 @@ import materialdatabase as mdb
 material_db = mdb.MaterialDatabase()
 
 """
-
   PREPERATIONS:
-  
     1. DOWNLOAD MagNet-Data(Single Cycle) FROM DROPBOX 
        (https://www.dropbox.com/scl/fo/jx6itx4nna5d4ki4dbxue/ANIJVaD_TFm8UzP5C-358n0?rlkey=248tctc9u2b39erd6sv9j99pa&e=1&dl=0
        OR https://www.princeton.edu/~minjie/magnet.html) AND PUT .mat-FILE IN DESIRED FOLDER. NAME OF THE FOLDER SHOULD BE THE NAME OF THE MATERIAL
     2. CREATE IN DESIRED FOLDER 3 SUBFOLDER WITH THE NAMES "sine", "trapezoid" and "triangle" 
 
   INSTRUCTIONS TO PUT DATA INTO DATABASE:
-
     0. CHOOSE SIGNAL-SHAPE, TO LOAD OR PROCESS THE DATA AND TO WRITE THE DATA INTO THE DATABASE
     1. SET MINIMUM NUMBER OF MEASUREMENT POINTS (START WITH LOW VALUE)
     2. INPUT MATERIAL NAME AS ENUMERATION (Material.XXX.value)
@@ -31,7 +27,6 @@ material_db = mdb.MaterialDatabase()
     5. INPUT PATH TO FOLDER CONTAINING MagNet-DATA
     6. CHANGE ENUMERATION IN VARIABLE datadict TO DESIRED MATERIAl (MagNetFileNames._XXX.value)
     7. RUN SCRIPT
-    
 """
 
 # SIGNAL-SHAPE
@@ -39,9 +34,9 @@ SINE = True  # SET TRUE TO RUN SINE DATA
 TRIANGLE = False  # SET TRUE TO RUN TRIANGULAR DATA  # TODO NOT IMPLEMENTED
 TRAPEZOID = False  # SET TRUE TO RUN TRAPEZOIDAL DATA  # TODO NOT IMPLEMENTED
 # PROCESS OF DATA
-PROCESS_DATA = False  # SET TRUE TO PROCESS DATA IF NOT DATA IS LOADED FROM GIVEN PATH
+PROCESS_DATA = True  # SET TRUE TO PROCESS DATA IF NOT DATA IS LOADED FROM GIVEN PATH
 # WRITE DATA INTO DATABASE
-WRITE = True  # SET TRUE TO WRITE DATA INTO DATABASE
+WRITE = False  # SET TRUE TO WRITE DATA INTO DATABASE
 
 min_number_of_measurements = 7  # 1.
 
@@ -65,11 +60,11 @@ probe = data_dict["Data"]["Shape"]
 
 if PROCESS_DATA:
     # filter for duty-cycle is NaN
-    sine_bool = [True if math.isnan(inner_loop) else False for inner_loop in data_dict["Data"]["DutyP_command"]]
+    sine_bool = [True if np.isnan(inner_loop) else False for inner_loop in data_dict["Data"]["DutyP_command"]]
     # filter for dutyP + dutyN == 1
     triangle_bool = [True if x + y == 1 else False for x, y in zip(data_dict["Data"]["DutyP_command"], data_dict["Data"]["DutyN_command"])]
     # filter for dutyP + dutyN != 1 and not NaN
-    trapezoidal_bool = [True if (x + y != 1) and (not math.isnan(x + y)) else False
+    trapezoidal_bool = [True if (x + y != 1) and (not np.isnan(x + y)) else False
                         for x, y in zip(data_dict["Data"]["DutyP_command"], data_dict["Data"]["DutyN_command"])]
     print("Filter bools created!")
 
@@ -98,9 +93,10 @@ if SINE:
         # B_DC = np.array(H_DC_Bias) * constants.mu_0 * np.array(permeability_amplitude)
         # mag_flux_density_offset = [b + offset for b, offset in zip(mag_flux_density, B_DC)]
 
-        powerloss = [get_bh_integral_shoelace(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_without_offset, frequency)]
+        powerloss = [abs(f * np.trapz(u * i, np.linspace(0, 1/f, len(list(u)))) / volume) for u, i, f in zip(voltage, current, frequency)]
+        # powerloss_BH = [get_bh_integral_shoelace(b=b, h=h, f=f) for b, h, f in zip(mag_flux_density, mag_field_strength_without_offset, frequency)]
 
-        permeability_angle = [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=abs(max(b, key=abs)), mu_r=mu, p_hyst=p)
+        permeability_angle = [mu_phi_deg__from_mu_r_and_p_hyst(frequency=f, b_peak=(max(b) - min(b))/2, mu_r=mu, p_hyst=p)
                               for f, b, mu, p in zip(frequency, mag_flux_density, permeability_amplitude, powerloss)]
 
         np.savetxt(os.path.join(path, "sine/Voltage[V].csv"), voltage, delimiter=",")
@@ -115,7 +111,7 @@ if SINE:
         np.savetxt(os.path.join(path, "sine/Permeability_angle[°].csv"), permeability_angle, delimiter=",")
 
         dict_sine = {"temperature": temperature,
-                     "mag_flux_density": [abs(max(x, key=abs)) for x in mag_flux_density],
+                     "mag_flux_density": [(max(b) - min(b))/2 for b in mag_flux_density],
                      "frequency": (np.array(frequency)/1000).astype(int)*1000,  # round up to kHz
                      "powerloss": powerloss,
                      "H_DC_Bias": H_DC_Bias,
@@ -146,7 +142,7 @@ if SINE:
     for temperature in unique_temperature:
         for H_DC in unique_H_DC_offset:
             for frequency in unique_frequency:
-                print("Number of measurement points: ", df_sine.query(filter_string).shape[0])
+                print('\033[1m' + "Number of measurement points: ", df_sine.query(filter_string).shape[0])
                 if df_sine.query(filter_string).shape[0] >= min_number_of_measurements:
                     b_ref = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["mag_flux_density"])
                     mu_r = np.array(df_sine.query(filter_string).sort_values('mag_flux_density')["permeability_amplitude"])

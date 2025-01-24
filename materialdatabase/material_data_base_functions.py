@@ -1721,7 +1721,7 @@ def calc_mu_r_from_b_and_h_array(b: np.ndarray | list, h: np.ndarray | list):
     :return: amplitude of the relative permability
     """
     b, h = np.array(b), np.array(h)
-    mu_r = abs(max(b, key=abs)) / abs(max(h, key=abs)) / mu_0
+    mu_r = ((max(b) - min(b))/2) / ((max(h) - min(h))/2) / mu_0
     return mu_r
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
