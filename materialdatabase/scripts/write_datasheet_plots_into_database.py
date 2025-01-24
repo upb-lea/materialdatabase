@@ -1,4 +1,9 @@
-"""Script to write the data of manufacturer datasheets plots into the database."""
+"""
+Script to write the data of manufacturer datasheets plots into the database.
+
+This script is used for all materials and the data is not used for the FEM-simulations in FEMMT. The data is only for plotting and comparisons.
+"""
+
 from matplotlib import pyplot as plt
 import numpy as np
 from materialdatabase.enumerations import *
@@ -33,7 +38,7 @@ import os
        - Powerloss in Watt per cubic Meter
 """
 
-WRITE = True
+WRITE = False
 # MAGNETIC FIELD STRENGTH
 Oersted_TO_Ampere_Per_Meter = False
 h_field_factor = 1
