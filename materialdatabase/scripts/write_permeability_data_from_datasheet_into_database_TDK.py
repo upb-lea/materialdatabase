@@ -1,4 +1,10 @@
-"""Script to write permeability_data of datasheet data into the database only for TDK."""
+"""
+Script to write permeability_data of datasheet data into the database, only for materials manufactured by Epcos TDK.
+
+The data under the key "permeability_data" is used for the FEM-simulations in FEMMT. Based on the data in the datasheet, the amplitude and angle of the
+permeability is calculated for different magnetic flux density values.
+"""
+
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.paths import *
 import numpy as np
