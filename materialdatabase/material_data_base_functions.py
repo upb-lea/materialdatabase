@@ -1745,20 +1745,19 @@ def calc_electric_flux_density_based_on_current_array_and_frequency(current: np.
     return electric_flux_density
 
 
-def calc_electric_flux_density_based_on_current_array_and_time_array(current_array: np.ndarray | list, time: np.ndarray | list,
-                                                                     cross_section: float = 1.0):
+def calc_electric_flux_density_based_on_current_array_and_time_array(current: np.ndarray | list, time: np.ndarray | list, cross_section: float = 1.0):
     """
     Calculate the electric flux density based on the current data of a lecroy oscilloscope.
 
-    :param current_array: array-like of the current in A
-    :type current_array: ndarray or list
+    :param current: array-like of the current in A
+    :type current: ndarray or list
     :param time: array of time values of measurement in s
     :type time: ndarray or list
     :param cross_section: cross-section of probe in m^2
     :type cross_section: float
     :return: array of electric flux density values
     """
-    electric_flux_density = integrate(time, current_array) / cross_section
+    electric_flux_density = integrate(time, current) / cross_section
     return electric_flux_density
 
 
@@ -1791,6 +1790,21 @@ def eps_phi_deg__from_eps_r_and_p_eddy(frequency: np.ndarray | float, e_peak: np
     :return: angle of permittivity in degree
     """
     return np.rad2deg(np.arcsin(p_eddy / (np.pi * frequency * eps_r * epsilon_0 * np.array(e_peak) ** 2)))
+
+
+def calc_eps_r_from_d_and_e_array(d: np.ndarray | list, e: np.ndarray | list):
+    """
+    Calculate the amplitude of the relative permeability based on a magnetic flux density and a magnetic field strength array.
+
+    :param d: electric flux density array
+    :type d: ndarray or list
+    :param e: electric field strength array
+    :type e: ndarray or list
+    :return: amplitude of the relative permittivity
+    """
+    d, e = np.array(d), np.array(e)
+    eps_r = ((max(d) - min(d))/2) / ((max(e) - min(e))/2) / epsilon_0
+    return eps_r
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
