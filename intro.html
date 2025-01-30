@@ -60,6 +60,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data"><code class="docutils literal notranslate"><span class="pre">calc_electric_field_strength_from_lecroy_voltage_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency"><code class="docutils literal notranslate"><span class="pre">calc_electric_flux_density_based_on_current_array_and_frequency()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array"><code class="docutils literal notranslate"><span class="pre">calc_electric_flux_density_based_on_current_array_and_time_array()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_eps_r_from_d_and_e_array"><code class="docutils literal notranslate"><span class="pre">calc_eps_r_from_d_and_e_array()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_field_strength_based_on_current_array"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_field_strength_based_on_current_array()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_frequency"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_frequency()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_time_array"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_time_array()</span></code></a></li>
@@ -307,53 +308,82 @@
 <p>Functions of the material database.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_field_strength_from_lecroy_voltage_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_field_strength_from_lecroy_voltage_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data" title="Link to this definition"></a></dt>
 <dd><p>Calculate the electric field strength based on the voltage data of a lecroy oscilloscope.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>voltage</strong> (<em>list</em><em> or </em><em>ndarray</em>) – array-like of the voltage in V</p></li>
+<li><p><strong>voltage</strong> (<em>np.ndarray</em><em> or </em><em>list</em>) – array-like of the voltage in V</p></li>
 <li><p><strong>height</strong> (<em>float</em>) – height of probe in m</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>array of electric field strength values</p>
+<dd class="field-even"><p>electric field strength values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_flux_density_based_on_current_array_and_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_flux_density_based_on_current_array_and_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency" title="Link to this definition"></a></dt>
 <dd><p>Calculate the electric flux density based on the current and the frequency.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>current</strong> (<em>ndarray</em><em> or </em><em>list</em>) – array-like of the current in A</p></li>
+<li><p><strong>current</strong> (<em>np.ndarray</em><em> or </em><em>list</em>) – array-like of the current in A</p></li>
 <li><p><strong>frequency</strong> (<em>float</em>) – frequency value in Hz</p></li>
 <li><p><strong>cross_section</strong> (<em>float</em>) – cross-section of probe in m^2</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>arrray of electric flux density values</p>
+<dd class="field-even"><p>electric flux density values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_flux_density_based_on_current_array_and_time_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_flux_density_based_on_current_array_and_time_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">current</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array" title="Link to this definition"></a></dt>
 <dd><p>Calculate the electric flux density based on the current data of a lecroy oscilloscope.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>current_array</strong> (<em>ndarray</em><em> or </em><em>list</em>) – array-like of the current in A</p></li>
-<li><p><strong>time</strong> (<em>ndarray</em><em> or </em><em>list</em>) – array of time values of measurement in s</p></li>
+<li><p><strong>current</strong> (<em>np.ndarray</em><em> or </em><em>list</em>) – array-like of the current in A</p></li>
+<li><p><strong>time</strong> (<em>np.ndarray</em><em> or </em><em>list</em>) – array of time values of measurement in s</p></li>
 <li><p><strong>cross_section</strong> (<em>float</em>) – cross-section of probe in m^2</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>array of electric flux density values</p>
+<dd class="field-even"><p>electric flux density values</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_eps_r_from_d_and_e_array">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_eps_r_from_d_and_e_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_eps_r_from_d_and_e_array" title="Link to this definition"></a></dt>
+<dd><p>Calculate the amplitude of the relative permeability based on a magnetic flux density and a magnetic field strength array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>np.ndarray</em><em> or </em><em>list</em>) – electric flux density array</p></li>
+<li><p><strong>e</strong> (<em>np.ndarray</em><em> or </em><em>list</em>) – electric field strength array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>amplitude of the relative permittivity</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
@@ -694,19 +724,22 @@ Based on the length of the voltage array and the frequency the time-array is con
 
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_eddy">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">eps_phi_deg__from_eps_r_and_p_eddy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_peak</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_eddy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_eddy" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">eps_phi_deg__from_eps_r_and_p_eddy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">e_peak</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eps_r</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_eddy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#materialdatabase.material_data_base_functions.eps_phi_deg__from_eps_r_and_p_eddy" title="Link to this definition"></a></dt>
 <dd><p>Calculate the angle of the permittivity.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>frequency</strong> (<em>ndarray</em><em> or </em><em>float</em>) – frequency</p></li>
-<li><p><strong>e_peak</strong> (<em>ndarray</em><em> or </em><em>float</em>) – peak value of the electric field strength</p></li>
-<li><p><strong>eps_r</strong> (<em>ndarray</em><em> or </em><em>float</em>) – peak value of the amplitude of the permittivity</p></li>
-<li><p><strong>p_eddy</strong> (<em>ndarray</em><em> or </em><em>float</em>) – eddy current loss density</p></li>
+<li><p><strong>frequency</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – frequency</p></li>
+<li><p><strong>e_peak</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – peak value of the electric field strength</p></li>
+<li><p><strong>eps_r</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – peak value of the amplitude of the permittivity</p></li>
+<li><p><strong>p_eddy</strong> (<em>np.ndarray</em><em> or </em><em>float</em>) – eddy current loss density</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>angle of permittivity in degree</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
 </dd>
 </dl>
 </dd></dl>
