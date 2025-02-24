@@ -1924,6 +1924,13 @@ def export_data(parent_directory: str = "", file_format: str = None, b_ref_vec: 
     :param silent: enables/disables print
     :type silent: bool
     """
+
+    # fix numpy array inside normal python list problem
+    # converts everything from scratch to a list, unified file format.
+    b_ref_vec = np.array(b_ref_vec).tolist()
+    mu_r_real_vec = np.array(mu_r_real_vec).tolist()
+    mu_r_imag_vec = np.array(mu_r_imag_vec).tolist()
+
     if file_format == "pro":
         with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
             file.write('Include "Parameter.pro";\n')
