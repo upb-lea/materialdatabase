@@ -1924,7 +1924,6 @@ def export_data(parent_directory: str = "", file_format: str = None, b_ref_vec: 
     :param silent: enables/disables print
     :type silent: bool
     """
-
     # fix numpy array inside normal python list problem
     # converts everything from scratch to a list, unified file format.
     b_ref_vec = np.array(b_ref_vec).tolist()
