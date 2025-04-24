@@ -10,19 +10,32 @@ from materialdatabase.paths import your_sciebo
 # 3rd party libraries
 from scipy import constants
 
+"""
+
+    Setting of Impedance Analyzer
+    Starting Frequency: 10kHz
+    Ending Frequency: 8MHz
+    Measuring Points: 800 points
+    Temperatures: 30°C, 45°C, 60°C, 75°C
+
+"""
+
 # Control
-write_data = False
+write_data = True
 plot_data = True
 
 # Set parameters
-core_name = CuboidDirectoryName._3F46_thin  # "C_25x2x21.6"  # b * a * h
+core_name = "C_19.97x1.99x13.96"  # "C_19.98x1.98x13.97"  # b * a * h  CuboidDirectoryName._3F46_thin
 core_dimensions = core_name[2:].split(sep="x")
-material_name = Material._3F46
-manufacturer = Manufacturer.Ferroxcube
+material_name = Material.N27
+manufacturer = Manufacturer.TDK
 # measurements_path       = os.path.join(my_wayne_kerr_measurements_path, "small_signal", core_name, material_name)
-measurements_path = os.path.join(your_sciebo, "08_Labor", "Impedanzanalysator", "Speedam")
-temperatures_db = [25]
-frequencies_db = [50e3, 1e5, 2e5, 3e5, 4e5, 5e5, 6e5, 7e5, 8e5, 9e5, 1e6, 1.1e6, 1.2e6, 1.5e6, 2e6, 2.5e6, 3e6]
+measurements_path = os.path.join(your_sciebo, "Exchange_Sebastian", "08_Labor", "Messung_Permittivität", "N27")
+temperatures_db = [30, 45, 60, 75]
+frequencies_db = [10.1e3, 25e3, 50e3, 75e3, 1e5,  1.5e5, 2e5, 2.5e5, 3e5, 3.5e5, 4e5, 4.5e5, 5e5, 5.5e5, 6e5, 6.5e5, 7e5, 7.5e5, 8e5, 8.5e5, 9e5, 9.5e5, 1e6,
+                  1.1e6, 1.2e6, 1.3e6, 1.4e6, 1.5e6, 1.6e6, 1.7e6, 1.8e6, 1.9e6, 2e6, 2.1e6, 2.2e6, 2.3e6, 2.4e6, 2.5e6, 2.6e6, 2.7e6, 2.8e6, 2.9e6, 3e6,
+                  3.1e6, 3.2e6, 3.3e6, 3.4e6, 3.5e6, 3.6e6, 3.7e6, 3.8e6, 3.9e6, 4e6, 4.1e6, 4.2e6, 4.3e6, 4.4e6, 4.5e6, 4.6e6, 4.7e6, 4.8e6, 4.9e6, 5e6,
+                  5.1e6, 5.2e6, 5.3e6, 5.4e6, 5.5e6, 5.6e6, 5.7e6, 5.8e6, 5.9e6, 6e6]
 
 if plot_data:
     fig, ax = plt.subplots(nrows=2, ncols=1, sharex="all")
@@ -56,21 +69,22 @@ for temperature_db in temperatures_db:
 
     # Plot
     if plot_data:
-        ax[0].semilogx(f[indices], db_eps_tilde_amplitude, label=str(temperature_db) + core_name + " & " + material_name)
-        ax[1].semilogx(f[indices], db_eps_tilde_angle, label=str(temperature_db) + core_name + " & " + material_name)
+        ax[0].semilogx(f[indices], db_eps_tilde_amplitude, label=str(temperature_db) + core_name + " & " + material_name, marker="o", markersize=3.5)
+        ax[1].semilogx(f[indices], db_eps_tilde_angle, label=str(temperature_db) + core_name + " & " + material_name, marker="o", markersize=3.5)
         ax[0].grid(True, which="both")
         ax[1].grid(True, which="both")
         ax[0].legend()
         ax[0].set_ylabel(r'$\tilde{\epsilon_\mathrm{r}}$')
         ax[1].set_ylabel(r'$\xi_\tilde{\epsilon_\mathrm{r}}$ in °')
-        plt.xlabel('Frequenz / Hz')
+        ax[1].set_xlim([min(f[indices])-1e3, max(f[indices])+0.1e6])
+        plt.xlabel('frequency / Hz')
         plt.tight_layout()
 
     if write_data:
-        create_empty_material(material_name, manufacturer)
+        # create_empty_material(material_name, manufacturer)
         create_permittivity_measurement_in_database(material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal, company=Company.UPB,
                                                     date=str(date.today()), test_setup_name=MeasurementSetup.LEA_MTB_small_signal, probe_dimensions=core_name,
-                                                    measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.WayneKerr,
+                                                    measurement_method=MeasurementMethod.ImpedanceAnalyzer, equipment_names=MeasurementDevice.wayne_kerr,
                                                     comment="")
         write_permittivity_data_into_database(temperature_db, list(f[indices]), list(db_eps_tilde_amplitude), list(db_eps_tilde_angle),
                                               material_name=material_name, measurement_setup=MeasurementSetup.LEA_MTB_small_signal)
