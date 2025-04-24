@@ -32,7 +32,7 @@ manufacturer = Manufacturer.TDK
 # measurements_path       = os.path.join(my_wayne_kerr_measurements_path, "small_signal", core_name, material_name)
 measurements_path = os.path.join(your_sciebo, "Exchange_Sebastian", "08_Labor", "Messung_Permittivität", "N27")
 temperatures_db = [30, 45, 60, 75]
-frequencies_db = [10.1e3, 25e3, 50e3, 75e3, 1e5,  1.5e5, 2e5, 2.5e5, 3e5, 3.5e5, 4e5, 4.5e5, 5e5, 5.5e5, 6e5, 6.5e5, 7e5, 7.5e5, 8e5, 8.5e5, 9e5, 9.5e5, 1e6,
+frequencies_db = [10.1e3, 25e3, 50e3, 75e3, 1e5, 1.5e5, 2e5, 2.5e5, 3e5, 3.5e5, 4e5, 4.5e5, 5e5, 5.5e5, 6e5, 6.5e5, 7e5, 7.5e5, 8e5, 8.5e5, 9e5, 9.5e5, 1e6,
                   1.1e6, 1.2e6, 1.3e6, 1.4e6, 1.5e6, 1.6e6, 1.7e6, 1.8e6, 1.9e6, 2e6, 2.1e6, 2.2e6, 2.3e6, 2.4e6, 2.5e6, 2.6e6, 2.7e6, 2.8e6, 2.9e6, 3e6,
                   3.1e6, 3.2e6, 3.3e6, 3.4e6, 3.5e6, 3.6e6, 3.7e6, 3.8e6, 3.9e6, 4e6, 4.1e6, 4.2e6, 4.3e6, 4.4e6, 4.5e6, 4.6e6, 4.7e6, 4.8e6, 4.9e6, 5e6,
                   5.1e6, 5.2e6, 5.3e6, 5.4e6, 5.5e6, 5.6e6, 5.7e6, 5.8e6, 5.9e6, 6e6]
