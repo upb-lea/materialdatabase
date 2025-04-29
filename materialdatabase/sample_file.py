@@ -1,6 +1,6 @@
 """Sample file."""
 
-def my_function(input_str: str):
+def my_function(input_str: str) -> None:
     """
     Print the input string.
 

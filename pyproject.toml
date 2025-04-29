@@ -77,6 +77,8 @@ line-ending = "auto"
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
+disallow_incomplete_defs = true
+# disallow_any_unimported = true
 exclude = [
     'docs/source/conf.py'
 ]
