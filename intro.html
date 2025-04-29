@@ -57,6 +57,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="#module-materialdatabase.material_data_base_functions"><span class="sectnum">2 </span>Materialdatabase function documentation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_IGSE_equation"><code class="docutils literal notranslate"><span class="pre">calc_IGSE_equation()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data"><code class="docutils literal notranslate"><span class="pre">calc_electric_field_strength_from_lecroy_voltage_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_frequency"><code class="docutils literal notranslate"><span class="pre">calc_electric_flux_density_based_on_current_array_and_frequency()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_electric_flux_density_based_on_current_array_and_time_array"><code class="docutils literal notranslate"><span class="pre">calc_electric_flux_density_based_on_current_array_and_time_array()</span></code></a></li>
@@ -65,6 +66,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_frequency"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_frequency()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_magnetic_flux_density_based_on_voltage_array_and_time_array"><code class="docutils literal notranslate"><span class="pre">calc_magnetic_flux_density_based_on_voltage_array_and_time_array()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_mu_r_from_b_and_h_array"><code class="docutils literal notranslate"><span class="pre">calc_mu_r_from_b_and_h_array()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_powerloss_from_MagNet_model"><code class="docutils literal notranslate"><span class="pre">calc_powerloss_from_MagNet_model()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_steinmetz_equation"><code class="docutils literal notranslate"><span class="pre">calc_steinmetz_equation()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.calc_steinmetz_temperature_model"><code class="docutils literal notranslate"><span class="pre">calc_steinmetz_temperature_model()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.check_if_MagNet_model_exists_for_material"><code class="docutils literal notranslate"><span class="pre">check_if_MagNet_model_exists_for_material()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.check_input_permeability_data"><code class="docutils literal notranslate"><span class="pre">check_input_permeability_data()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.clear_permeability_measurement_data_in_database"><code class="docutils literal notranslate"><span class="pre">clear_permeability_measurement_data_in_database()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.clear_permittivity_measurement_data_in_database"><code class="docutils literal notranslate"><span class="pre">clear_permittivity_measurement_data_in_database()</span></code></a></li>
@@ -86,6 +91,9 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest_neighbour_values_permeability"><code class="docutils literal notranslate"><span class="pre">find_nearest_neighbour_values_permeability()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest_neighbours"><code class="docutils literal notranslate"><span class="pre">find_nearest_neighbours()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.find_nearest_temperatures"><code class="docutils literal notranslate"><span class="pre">find_nearest_temperatures()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.fit_steinmetz_parameters"><code class="docutils literal notranslate"><span class="pre">fit_steinmetz_parameters()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.fit_steinmetz_parameters_and_temperature_model"><code class="docutils literal notranslate"><span class="pre">fit_steinmetz_parameters_and_temperature_model()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.fit_steinmetz_temperature_coefficients"><code class="docutils literal notranslate"><span class="pre">fit_steinmetz_temperature_coefficients()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_all_frequencies_for_material"><code class="docutils literal notranslate"><span class="pre">get_all_frequencies_for_material()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_all_temperatures_for_directory"><code class="docutils literal notranslate"><span class="pre">get_all_temperatures_for_directory()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_bh_integral_shoelace"><code class="docutils literal notranslate"><span class="pre">get_bh_integral_shoelace()</span></code></a></li>
@@ -96,6 +104,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permeability_property_from_lea_mtb"><code class="docutils literal notranslate"><span class="pre">get_permeability_property_from_lea_mtb()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permittivity_data_from_lea_lk"><code class="docutils literal notranslate"><span class="pre">get_permittivity_data_from_lea_lk()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_permittivity_property_from_lea_lk"><code class="docutils literal notranslate"><span class="pre">get_permittivity_property_from_lea_lk()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.get_steinmetz_parameters_from_mdb"><code class="docutils literal notranslate"><span class="pre">get_steinmetz_parameters_from_mdb()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.getdata_datasheet"><code class="docutils literal notranslate"><span class="pre">getdata_datasheet()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.getdata_measurements"><code class="docutils literal notranslate"><span class="pre">getdata_measurements()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#materialdatabase.material_data_base_functions.integrate"><code class="docutils literal notranslate"><span class="pre">integrate()</span></code></a></li>
@@ -307,6 +316,26 @@
 <span id="materialdatabase-function-documentation"></span><h1><span class="sectnum">2 </span>Materialdatabase function documentation<a class="headerlink" href="#module-materialdatabase.material_data_base_functions" title="Link to this heading"></a></h1>
 <p>Functions of the material database.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_IGSE_equation">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_IGSE_equation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_setup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_wave</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_IGSE_equation" title="Link to this definition"></a></dt>
+<dd><p>Calculate powerloss density with the IGSE equation (Improved Generalized Steinmetz Equation).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_name</strong> (<em>str</em>) – name of the material</p></li>
+<li><p><strong>measurement_setup</strong> (<em>str</em>) – name of the measurement setup</p></li>
+<li><p><strong>frequency</strong> (<em>float</em>) – value of the frequency in Hz</p></li>
+<li><p><strong>b_wave</strong> (<em>np.array</em>) – array with the shape of the magnetic flux density in time domain in T</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature of the core in °C</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>powerloss density with IGSE in W/m^3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data">
 <span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_electric_field_strength_from_lecroy_voltage_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">voltage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">ndarray</span></span></span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_electric_field_strength_from_lecroy_voltage_data" title="Link to this definition"></a></dt>
 <dd><p>Calculate the electric field strength based on the voltage data of a lecroy oscilloscope.</p>
@@ -460,6 +489,75 @@ Based on the length of the voltage array and the frequency the time-array is con
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>amplitude of the relative permability</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_powerloss_from_MagNet_model">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_powerloss_from_MagNet_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Material</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">team_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_wave</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_powerloss_from_MagNet_model" title="Link to this definition"></a></dt>
+<dd><p>Calculate the powerloss density with the help of the trained neural network of the MagNet Challenge 2023.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_name</strong> (<em>Material</em>) – Name of the material</p></li>
+<li><p><strong>team_name</strong> (<em>str</em>) – Name of the participating team (e.g “paderborn” or “sydney”)</p></li>
+<li><p><strong>b_wave</strong> (<em>np.array</em>) – array containing the shape of the magnetic flux density in time domain in T</p></li>
+<li><p><strong>frequency</strong> (<em>float</em>) – value of the frequency in Hz</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – value of the temperature in °C</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>powerloss in W/m^3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_steinmetz_equation">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_steinmetz_equation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_setup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_steinmetz_equation" title="Link to this definition"></a></dt>
+<dd><p>Calculate powerloss density with the standard Steinmetz equation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_name</strong> (<em>str</em>) – name of the material</p></li>
+<li><p><strong>measurement_setup</strong> (<em>str</em>) – name of the measurement setup</p></li>
+<li><p><strong>frequency</strong> (<em>np.array</em>) – array containing frequency values in Hz</p></li>
+<li><p><strong>b_field</strong> (<em>np.array</em>) – array containing magnetic flux density values in T</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature of the core in °C</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>powerloss density with SE in W/m^3</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.calc_steinmetz_temperature_model">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">calc_steinmetz_temperature_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.calc_steinmetz_temperature_model" title="Link to this definition"></a></dt>
+<dd><p>Calculate polynomical function for the steinmetz modells.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_name</strong> (<em>str</em>) – name of the material</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature of the core in °C</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>result of the polynomical function to adjust temperature</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.check_if_MagNet_model_exists_for_material">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">check_if_MagNet_model_exists_for_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Material</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.check_if_MagNet_model_exists_for_material" title="Link to this definition"></a></dt>
+<dd><p>Check if magnet model exists for given material.</p>
+<p>Also checks if material exists in materialdatabase.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>material_name</strong> (<em>Material</em>) – value of the volumetric mass density</p>
 </dd>
 </dl>
 </dd></dl>
@@ -857,6 +955,63 @@ Case 3b: if value is bigger than data: return biggest two</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.fit_steinmetz_parameters">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">fit_steinmetz_parameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">powerloss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guesses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.fit_steinmetz_parameters" title="Link to this definition"></a></dt>
+<dd><p>Calculate the steinmetz parameters k, alpha and beta based on curve_fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>frequency</strong> (<em>np.array</em>) – array containing frequency values in Hz</p></li>
+<li><p><strong>b_field</strong> (<em>np.array</em>) – array containing magnetic flux density values in T</p></li>
+<li><p><strong>powerloss</strong> (<em>np.array</em>) – array containing powerloss values in W/m^3</p></li>
+<li><p><strong>guesses</strong> (<em>int</em>) – number of guesses</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.array containing k, alpha and beta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.fit_steinmetz_parameters_and_temperature_model">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">fit_steinmetz_parameters_and_temperature_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequency</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_field</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">powerloss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guesses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.fit_steinmetz_parameters_and_temperature_model" title="Link to this definition"></a></dt>
+<dd><p>Calculate the steinmetz parameters k, alpha and beta based on curve_fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tau</strong> (<em>np.array</em>) – array containing tau values (temperature_core/25°C)</p></li>
+<li><p><strong>frequency</strong> (<em>np.array</em>) – array containing frequency values in Hz</p></li>
+<li><p><strong>b_field</strong> (<em>np.array</em>) – array containing magnetic flux density values in T</p></li>
+<li><p><strong>powerloss</strong> (<em>np.array</em>) – array containing powerloss values in W/m^3</p></li>
+<li><p><strong>guesses</strong> (<em>int</em>) – number of guesses</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.array containing k, alpha and beta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.fit_steinmetz_temperature_coefficients">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">fit_steinmetz_temperature_coefficients</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tau_array</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">powerloss</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">guesses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.fit_steinmetz_temperature_coefficients" title="Link to this definition"></a></dt>
+<dd><p>Calculate the steinmetz parameters k, alpha and beta based on curve_fit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tau_array</strong> (<em>np.array</em>) – array containing tau values</p></li>
+<li><p><strong>powerloss</strong> (<em>np.array</em>) – array containing powerloss values</p></li>
+<li><p><strong>guesses</strong> (<em>int</em>) – number of guesses</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>np.array containing k, alpha and beta</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.get_all_frequencies_for_material">
 <span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_all_frequencies_for_material</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.get_all_frequencies_for_material" title="Link to this definition"></a></dt>
 <dd><p>Get all the frequency values for a given material.</p>
@@ -1025,6 +1180,24 @@ Case 3b: if value is bigger than data: return biggest two</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>amplitude of the permittivity, angle of the permittivity</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.get_steinmetz_parameters_from_mdb">
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">get_steinmetz_parameters_from_mdb</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_setup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.get_steinmetz_parameters_from_mdb" title="Link to this definition"></a></dt>
+<dd><p>Get the steinmetz parameters from the MaterialDataBase for a specific temperature.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>material_name</strong> (<em>str</em>) – name of the material</p></li>
+<li><p><strong>measurement_setup</strong> – name of the measurement setup</p></li>
+<li><p><strong>temperature</strong> (<em>float</em>) – temperature of the core in °C</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict containing steinmetz parameter</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1506,7 +1679,7 @@ Column Separator: ;</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="materialdatabase.material_data_base_functions.write_steinmetz_data_into_database">
-<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">write_steinmetz_data_into_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_setup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.write_steinmetz_data_into_database" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">materialdatabase.material_data_base_functions.</span></span><span class="sig-name descname"><span class="pre">write_steinmetz_data_into_database</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">measurement_setup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#materialdatabase.material_data_base_functions.write_steinmetz_data_into_database" title="Link to this definition"></a></dt>
 <dd><p>Write steinmetz data into the material database.</p>
 <p>CAUTION: This method only adds the given measurement series to the steinmetz data without checking duplicates.</p>
 <dl class="field-list simple">
@@ -1518,6 +1691,7 @@ Column Separator: ;</p>
 <li><p><strong>alpha</strong> (<em>float</em>) – alpha value of the steinmetz parameters</p></li>
 <li><p><strong>material_name</strong> (<em>str</em>) – name of the material</p></li>
 <li><p><strong>measurement_setup</strong> (<em>str</em>) – name of the measurement setup</p></li>
+<li><p><strong>overwrite_data</strong> (<em>bool</em>) – overwrite existing data with new data, if not data gets appendend</p></li>
 </ul>
 </dd>
 </dl>
