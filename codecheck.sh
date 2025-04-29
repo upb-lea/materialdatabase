@@ -10,6 +10,5 @@ echo "pylint"
 pylint $(git ls-files '*.py')
 echo "mypy"
 mypy $(git ls-files '*.py')
-
-
-
+echo "pytests"
+pytest tests -s
