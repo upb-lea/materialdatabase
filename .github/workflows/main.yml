@@ -27,6 +27,7 @@ jobs:
 
       - name: check linting using pycodestyle
         run: |
+          sudo apt install aspell-en
           pip install pyspelling
           pyspelling
           
