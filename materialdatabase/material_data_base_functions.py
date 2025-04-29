@@ -12,7 +12,7 @@ from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
 from scipy.optimize import curve_fit
 # import magnethub as mh
-import optuna
+# import optuna
 
 # local libraries
 from materialdatabase.constants import *
