@@ -6,9 +6,9 @@ name: Pytest on push and on pull requests
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main, develop ]
+    branches: [ main, rewrite ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main, rewrite ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -27,8 +27,10 @@ jobs:
 
       - name: check linting using pycodestyle
         run: |
+          pip install pyspelling
+          pyspelling
+          
           pip install pycodestyle
-          pip install pytest
           pycodestyle $(git ls-files '*.py') 
           
           pip install ruff
@@ -36,6 +38,9 @@ jobs:
           
           pip install pylint
           pylint $(git ls-files '*.py')
+          
+          pip install mypy
+          mypy $(git ls-files '*.py')
 
       - name: install materialdatabase package
         run: |
