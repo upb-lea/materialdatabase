@@ -171,8 +171,8 @@ if SINE:
                                                                             plot_data=PLOT_DATA_PERMEABILITY, f=frequency, b_min=0.005, b_max=0.4)
 
                         if WRITE_PERMEABILITY:
-                            write_permeability_data_into_database(current_shape="sine", frequency=frequency, temperature=temperature, H_DC_offset=H_DC, b_ref=b_ref,
-                                                                  mu_r_abs=mu_r, mu_phi_deg=mu_phi_deg, material_name=material,
+                            write_permeability_data_into_database(current_shape="sine", frequency=frequency, temperature=temperature, H_DC_offset=H_DC,
+                                                                  b_ref=b_ref, mu_r_abs=mu_r, mu_phi_deg=mu_phi_deg, material_name=material,
                                                                   measurement_setup=MeasurementSetup.MagNet)
 
     # Write Steinmetz parameters into database
@@ -231,6 +231,28 @@ if SINE:
     print("Optuna", param_optuna)
 
     def estimated_loss(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec):
+        """
+        Calculate the power loss density with standard steinmetz equation combined with temperature model.
+
+        :param alpha: alpha of steinmetz equation
+        :type alpha: float
+        :param beta: beta of steinmetz equation
+        :type beta: float
+        :param ct0: first coefficient of temperature model
+        :type ct0: float
+        :param ct1: second coefficient of temperature model
+        :type ct1: float
+        :param ct2: third coefficient of temperature model
+        :type ct2: float
+        :param tau_vec: temperature divided by 1°C
+        :type tau_vec: float
+        :param f_vec: frequency values
+        :type f_vec: float
+        :param b_vec: magnetic flux density values
+        :type b_vec: float
+        :return: power loss density
+        :rtype: float
+        """
         return (f_vec**alpha)*(b_vec**beta) * (ct0 - ct1*tau_vec + ct2*tau_vec**2)
 
     print("Scipy Error", np.mean(abs((estimated_loss(param[0], param[1], param[2], param[3], param[4],
@@ -262,12 +284,18 @@ if SINE:
                 # ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
                 #           param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
                 #           * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)), label="fitted")
-                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
-                          (frequency**param[0])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[1])
-                          * (param[2] - param[3]*(temperature/1) + (param[4]*(temperature/1)**2)), label="CurveFit")
-                ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
-                          (frequency**param_optuna["aa"])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param_optuna["bb"])
-                          * (param_optuna["ct0"] - param_optuna["ct1"]*(temperature/1) + (param_optuna["ct2"]*(temperature/1)**2)), label="Optuna")
+                ax.loglog(
+                    np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                    (frequency**param[0]) * (np.array(df_sine.query(filter_string)
+                                                      ["mag_flux_density"])**param[1]) * (param[2] - param[3]*(temperature/1) + (param[4]*(temperature/1)**2)),
+                    label="CurveFit")
+                ax.loglog(
+                    np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
+                    (frequency**param_optuna["aa"]) * (np.array(df_sine.query(filter_string)
+                                                                ["mag_flux_density"])**param_optuna["bb"])*(param_optuna["ct0"]-param_optuna
+                                                                                                            ["ct1"]*(temperature/1)+(param_optuna
+                                                                                                            ["ct2"]*(temperature/1)**2)),
+                    label="Optuna")
                 # print(param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
                 #       * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)))
                 ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
