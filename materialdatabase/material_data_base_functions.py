@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
 from scipy.optimize import curve_fit
-import magnethub as mh
+# import magnethub as mh
 import optuna
 
 # local libraries
@@ -21,8 +21,6 @@ from materialdatabase.enumerations import *
 # Relative path to the database json file
 global relative_path_to_db
 # relative_path_to_db = "../data/material_data_base.json"
-relative_path_to_db = "C:/Users/sebas/Desktop/Python/materialdatabase/materialdatabase/data/material_data_base.json"
-# relative_path_to_db = "C:/Users/schacht/PycharmProjects/materialdatabase/materialdatabase/data/material_data_base.json"
 
 
 # Auxiliary functions ------------------------------------------------------------------------------------------------------------------------------------------
