@@ -1,0 +1,36 @@
+matrix:
+- name: Python Source
+  aspell:
+    lang: en
+    d: en_US
+  sources:
+  - materialdatabase/*.py
+  dictionary:
+    wordlists:
+      - docs/wordlist
+  pipeline:
+  - pyspelling.filters.python:
+      strings: true
+      comments: true
+  ignore_regexp:
+        - '.*\b(TODO|FIXME|NOTE|:param|:type|:return|:rtype)\b.*'
+- name: markdown and rst
+  sources:
+  - CHANGELOG.md
+  - README.rst
+  aspell:
+    lang: en
+    d: en_US
+  dictionary:
+    wordlists:
+    - docs/wordlist
+  pipeline:
+  - pyspelling.filters.markdown:
+  - pyspelling.filters.html:
+      comments: false
+      attributes:
+      - title
+      - alt
+      ignores:
+      - code
+      - pre

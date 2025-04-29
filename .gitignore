@@ -17,5 +17,6 @@ materialdatabase/core_materials_temp.pro
 # Files
 tests/core_materials_temp.pro
 materialdatabase/paths.py
+dictionary.dic
 
 # General File Types
