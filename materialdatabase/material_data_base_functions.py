@@ -2017,23 +2017,25 @@ def calc_mu_r_from_b_and_h_array(b: np.ndarray | list, h: np.ndarray | list):
     :return: amplitude of the relative permability
     """
     b, h = np.array(b), np.array(h)
-    mu_r = abs(max(b, key=abs)) / abs(max(h, key=abs)) / mu_0
+    mu_r = ((max(b) - min(b))/2) / ((max(h) - min(h))/2) / mu_0
     return mu_r
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 # calculation functions electric field -------------------------------------------------------------------------------------------------------------------------
-def calc_electric_flux_density_based_on_current_array_and_frequency(current: np.ndarray | list, frequency: float = 1.0, cross_section: float = 1.0):
+def calc_electric_flux_density_based_on_current_array_and_frequency(current: np.ndarray | list, frequency: float = 1.0, cross_section: float = 1.0)\
+        -> np.ndarray:
     """
     Calculate the electric flux density based on the current and the frequency.
 
     :param current: array-like of the current in A
-    :type current: ndarray or list
+    :type current: np.ndarray or list
     :param frequency: frequency value in Hz
     :type frequency: float
     :param cross_section: cross-section of probe in m^2
     :type cross_section: float
-    :return: arrray of electric flux density values
+    :return: electric flux density values
+    :rtype: np.ndarray
     """
     current = np.array(current)
     time = np.linspace(0, 1 / frequency, current.shape[0])
@@ -2041,52 +2043,72 @@ def calc_electric_flux_density_based_on_current_array_and_frequency(current: np.
     return electric_flux_density
 
 
-def calc_electric_flux_density_based_on_current_array_and_time_array(current_array: np.ndarray | list, time: np.ndarray | list,
-                                                                     cross_section: float = 1.0):
+def calc_electric_flux_density_based_on_current_array_and_time_array(current: np.ndarray | list, time: np.ndarray | list, cross_section: float = 1.0)\
+        -> np.ndarray:
     """
     Calculate the electric flux density based on the current data of a lecroy oscilloscope.
 
-    :param current_array: array-like of the current in A
-    :type current_array: ndarray or list
+    :param current: array-like of the current in A
+    :type current: np.ndarray or list
     :param time: array of time values of measurement in s
-    :type time: ndarray or list
+    :type time: np.ndarray or list
     :param cross_section: cross-section of probe in m^2
     :type cross_section: float
-    :return: array of electric flux density values
+    :return: electric flux density values
+    :rtype: np.ndarray
     """
-    electric_flux_density = integrate(time, current_array) / cross_section
+    electric_flux_density = integrate(time, current) / cross_section
     return electric_flux_density
 
 
-def calc_electric_field_strength_from_lecroy_voltage_data(voltage: np.ndarray | list, height: float = 1.0):
+def calc_electric_field_strength_from_lecroy_voltage_data(voltage: np.ndarray | list, height: float = 1.0) -> np.ndarray:
     """
     Calculate the electric field strength based on the voltage data of a lecroy oscilloscope.
 
     :param voltage: array-like of the voltage in V
-    :type voltage: list or ndarray
+    :type voltage: np.ndarray or list
     :param height: height of probe in m
     :type height: float
-    :return: array of electric field strength values
+    :return: electric field strength values
+    :rtype: np.ndarray
     """
     electric_field_strength = np.array(voltage) / height
     return electric_field_strength
 
 
-def eps_phi_deg__from_eps_r_and_p_eddy(frequency: np.ndarray | float, e_peak: np.ndarray | float, eps_r: np.ndarray | float, p_eddy: np.ndarray | float):
+def eps_phi_deg__from_eps_r_and_p_eddy(frequency: np.ndarray | float, e_peak: np.ndarray | float, eps_r: np.ndarray | float, p_eddy: np.ndarray | float)\
+        -> np.ndarray:
     """
     Calculate the angle of the permittivity.
 
     :param frequency: frequency
-    :type frequency: ndarray or float
+    :type frequency: np.ndarray or float
     :param e_peak: peak value of the electric field strength
-    :type e_peak: ndarray or float
+    :type e_peak: np.ndarray or float
     :param eps_r: peak value of the amplitude of the permittivity
-    :type eps_r: ndarray or float
+    :type eps_r: np.ndarray or float
     :param p_eddy: eddy current loss density
-    :type p_eddy: ndarray or float
+    :type p_eddy: np.ndarray or float
     :return: angle of permittivity in degree
+    :rtype: np.ndarray
     """
     return np.rad2deg(np.arcsin(p_eddy / (np.pi * frequency * eps_r * epsilon_0 * np.array(e_peak) ** 2)))
+
+
+def calc_eps_r_from_d_and_e_array(d: np.ndarray | list, e: np.ndarray | list) -> np.ndarray:
+    """
+    Calculate the amplitude of the relative permeability based on a magnetic flux density and a magnetic field strength array.
+
+    :param d: electric flux density array
+    :type d: np.ndarray or list
+    :param e: electric field strength array
+    :type e: np.ndarray or list
+    :return: amplitude of the relative permittivity
+    :rtype: np.ndarray
+    """
+    d, e = np.array(d), np.array(e)
+    eps_r = ((max(d) - min(d))/2) / ((max(e) - min(e))/2) / epsilon_0
+    return eps_r
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -2198,6 +2220,12 @@ def export_data(parent_directory: str = "", file_format: str = None, b_ref_vec: 
     :param silent: enables/disables print
     :type silent: bool
     """
+    # fix numpy array inside normal python list problem
+    # converts everything from scratch to a list, unified file format.
+    b_ref_vec = np.array(b_ref_vec).tolist()
+    mu_r_real_vec = np.array(mu_r_real_vec).tolist()
+    mu_r_imag_vec = np.array(mu_r_imag_vec).tolist()
+
     if file_format == "pro":
         with open(os.path.join(parent_directory, "core_materials_temp.pro"), "w") as file:
             file.write('Include "Parameter.pro";\n')

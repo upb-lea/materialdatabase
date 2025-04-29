@@ -1,11 +1,18 @@
-"""Script to write permeability_data of datasheet data into the database."""
+"""
+Script to write permeability_data of datasheet data into the database.
+
+The data under the key "permeability_data" is used for the FEM-simulations in FEMMT. Based on the data in the datasheet, the amplitude and angle of the
+permeability is calculated for different magnetic flux density values. This script is used for all material, except the materials manufactured
+by Epcos TDK. For this, there is a separate script called write_permeability_data_from_datasheet_into_database_TDK.py.
+"""
+
 import numpy as np
 from materialdatabase.material_data_base_classes import *
 from materialdatabase.material_data_base_functions import *
 from materialdatabase.paths import *
 
 # Control flags
-WRITE = True
+WRITE = False
 
 material = str(Material._79.value)
 manufacturer = str(Manufacturer.FairRite.value)
@@ -96,10 +103,6 @@ mu_phi_deg_1000kHz_100C = mu_phi_deg__from_mu_r_and_p_hyst(frequency=frequency[4
                                                            mu_r=amplitude_permeability_flux_density_1000kHz_100C,
                                                            p_hyst=np.array(powerloss_1000kHz_100C[1])*1000)
 
-# print(mu_phi_deg_25kHz)
-# print(mu_phi_deg_50kHz)
-# print(mu_phi_deg_100kHz)
-# print(mu_phi_deg_200kHz)
 
 mu_r_list = [amplitude_permeability_flux_density_100kHz_25C, amplitude_permeability_flux_density_300kHz_25C, amplitude_permeability_flux_density_500kHz_25C,
              amplitude_permeability_flux_density_750kHz_25C, amplitude_permeability_flux_density_1000kHz_25C,
@@ -123,9 +126,7 @@ data_list = []
 for index, value in enumerate(frequency):
     print(value)
     print(temperature[index])
-    # print(np.array(flux_density[index]))
-    # print(mu_r_list[index])
-    # print(mu_phi_deg_list[index])
+
     b_ref, mu_r, mu_phi_deg = process_permeability_data(b_ref_raw=np.array(flux_density[index]), mu_r_raw=mu_r_list[index],
                                                         mu_phi_deg_raw=mu_phi_deg_list[index], b_min=0.005, b_max=0.31,
                                                         smooth_data=False, crop_data=False, plot_data=True, f=frequency[index], T=temperature[index])

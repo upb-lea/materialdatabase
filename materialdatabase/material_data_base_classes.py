@@ -89,10 +89,82 @@ class MaterialDatabase:
         return MaterialCurve(material_name, material_mu_r_initial, material_flux_density_vec, material_mu_r_imag_vec, material_mu_r_real_vec,
                              saturation_flux_density, boundary_frequency=fundamental_frequency, boundary_temperature=temperature)
 
+    def get_permeability_data(self, temperature: float, frequency: float, material_name: str, datatype: str, datasource: str = None,
+                              measurement_setup: str = None, plot_interpolation: bool = False):
+        """
+        Read permeability data from the material database.
+
+        :param temperature: temperature in °C
+        :type temperature: float
+        :param frequency: Frequency in Hz
+        :type frequency: float
+        :param material_name: "N95","N87"....
+        :type material_name: str
+        :param datatype: "complex_permeability", "complex_permittivity" or "Steinmetz"
+        :type datatype: str
+        :param datasource: "measurements" or "manufacturer_datasheet"
+        :type datasource: str
+        :param measurement_setup: name of measuerement setup
+        :type measurement_setup: str
+        :param plot_interpolation: enables interpolation for plots
+        :type plot_interpolation: bool
+        :return:
+        """
+        self.mdb_print(f"{material_name=}\n")
+        self.mdb_print(f"{datatype=}\n")
+        self.mdb_print(f"{measurement_setup=}\n")
+
+        if datasource == MaterialDataSource.ManufacturerDatasheet:
+            permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
+        elif datasource == MaterialDataSource.Measurement:
+            permeability_data = self.data[f"{material_name.value}"]["measurements"][f"{datatype.value}"][f"{measurement_setup.value}"]["measurement_data"]
+        # mdb_print(f"{permeability_data = }")
+        # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
+
+        # create_permeability_neighbourhood
+        nbh = create_permeability_neighbourhood_measurement(temperature, frequency, permeability_data)
+        # mdb_print(f"{nbh = }")
+        # mdb_print(f"{len(nbh['T_low_f_low']['b']), len(nbh['T_low_f_low']['mu_r']) = }")
+
+        b_ref, mu_r = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
+                                                                                    nbh["T_low_f_low"]["temperature"], nbh["T_high_f_low"]["temperature"],
+                                                                                    nbh["T_low_f_low"]["frequency"], nbh["T_low_f_high"]["frequency"],
+                                                                                    nbh["T_low_f_low"]["flux_density"], nbh["T_low_f_low"]["mu_r_abs"],
+                                                                                    nbh["T_high_f_low"]["flux_density"], nbh["T_high_f_low"]["mu_r_abs"],
+                                                                                    nbh["T_low_f_high"]["flux_density"], nbh["T_low_f_high"]["mu_r_abs"],
+                                                                                    nbh["T_high_f_high"]["flux_density"], nbh["T_high_f_high"]["mu_r_abs"],
+                                                                                    y_label="rel. amplitude permeability", plot=plot_interpolation)
+
+        b_ref, mu_phi_deg = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
+                                                                                          nbh["T_low_f_low"]["temperature"],
+                                                                                          nbh["T_high_f_low"]["temperature"],
+                                                                                          nbh["T_low_f_low"]["frequency"],
+                                                                                          nbh["T_low_f_high"]["frequency"],
+                                                                                          nbh["T_low_f_low"]["flux_density"],
+                                                                                          nbh["T_low_f_low"]["mu_phi_deg"],
+                                                                                          nbh["T_high_f_low"]["flux_density"],
+                                                                                          nbh["T_high_f_low"]["mu_phi_deg"],
+                                                                                          nbh["T_low_f_high"]["flux_density"],
+                                                                                          nbh["T_low_f_high"]["mu_phi_deg"],
+                                                                                          nbh["T_high_f_high"]["flux_density"],
+                                                                                          nbh["T_high_f_high"]["mu_phi_deg"],
+                                                                                          y_label="hyst. loss angle in deg", plot=plot_interpolation)
+
+        # Convert to cartesian
+        mu_real_from_polar, mu_imag_from_polar = [], []
+        for n in range(len(b_ref)):
+            cartesian = rect(mu_r[n], mu_phi_deg[n])
+            mu_real_from_polar.append(cartesian[0])
+            mu_imag_from_polar.append(cartesian[1])
+        mu_r_real = mu_real_from_polar
+        mu_r_imag = mu_imag_from_polar
+
+        return b_ref, mu_r_real, mu_r_imag
+
     def permeability_data_to_pro_file(self, temperature: float, frequency: float, material_name: str, datatype: str, datasource: str = None,
                                       measurement_setup: str = None, parent_directory: str = "", plot_interpolation: bool = False):
         """
-        Read permeability data from the material database.
+        Write permeability data from the material database in apro file.
 
         :param temperature: temperature in °C
         :type temperature: float
@@ -123,91 +195,8 @@ class MaterialDatabase:
 
         check_input_permeability_data(datasource, material_name, temperature, frequency)
 
-        if datasource == MaterialDataSource.Measurement or datasource == MaterialDataSource.ManufacturerDatasheet:
-            self.mdb_print(f"{material_name=}\n")
-            self.mdb_print(f"{datatype=}\n")
-            self.mdb_print(f"{measurement_setup=}\n")
-
-            if datasource == MaterialDataSource.ManufacturerDatasheet:
-                permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
-            elif datasource == MaterialDataSource.Measurement:
-                permeability_data = self.data[f"{material_name.value}"]["measurements"][f"{datatype.value}"][f"{measurement_setup.value}"]["measurement_data"]
-            # mdb_print(f"{permeability_data = }")
-            # mdb_print(f"{len(permeability_data[1]['b']), len(permeability_data[0]['mu_r']) = }")
-
-            # create_permeability_neighbourhood
-            nbh = create_permeability_neighbourhood_measurement(temperature, frequency, permeability_data)
-            # mdb_print(f"{nbh = }")
-            # mdb_print(f"{len(nbh['T_low_f_low']['b']), len(nbh['T_low_f_low']['mu_r']) = }")
-
-            b_ref, mu_r = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                        nbh["T_low_f_low"]["temperature"], nbh["T_high_f_low"]["temperature"],
-                                                                                        nbh["T_low_f_low"]["frequency"], nbh["T_low_f_high"]["frequency"],
-                                                                                        nbh["T_low_f_low"]["flux_density"], nbh["T_low_f_low"]["mu_r_abs"],
-                                                                                        nbh["T_high_f_low"]["flux_density"], nbh["T_high_f_low"]["mu_r_abs"],
-                                                                                        nbh["T_low_f_high"]["flux_density"], nbh["T_low_f_high"]["mu_r_abs"],
-                                                                                        nbh["T_high_f_high"]["flux_density"], nbh["T_high_f_high"]["mu_r_abs"],
-                                                                                        y_label="rel. amplitude permeability", plot=plot_interpolation)
-
-            b_ref, mu_phi_deg = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-                                                                                              nbh["T_low_f_low"]["temperature"],
-                                                                                              nbh["T_high_f_low"]["temperature"],
-                                                                                              nbh["T_low_f_low"]["frequency"],
-                                                                                              nbh["T_low_f_high"]["frequency"],
-                                                                                              nbh["T_low_f_low"]["flux_density"],
-                                                                                              nbh["T_low_f_low"]["mu_phi_deg"],
-                                                                                              nbh["T_high_f_low"]["flux_density"],
-                                                                                              nbh["T_high_f_low"]["mu_phi_deg"],
-                                                                                              nbh["T_low_f_high"]["flux_density"],
-                                                                                              nbh["T_low_f_high"]["mu_phi_deg"],
-                                                                                              nbh["T_high_f_high"]["flux_density"],
-                                                                                              nbh["T_high_f_high"]["mu_phi_deg"],
-                                                                                              y_label="hyst. loss angle in deg", plot=plot_interpolation)
-
-            # Convert to cartesian
-            mu_real_from_polar, mu_imag_from_polar = [], []
-            for n in range(len(b_ref)):
-                cartesian = rect(mu_r[n], mu_phi_deg[n])
-                mu_real_from_polar.append(cartesian[0])
-                mu_imag_from_polar.append(cartesian[1])
-            mu_r_real = mu_real_from_polar
-            mu_r_imag = mu_imag_from_polar
-
-        # elif datasource == MaterialDataSource.ManufacturerDatasheet:
-        #     permeability_data = self.data[f"{material_name.value}"][f"{datasource.value}"]["permeability_data"]
-        #
-        #     # create_permeability_neighbourhood
-        #     nbh = create_permeability_neighbourhood_datasheet(temperature, frequency, permeability_data)
-        #
-        #     b_ref, mu_r_real = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-        #                                                                                      nbh["T_low_f_low"]["temperature"],
-        #                                                                                      nbh["T_high_f_low"]["temperature"],
-        #                                                                                      nbh["T_low_f_low"]["frequency"],
-        #                                                                                      nbh["T_low_f_high"]["frequency"],
-        #                                                                                      nbh["T_low_f_low"]["flux_density"],
-        #                                                                                      nbh["T_low_f_low"]["mu_r_real"],
-        #                                                                                      nbh["T_high_f_low"]["flux_density"],
-        #                                                                                      nbh["T_high_f_low"]["mu_r_real"],
-        #                                                                                      nbh["T_low_f_high"]["flux_density"],
-        #                                                                                      nbh["T_low_f_high"]["mu_r_real"],
-        #                                                                                      nbh["T_high_f_high"]["flux_density"],
-        #                                                                                      nbh["T_high_f_high"]["mu_r_real"], plot=plot_interpolation)
-        #
-        #     b_ref, mu_r_imag = interpolate_b_dependent_quantity_in_temperature_and_frequency(temperature, frequency,
-        #                                                                                      nbh["T_low_f_low"]["temperature"],
-        #                                                                                      nbh["T_high_f_low"]["temperature"],
-        #                                                                                      nbh["T_low_f_low"]["frequency"],
-        #                                                                                      nbh["T_low_f_high"]["frequency"],
-        #                                                                                      nbh["T_low_f_low"]["flux_density"],
-        #                                                                                      nbh["T_low_f_low"]["mu_r_imag"],
-        #                                                                                      nbh["T_high_f_low"]["flux_density"],
-        #                                                                                      nbh["T_high_f_low"]["mu_r_imag"],
-        #                                                                                      nbh["T_low_f_high"]["flux_density"],
-        #                                                                                      nbh["T_low_f_high"]["mu_r_imag"],
-        #                                                                                      nbh["T_high_f_high"]["flux_density"],
-        #                                                                                      nbh["T_high_f_high"]["mu_r_imag"], plot=plot_interpolation)
-        #
-        #     self.mdb_print(f"{b_ref, mu_r_real, mu_r_imag=}")
+        b_ref, mu_r_real, mu_r_imag = self.get_permeability_data(temperature, frequency, material_name, datatype, datasource,
+                                                                 measurement_setup, plot_interpolation)
 
         # Write the .pro-file
         export_data(parent_directory=parent_directory, file_format="pro", b_ref_vec=list(b_ref), mu_r_real_vec=list(mu_r_real), mu_r_imag_vec=list(mu_r_imag),
