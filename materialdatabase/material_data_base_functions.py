@@ -10,6 +10,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter as savgol
+from scipy.optimize import curve_fit
+# import magnethub as mh
+# import optuna
 
 # local libraries
 from materialdatabase.constants import *
@@ -17,7 +20,7 @@ from materialdatabase.enumerations import *
 
 # Relative path to the database json file
 global relative_path_to_db
-relative_path_to_db = "../data/material_data_base.json"
+# relative_path_to_db = "../data/material_data_base.json"
 
 
 # Auxiliary functions ------------------------------------------------------------------------------------------------------------------------------------------
@@ -1099,8 +1102,243 @@ def write_permeability_data_into_database(frequency: float, temperature: float, 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+# MagNet Functions ---------------------------------------------------------------------------------------------------------------------------------------------
+def calc_powerloss_from_MagNet_model(material_name: Material, team_name: str, b_wave: np.array, frequency: float, temperature: float):
+    """
+    Calculate the powerloss density with the help of the trained neural network of the MagNet Challenge 2023.
+
+    :param material_name: Name of the material
+    :type material_name: Material
+    :param team_name: Name of the participating team (e.g "paderborn" or "sydney")
+    :type team_name: str
+    :param b_wave: array containing the shape of the magnetic flux density in time domain in T
+    :type b_wave: np.array
+    :param frequency: value of the frequency in Hz
+    :type frequency: float
+    :param temperature: value of the temperature in °C
+    :type temperature: float
+    :return: powerloss in W/m^3
+    """
+    if check_if_MagNet_model_exists_for_material(material_name=material_name):
+
+        mdl = mh.loss.LossModel(material=material_name, team=team_name)
+        powerloss, h_wave = mdl(b_wave, frequency, temperature)
+
+        return powerloss
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 # General Steinmetz --------------------------------------------------------------------------------------------------------------------------------------------
-def write_steinmetz_data_into_database(temperature: float, k: float, beta: float, alpha: float, material_name: str, measurement_setup: str):
+def get_steinmetz_parameters_from_mdb(material_name: str, measurement_setup: str, temperature: float):
+    """
+    Get the steinmetz parameters from the MaterialDataBase for a specific temperature.
+
+    :param material_name: name of the material
+    :type material_name: str
+    :param measurement_setup: name of the measurement setup
+    :type material_name: str
+    :param temperature: temperature of the core in °C
+    :type temperature: float
+    :return: dict containing steinmetz parameter
+    """
+    # read in MDB
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+    # find index of desired temperature value  # TODO find nearest steinmetz parameter (not necessary because temp_model)
+    temperature_in_database = [x["temperature"] for x in data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"]]
+    index = temperature_in_database.index(temperature)
+    # get steinmetz parameter
+    param = data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"][index]
+    return param
+
+
+def calc_steinmetz_temperature_model(material_name: str, temperature: float):
+    """
+    Calculate polynomical function for the steinmetz modells.
+
+    :param material_name: name of the material
+    :type material_name: str
+    :param temperature: temperature of the core in °C
+    :type temperature: float
+    :return: result of the polynomical function to adjust temperature
+    """
+    tau = temperature/90  # TODO changing relative temperature of the calculation (right now 70°C)
+    ct0, ct1, ct2 = 1, 1, 1  # TODO read coefficient out of MDB
+    poly_func = ct0 - ct1*tau + ct2*tau**2
+    poly_func = 1  # TODO REMOVE AFTER IMPLEMENTATION
+    return poly_func
+
+
+def calc_steinmetz_equation(material_name: str, measurement_setup: str, frequency: np.array, b_field: np.array, temperature: float):
+    """
+    Calculate powerloss density with the standard Steinmetz equation.
+
+    :param material_name: name of the material
+    :type material_name: str
+    :param measurement_setup: name of the measurement setup
+    :type measurement_setup: str
+    :param frequency: array containing frequency values in Hz
+    :type frequency: np.array
+    :param b_field: array containing magnetic flux density values in T
+    :type b_field: np.array
+    :param temperature: temperature of the core in °C
+    :type temperature: float
+    :return: powerloss density with SE in W/m^3
+    """
+    # calculate temperature model
+    c_function = calc_steinmetz_temperature_model(material_name=material_name, temperature=temperature)
+    # read in steinmetz parameter from MDB
+    param = get_steinmetz_parameters_from_mdb(material_name=material_name, measurement_setup=measurement_setup, temperature=temperature)
+    # steinmetz equation: p_loss = k * f^alpha * b_ampl^beta * c(T)
+    powerloss_density = param["k"]*(frequency**param["alpha"])*(b_field**param["beta"]) * c_function
+
+    return powerloss_density
+
+
+def calc_IGSE_equation(material_name: str, measurement_setup: str, frequency: float, b_wave: np.array, temperature: float):
+    """
+    Calculate powerloss density with the IGSE equation (Improved Generalized Steinmetz Equation).
+
+    :param material_name: name of the material
+    :type material_name: str
+    :param measurement_setup: name of the measurement setup
+    :type measurement_setup: str
+    :param frequency: value of the frequency in Hz
+    :type frequency: float
+    :param b_wave: array with the shape of the magnetic flux density in time domain in T
+    :type b_wave: np.array
+    :param temperature: temperature of the core in °C
+    :type temperature: float
+    :return: powerloss density with IGSE in W/m^3
+    """
+    # calculate temperature model
+    c_function = calc_steinmetz_temperature_model(material_name=material_name, temperature=temperature)
+    # read in steinmetz parameter from MDB
+    param = get_steinmetz_parameters_from_mdb(material_name=material_name, measurement_setup=measurement_setup, temperature=temperature)
+    # define time_array based on frequency value
+    time_array = np.linspace(start=0, endpoint=1/frequency, num=1000)
+    # calc derivation of magnetic flux density
+    derivation = np.gradient(b_wave, time_array)
+    # calc delta_B
+    delta_B = max(b_wave) - min(b_wave)
+    # calc k_i
+    phi_array = np.linspace(start=0, stop=2*np.pi, num=1000)
+    k_i = param["k"] / ((2*np.pi)**(param["alpha"]-1))/np.trapz(y=np.abs(np.cos(phi_array))*2**(param["beta"]-param["alpha"]), x=phi_array)
+    # calc powerloss with IGSE
+    powerloss = frequency * np.trapz(y=k_i*(np.abs(derivation)**param["alpha"])*(delta_B**(param["beta"]-param["alpha"])), x=time_array) * c_function
+
+    return powerloss
+
+
+def fit_steinmetz_temperature_coefficients(tau_array: np.array, powerloss: np.array, guesses: int = 10000):
+    """
+    Calculate the steinmetz parameters k, alpha and beta based on curve_fit.
+
+    :param tau_array: array containing tau values
+    :type tau_array: np.array
+    :param powerloss: array containing powerloss values
+    :type powerloss: np.array
+    :param guesses: number of guesses
+    :type guesses: int
+    :return: np.array containing k, alpha and beta
+    """
+    def temperature_model(tau, ct0, ct1, ct2):
+        return ct0 - ct1*tau + ct2*tau**2
+
+    # parameter_bounds = ([0, 1, 2], [np.inf, 2, 3])
+
+    tau_array, powerloss = np.array(tau_array), np.array(powerloss)
+
+    popt_temp_model, pcov = curve_fit(f=temperature_model, xdata=tau_array, ydata=powerloss, maxfev=guesses)
+
+    return popt_temp_model
+
+
+def fit_steinmetz_parameters(frequency: np.array, b_field: np.array, powerloss: np.array, guesses: int = 10000):
+    """
+    Calculate the steinmetz parameters k, alpha and beta based on curve_fit.
+
+    :param frequency: array containing frequency values in Hz
+    :type frequency: np.array
+    :param b_field: array containing magnetic flux density values in T
+    :type b_field: np.array
+    :param powerloss: array containing powerloss values in W/m^3
+    :type powerloss: np.array
+    :param guesses: number of guesses
+    :type guesses: int
+    :return: np.array containing k, alpha and beta
+    """
+    def steinmetz_equation(fb, k, alpha, beta):
+        f, b = fb
+        return k*(f**alpha)*(b**beta)
+
+    parameter_bounds = ([0, 1, 2], [np.inf, 2, 3])
+
+    frequency, b_field, powerloss = np.array(frequency), np.array(b_field), np.array(powerloss)
+
+    popt_steinmetz, pcov = curve_fit(f=steinmetz_equation, xdata=(frequency, b_field), ydata=powerloss, maxfev=guesses, bounds=parameter_bounds)
+
+    return popt_steinmetz
+
+
+def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.array, b_field: np.array, powerloss: np.array, guesses: int = 10000):
+    """
+    Calculate the steinmetz parameters k, alpha and beta based on curve_fit.
+
+    :param tau: array containing tau values (temperature_core/25°C)
+    :type tau: np.array
+    :param frequency: array containing frequency values in Hz
+    :type frequency: np.array
+    :param b_field: array containing magnetic flux density values in T
+    :type b_field: np.array
+    :param powerloss: array containing powerloss values in W/m^3
+    :type powerloss: np.array
+    :param guesses: number of guesses
+    :type guesses: int
+    :return: np.array containing k, alpha and beta
+    """
+    def func(tfb, alpha, beta, ct0, ct1, ct2):
+        t, f, b = tfb
+        return (f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
+
+    def estimated_loss(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec):
+        return (f_vec**alpha)*(b_vec**beta) * (ct0 - ct1*tau_vec + ct2*tau_vec**2)
+
+    def normalized_error(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec, p_loss_reference):
+        return np.mean(abs((((f_vec**alpha)*(b_vec**beta) * (ct0 - ct1*tau_vec + ct2*tau_vec**2)) - p_loss_reference) / p_loss_reference))
+
+    def RMS_error(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec, p_loss_reference):
+        return np.sqrt(np.mean((p_loss_reference - estimated_loss(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec))**2))
+
+    # parameter_bounds = ([0, -np.inf, -np.inf, -np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf, np.inf, np.inf, np.inf])
+    parameter_bounds = ([-np.inf, -np.inf, -np.inf, -np.inf, -np.inf], [np.inf, np.inf, np.inf, np.inf, np.inf])
+
+    tau, frequency, b_field, powerloss = np.array(tau), np.array(frequency), np.array(b_field), np.array(powerloss)
+
+    popt, pcov = curve_fit(f=func, xdata=(tau, frequency, b_field), ydata=powerloss, maxfev=guesses, bounds=parameter_bounds)
+
+    def objective(trial):
+        # kk = trial.suggest_float('kk', 0.1, 100)
+        aa = trial.suggest_float('aa', popt[0] - 0.5, popt[0] + 1)
+        bb = trial.suggest_float('bb', popt[1] - 1.5, popt[1] + 0.5)
+        ct0 = trial.suggest_float('ct0', popt[2] - 10, popt[2] + 10)
+        ct1 = trial.suggest_float('ct1', popt[3] - 10, popt[3] + 10)
+        ct2 = trial.suggest_float('ct2', popt[4] - 10, popt[4] + 10)
+        return np.mean(abs((((frequency**aa)*(b_field**bb) * (ct0 - ct1*tau + ct2*tau**2)) - powerloss) / powerloss))
+
+    study = optuna.create_study(sampler=optuna.samplers.NSGAIIISampler())
+    study.optimize(objective, n_trials=5000)
+
+    # print("Optuna best params", study.best_params)
+
+    # print("pcov: ", pcov)
+    print(np.sqrt(np.diag(pcov)))
+
+    return popt, study.best_params
+
+
+def write_steinmetz_data_into_database(temperature: float, k: float, beta: float, alpha: float, material_name: str, measurement_setup: str,
+                                       overwrite_data: bool):
     """
     Write steinmetz data into the material database.
 
@@ -1118,6 +1356,8 @@ def write_steinmetz_data_into_database(temperature: float, k: float, beta: float
     :type material_name: str
     :param measurement_setup: name of the measurement setup
     :type measurement_setup: str
+    :param overwrite_data: overwrite existing data with new data, if not data gets appendend
+    :type overwrite_data: bool
     """
     with open(relative_path_to_db, "r") as jsonFile:
         data = json.load(jsonFile)
@@ -1129,19 +1369,31 @@ def write_steinmetz_data_into_database(temperature: float, k: float, beta: float
             "data": []
         }
 
-    data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
-        {
-            "temperature": float(temperature),
-            "k": k,
-            "alpha": alpha,
-            "beta": beta,
-        }
-    )
+    temperature_in_database = [x["temperature"] for x in data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"]]
+
+    if temperature in temperature_in_database and not overwrite_data:
+        pass  # if steinmetz parameter at given temperature are already in the MDB and the data should not be overwritten -> don't put data into MDB
+    else:
+        # over
+        if overwrite_data:
+            # find the index to overwrite
+            index_overwrite = temperature_in_database.index(temperature)
+            data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].pop(index_overwrite)
+        data[material_name]["measurements"]["Steinmetz"][measurement_setup]["data"].append(
+            {
+                "temperature": float(temperature),
+                "k": k,
+                "alpha": alpha,
+                "beta": beta,
+            }
+        )
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+# General Database Functions -----------------------------------------------------------------------------------------------------------------------------------
 def create_empty_material(material_name: str, manufacturer: str, initial_permeability: float, resistivity: float,
                           max_flux_density: float, volumetric_mass_density: float):
     """
@@ -1179,6 +1431,32 @@ def create_empty_material(material_name: str, manufacturer: str, initial_permeab
 
     with open(relative_path_to_db, "w") as jsonFile:
         json.dump(data, jsonFile, indent=2)
+
+
+def check_if_MagNet_model_exists_for_material(material_name: Material):
+    """
+    Check if magnet model exists for given material.
+
+    Also checks if material exists in materialdatabase.
+
+    :param material_name: value of the volumetric mass density
+    :type material_name: Material
+    """
+    with open(relative_path_to_db, "r") as jsonFile:
+        data = json.load(jsonFile)
+
+    if material_name in data:
+        print(f"Material {material_name.value} exists in materialdatabase.")
+        if "MagNet" in data[material_name.value][MaterialDataSource.Measurement.value][MeasurementDataType.ComplexPermeability.value].keys():
+            print(f"MagNet Model exists for Material {material_name.value}.")
+            return True
+        else:
+            print(f"MagNet Model does not exists for Material {material_name.value}.")
+            return False
+
+    else:
+        # raise KeyError(f"Material {material_name.value} does not exists in materialdatabase.")  # TODO or just a simple print
+        return False
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
