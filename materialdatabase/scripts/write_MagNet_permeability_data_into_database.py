@@ -43,7 +43,7 @@ WRITE_STEINMETZ = False  # SET TRUE TO WRITE STEINMETZ DATA INTO DATABASE
 # PLOT DATA
 PLOT_DATA_PERMEABILITY = False
 PLOT_DATA_STEINMETZ = False
-PLOT_DATA_STEINMETZ_new = False
+PLOT_DATA_STEINMETZ_AND_TEMP_MODEL = False
 # CALC
 CALC_PERMEABILITY_DATA = False
 
@@ -266,18 +266,8 @@ if SINE:
     ki = param[0] / ((2 * np.pi) ** (param[1] - 1)) / np.trapz(y=(np.abs(np.cos(phi_array))**param[1]) * (2 ** (param[2] - param[1])),
                                                                x=phi_array)
 
-    # Scipy[1.33177780e+00 2.82347441e+00 1.77964796e+01 1.76493631e-01 2.01498484e-03]
-    # Optuna {'aa': 1.0331844104303878, 'bb': 3.5687817923678216, 'ct0': -48.7703968286785, 'ct1': -78.06040488456371, 'ct2': -0.46136710651960366}
-
-    # steinmetz_dict = {"k": param[0],
-    #                   "alpha": param[1],
-    #                   "beta": param[2],
-    #                   "ct0": param[3],
-    #                   "ct1": param[4],
-    #                   "ct2": param[5]}
-    # param = [3.36549227, 1.33177808, 2.82347468, 5.28790401, 1.31104719, 0.37419776]
     filter_string = "temperature == @temperature and H_DC_Bias == 0 and frequency == @frequency"
-    if PLOT_DATA_STEINMETZ_new:
+    if PLOT_DATA_STEINMETZ_AND_TEMP_MODEL:
         for temperature in unique_temperature:
             for frequency in unique_frequency:
                 fig, ax = plt.subplots(1, 1)
@@ -296,19 +286,15 @@ if SINE:
                                                                                                             ["ct1"]*(temperature/1)+(param_optuna
                                                                                                             ["ct2"]*(temperature/1)**2)),
                     label="Optuna")
-                # print(param[0]*(frequency**param[1])*(np.array(df_sine.query(filter_string)["mag_flux_density"])**param[2])
-                #       * (param[3] - param[4]*(temperature/25) + (param[5]*(temperature/25)**2)))
+
                 ax.loglog(np.array(df_sine.query(filter_string)["mag_flux_density"])*1000,
                           np.array(df_sine.query(filter_string)["powerloss"]), label="MagNet")
-                # print(np.array(df_sine.query(filter_string)["powerloss"]))
                 plt.grid(True, which="both")
                 plt.legend()
                 plt.title(str(frequency/1000) + "kHz" + " | " + str(temperature) + "°C")
                 ax.set_xlabel(PlotLabels.b_field_mT.value)
                 ax.set_ylabel(PlotLabels.powerloss_density_W.value)
                 plt.show()
-                # plt.savefig("D:/Sciebo/Master/4. Semester/Masterprojekt_FEMMT/fitting/Optuna vs CurveFit/"
-                #             + str(frequency/1000) + "kHz" + "__" + str(temperature) + "C.png")
 
     if WRITE_STEINMETZ:
         write_steinmetz_data_into_database(temperature=temperature, k=param[0], alpha=param[1], beta=param[2], material_name=material,

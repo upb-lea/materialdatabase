@@ -1242,16 +1242,16 @@ def fit_steinmetz_temperature_coefficients(tau_array: np.array, powerloss: np.ar
     :type guesses: int
     :return: np.array containing k, alpha and beta
     """
-    def func(tau, ct0, ct1, ct2):
+    def temperature_model(tau, ct0, ct1, ct2):
         return ct0 - ct1*tau + ct2*tau**2
 
     # parameter_bounds = ([0, 1, 2], [np.inf, 2, 3])
 
     tau_array, powerloss = np.array(tau_array), np.array(powerloss)
 
-    popt, pcov = curve_fit(f=func, xdata=tau_array, ydata=powerloss, maxfev=guesses)
+    popt_temp_model, pcov = curve_fit(f=temperature_model, xdata=tau_array, ydata=powerloss, maxfev=guesses)
 
-    return popt
+    return popt_temp_model
 
 
 def fit_steinmetz_parameters(frequency: np.array, b_field: np.array, powerloss: np.array, guesses: int = 10000):
@@ -1268,7 +1268,7 @@ def fit_steinmetz_parameters(frequency: np.array, b_field: np.array, powerloss: 
     :type guesses: int
     :return: np.array containing k, alpha and beta
     """
-    def func(fb, k, alpha, beta):
+    def steinmetz_equation(fb, k, alpha, beta):
         f, b = fb
         return k*(f**alpha)*(b**beta)
 
@@ -1276,9 +1276,9 @@ def fit_steinmetz_parameters(frequency: np.array, b_field: np.array, powerloss: 
 
     frequency, b_field, powerloss = np.array(frequency), np.array(b_field), np.array(powerloss)
 
-    popt, pcov = curve_fit(f=func, xdata=(frequency, b_field), ydata=powerloss, maxfev=guesses, bounds=parameter_bounds)
+    popt_steinmetz, pcov = curve_fit(f=steinmetz_equation, xdata=(frequency, b_field), ydata=powerloss, maxfev=guesses, bounds=parameter_bounds)
 
-    return popt
+    return popt_steinmetz
 
 
 def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.array, b_field: np.array, powerloss: np.array, guesses: int = 10000):
@@ -1297,22 +1297,12 @@ def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.
     :type guesses: int
     :return: np.array containing k, alpha and beta
     """
-    # def func(tfb, k, alpha, beta, ct0, ct1, ct2):
-    #     t, f, b = tfb
-    #     return k*(f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
     def func(tfb, alpha, beta, ct0, ct1, ct2):
         t, f, b = tfb
         return (f**alpha)*(b**beta) * (ct0 - ct1*t + ct2*t**2)
 
-    # def steinmetz(f, b, alpha, beta, k):
-    #     return k * f ** alpha * b ** beta
-
-    # def estimated_loss(alpha, beta, k, f_vec, b_vec):
-    #     return steinmetz(f_vec, b_vec, alpha, beta, k)
-
     def estimated_loss(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec):
         return (f_vec**alpha)*(b_vec**beta) * (ct0 - ct1*tau_vec + ct2*tau_vec**2)
-        # return func((tau_vec, f_vec, b_vec), alpha, beta, ct0, ct1, ct2)
 
     def normalized_error(alpha, beta, ct0, ct1, ct2, tau_vec, f_vec, b_vec, p_loss_reference):
         return np.mean(abs((((f_vec**alpha)*(b_vec**beta) * (ct0 - ct1*tau_vec + ct2*tau_vec**2)) - p_loss_reference) / p_loss_reference))
@@ -1334,12 +1324,6 @@ def fit_steinmetz_parameters_and_temperature_model(tau: np.array, frequency: np.
         ct0 = trial.suggest_float('ct0', popt[2] - 10, popt[2] + 10)
         ct1 = trial.suggest_float('ct1', popt[3] - 10, popt[3] + 10)
         ct2 = trial.suggest_float('ct2', popt[4] - 10, popt[4] + 10)
-        # aa = trial.suggest_float('aa', 1, 2.5)
-        # bb = trial.suggest_float('bb', 2, 4)
-        # ct0 = trial.suggest_float('ct0', -100, 100)
-        # ct1 = trial.suggest_float('ct1', -100, 100)
-        # ct2 = trial.suggest_float('ct2', -100, 100)
-        # return normalized_error(aa, bb, ct0, ct1, ct2, tau, frequency, b_field, powerloss)
         return np.mean(abs((((frequency**aa)*(b_field**bb) * (ct0 - ct1*tau + ct2*tau**2)) - powerloss) / powerloss))
 
     study = optuna.create_study(sampler=optuna.samplers.NSGAIIISampler())

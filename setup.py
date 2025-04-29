@@ -34,7 +34,7 @@ setup(
         'Environment :: MacOS X'
     ],
     description="materialdatabase",
-    install_requires=['numpy~=1.26.0',
+    install_requires=['numpy',
                       'scipy>=1.6.0',
                       'setuptools>=49.2.1',
                       'matplotlib>=3.3.4',
