@@ -13,7 +13,7 @@ matrix:
       strings: true
       comments: true
   ignore_regexp:
-        - '.*\b(TODO|FIXME|NOTE|:param|:type|:return|:rtype)\b.*'
+        - '.*\b(TODO|FIXME|NOTE)\b.*'
 - name: markdown and rst
   sources:
   - CHANGELOG.md
