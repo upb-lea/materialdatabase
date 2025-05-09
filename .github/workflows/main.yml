@@ -41,6 +41,7 @@ jobs:
           pylint $(git ls-files '*.py')
           
           pip install mypy
+          pip install pandas-stubs
           mypy $(git ls-files '*.py')
 
       - name: install materialdatabase package
