@@ -92,7 +92,7 @@ class PlotLabels(str, Enum):
 
 class HeaderMeasurementData(str, Enum):
     """
-    Names for the header of the dataframes for the post-processing files(Magnetic-TestBench).
+    Names for the header of the dataframes for the post-processing files (Magnetic-Test-Bench).
 
     e.g. data of the permeability angle gets the header "permeability angle"
     """
@@ -151,4 +151,4 @@ class ProbeDimensions(str, Enum):
     prim_winding = "primary winding"
     sec_winding = "secondary winding"
 
-    l_mag = "lmag"
+    l_mag = "magnetic path length"

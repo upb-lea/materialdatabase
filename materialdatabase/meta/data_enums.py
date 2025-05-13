@@ -147,7 +147,7 @@ class ToroidDirectoryName(str, Enum):
     Sets the type of Permeability Measurement Probe.
 
     d_out: outer diameter of toroid in mm
-    d_in: innter diameter of toroid in mm
+    d_in: inner diameter of toroid in mm
     h: height of toroid in mm
     N1: primary turns number
     N2: secondary turns number
