@@ -66,9 +66,9 @@ class PlotLabels(str, Enum):
     temperature_in_C = "temperature in °C"
     temperature_in_K = "temperature in K"
 
-    powerloss_density_mW = r"powerloss density  in mW/cm^3"
-    powerloss_density_kW = r"powerloss density  in kW/m^3"
-    powerloss_density_W = r"powerloss density  in W/m^3"
+    powerloss_density_mW = r"power loss density  in mW/cm^3"
+    powerloss_density_kW = r"power loss density  in kW/m^3"
+    powerloss_density_W = r"power loss density  in W/m^3"
 
     h_field = "magnetic field strength in A/m"
     b_field = "magnetic flux density in T"
@@ -100,7 +100,7 @@ class HeaderMeasurementData(str, Enum):
     frequency = "frequency"
     time = "time"
 
-    powerloss_density = "powerloss density"
+    powerloss_density = "power loss density"
 
     mag_flux_density = "magnetic flux density"
     mag_field_strength = "magnetic field strength"
