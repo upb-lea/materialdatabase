@@ -42,6 +42,7 @@ jobs:
           
           pip install mypy
           pip install pandas-stubs
+          pip install types-toml
           mypy $(git ls-files '*.py')
 
       - name: install materialdatabase package
