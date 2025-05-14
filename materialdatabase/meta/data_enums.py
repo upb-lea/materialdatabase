@@ -6,6 +6,14 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 from enum import Enum
 
 
+class DataType(str, Enum):
+    """Sets the setup of the measurement."""
+
+    complex_permeability = "complex_permeability"
+    complex_permittivity = "complex_permittivity"
+    datasheet_curves = "datasheet_curves"
+
+
 class MeasurementSetup(str, Enum):
     """Sets the setup of the measurement."""
 
