@@ -6,12 +6,24 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 from enum import Enum
 
 
-class DataType(str, Enum):
-    """Sets the setup of the measurement."""
+class DatasheetCurvesFolder(str, Enum):
+    """Sets the name of the datasheet curves folder."""
+
+    name = "datasheet_curves"
+
+class DatasheetCurveType(str, Enum):
+    """Sets the type of datasheet curve."""
+
+    mu_vs_b_at_T = "mu_vs_b_at_T"
+    pv_vs_b_at_f_and_T = "pv_vs_b_at_f_and_T"
+    pv_vs_f_at_b_and_T = "pv_vs_f_at_b_and_T"
+    pv_vs_T_at_f_and_b = "pv_vs_T_at_f_and_b"
+
+class ComplexDataType(str, Enum):
+    """Sets the type of complex material data."""
 
     complex_permeability = "complex_permeability"
     complex_permittivity = "complex_permittivity"
-    datasheet_curves = "datasheet_curves"
 
 
 class MeasurementSetup(str, Enum):
@@ -21,6 +33,7 @@ class MeasurementSetup(str, Enum):
     LEA_MTB_small_signal = "LEA_MTB_small_signal"
     LEA_LK = "LEA_LK"
     MagNet = "MagNet"
+    TDK_MDT = "TDK_MDT"
 
 
 class MeasurementMethod(str, Enum):

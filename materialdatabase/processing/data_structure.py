@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import toml
 from materialdatabase.meta.data_enums import *
+import pandas as pd
 
 
 class Data:
@@ -16,6 +17,7 @@ class Data:
         """
         self.root_dir = Path(root_dir).resolve()
         self.structure = self._scan_structure()
+        self.all_paths = self.get_all_paths()
 
     def _scan_structure(self) -> dict:
         """
@@ -64,6 +66,43 @@ class Data:
         :return: A list of Path objects to matching files.
         """
         return [p for p in self.get_all_paths() if p.name == name]
+
+    def get_complex_data_set(self, material: Material, measurement_setup: MeasurementSetup, data_type: ComplexDataType) -> pd.DataFrame:
+        """
+        Get a complex data set of a certain material, data type and measurement.
+
+        :param material:
+        :param measurement_setup:
+        :param data_type:
+        :return:
+        """
+        if data_type not in {item.value for item in ComplexDataType}:
+            raise ValueError(f"{data_type} is no valid complex data type.\n"
+                             f"Valid complex data types are: {[item.value for item in ComplexDataType]}")
+        else:
+            path2file = Path(f"{self.root_dir}/{data_type.name}/{measurement_setup.name}/{material.name}.csv")
+            if path2file not in self.all_paths:
+                raise ValueError(f"The specified data file with path {path2file} does not exist.")
+            else:
+                return pd.read_csv(path2file, sep=",")
+
+    def get_datasheet_curve(self, material: Material, curve_type: DatasheetCurveType) -> pd.DataFrame:
+        """
+        Get a data sheet curve of a certain material.
+
+        :param material:
+        :param curve_type:
+        :return:
+        """
+        if curve_type not in {item.value for item in DatasheetCurveType}:
+            raise ValueError(f"{curve_type} is no valid datasheet curve type.\n"
+                             f"Valid curve types are: {[item.value for item in DatasheetCurveType]}")
+        else:
+            path2file = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.name}/{material.name}/{curve_type}.csv")
+            if path2file not in self.all_paths:
+                raise ValueError(f"The specified data file with path {path2file} does not exist.")
+            else:
+                return pd.read_csv(path2file, sep=",")
 
     def __str__(self) -> str:
         """
