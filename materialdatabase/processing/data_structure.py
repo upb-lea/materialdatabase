@@ -3,23 +3,26 @@ from pathlib import Path
 import toml
 from materialdatabase.meta.data_enums import *
 
+
 class Data:
+    """
+    Represent the structure of a folder tree containing CSV files.
+    """
+
     def __init__(self, root_dir: str):
         """
-        Initialize Structure by scanning a folder structure.
+        Initialize the Structure by scanning a directory.
 
-        Args:
-            root_dir (str): The directory to scan for CSV files.
+        :param root_dir: The base directory to scan for CSV files.
         """
         self.root_dir = Path(root_dir).resolve()
         self.structure = self._scan_structure()
 
-    def _scan_structure(self):
+    def _scan_structure(self) -> dict:
         """
-        Recursively scans the folder for CSV files and builds the structure dict.
+        Scan the folder tree for CSV files.
 
-        Returns:
-            dict: A mapping of relative folder paths to CSV file lists.
+        :return: A dictionary mapping relative folder paths to lists of CSV files.
         """
         structure = {}
 
@@ -33,21 +36,19 @@ class Data:
 
     def write_to_toml(self, output_file: str):
         """
-        Writes the current folder structure to a TOML file.
+        Write the current structure to a TOML file.
 
-        Args:
-            output_file (str): Path to the TOML file.
+        :param output_file: Path to the TOML file.
         """
         with open(output_file, "w") as f:
             toml.dump(self.structure, f)
         print(f"TOML file written to: {output_file}")
 
-    def get_all_paths(self):
+    def get_all_paths(self) -> list[Path]:
         """
-        Return full paths to all CSV files found in the structure.
+        Get all full paths to CSV files in the structure.
 
-        Returns:
-            List[Path]: Paths to all CSV files.
+        :return: A list of Path objects for each CSV file.
         """
         paths = []
         for rel_folder, data in self.structure.items():
@@ -56,18 +57,19 @@ class Data:
                 paths.append(full_path.resolve())
         return paths
 
-    def find_file(self, name: str):
+    def find_file(self, name: str) -> list[Path]:
         """
-        Find all files with the given name.
+        Find all files in the structure with the given name.
 
-        Args:
-            name (str): File name to search for.
-
-        Returns:
-            List[Path]: Matching file paths.
+        :param name: File name to search for.
+        :return: A list of Path objects to matching files.
         """
         return [p for p in self.get_all_paths() if p.name == name]
 
+    def __str__(self) -> str:
+        """
+        Return a string representation of the Structure.
 
-    def __str__(self):
+        :return: A string showing the root directory path.
+        """
         return f"<Structure root={self.root_dir}>"
