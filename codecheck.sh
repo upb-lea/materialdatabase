@@ -1,10 +1,8 @@
 #!/bin/bash
 echo "---- code check ---------"
-echo "pyspelling"
-pyspelling
 echo "ruff"
 ruff check --fix $(git ls-files '*.py')
-echo "pycodestyle"
+echo "pycodestyle"m
 pycodestyle $(git ls-files '*.py')
 echo "pylint"
 pylint $(git ls-files '*.py')

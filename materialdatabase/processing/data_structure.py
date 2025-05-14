@@ -1,3 +1,4 @@
+"""Class to represent the data structure and load material data."""
 import os
 from pathlib import Path
 import toml
@@ -5,9 +6,7 @@ from materialdatabase.meta.data_enums import *
 
 
 class Data:
-    """
-    Represent the structure of a folder tree containing CSV files.
-    """
+    """Represent the structure of a folder tree containing CSV files."""
 
     def __init__(self, root_dir: str):
         """
@@ -34,7 +33,7 @@ class Data:
 
         return structure
 
-    def write_to_toml(self, output_file: str):
+    def write_to_toml(self, output_file: str) -> None:
         """
         Write the current structure to a TOML file.
 
