@@ -109,28 +109,28 @@ class Data:
         records = []
 
         for _, row in df.iterrows():
-            category = row['category']
-            subcategory = row['subcategory']
-            filename = row['filename']
+            category = row["category"]
+            subcategory = row["subcategory"]
+            filename = os.path.splitext(row["filename"])[0]  # remove .csv extension
 
-            # Determine row label based on category
             if category == "datasheet_curves":
-                label = subcategory
+                label = subcategory  # <- label = folder name like "N95"
+                col_name = "datasheet_curves"
             else:
-                label = os.path.splitext(filename)[0]
+                label = filename  # <- label = filename like "N49"
+                col_name = f"{category} \n {subcategory}"
 
-            records.append((label, category))
+            records.append((label, col_name))
 
-        # Build DataFrame from label-category pairs
-        overview_df = pd.DataFrame(records, columns=["label", "category"])
+        overview_df = pd.DataFrame(records, columns=["label", "column"])
 
-        # Add a 'value' column of True, then pivot using 'any' to stay in boolean domain
+        # Build boolean matrix
         pivot = overview_df.assign(value=True).pivot_table(
             index="label",
-            columns="category",
+            columns="column",
             values="value",
             fill_value=False,
-            aggfunc='any'  # <-- This safely resolves ambiguity
+            aggfunc="any"
         )
 
         return pivot
@@ -140,34 +140,41 @@ class Data:
         """
         Plot a DataFrame with booleans as a colored table: green = True, red = False. Row index is treated as labels.
 
-        :param df:
+        :param df: A boolean DataFrame with row index as labels.
         """
-        fig, ax = plt.subplots(figsize=(len(df.columns) + 2, len(df.index) + 1))
-
-        row_labels = df.index.astype(str)
         bool_data = df.astype(bool)
 
-        # Build color grid
-        colors = np.where(bool_data.values, 'lightgreen', 'lightcoral')
+        # Convert to correct types for matplotlib.table.Table
+        row_labels = df.index.astype(str).tolist()
+        col_labels = df.columns.astype(str).tolist()
 
-        # Draw table
-        table = plt.table(
-            cellText=None,
+        cell_text: list[list[str]] = np.where(bool_data.values, "✓", "✗").tolist()
+        cell_colors: list[list[str]] = np.where(bool_data.values, "lightgreen", "lightcoral").tolist()
+
+        # Create figure
+        fig, ax = plt.subplots(figsize=(0.5 * len(col_labels) + 3, 0.4 * len(row_labels) + 2))
+
+        table = ax.table(
+            cellText=cell_text,
+            cellColours=cell_colors,
             rowLabels=row_labels,
-            colLabels=df.columns,
-            cellColours=colors,
+            colLabels=col_labels,
             loc='center',
             cellLoc='center'
         )
 
-        table.scale(1.2, 1.5)
+        table.auto_set_font_size(False)
+        table.set_fontsize(10)
+        table.scale(1.2, 1.2)
+
         ax.axis('off')
-        plt.title("MDB Overview Table", pad=20)
+        plt.title("MDB Overview Table", fontsize=14, pad=12)
         plt.tight_layout()
         plt.show()
 
     def plot_available_data(self) -> None:
         """Plot the existing data of the materialdatabase."""
+        print(self.build_overview_table())
         self.plot_boolean_dataframe(self.build_overview_table())
 
     def get_complex_data_set(self, material: Material, measurement_setup: MeasurementSetup, data_type: ComplexDataType) -> pd.DataFrame:
