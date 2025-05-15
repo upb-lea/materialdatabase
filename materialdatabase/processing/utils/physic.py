@@ -1,6 +1,5 @@
 """Physical functions."""
 import numpy as np
-from constants import *
 
 
 def pv_mag(f: float, mu_imag: float, h_abs: float) -> float:
