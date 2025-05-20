@@ -9,7 +9,7 @@ DUMMY_CONFIG = """\
 [paths]
 comsol_results = "N:/example_path/"
 material_data = "C:/example_path/material/"
-grafics = "C:/example_path/plots/"
+graphics = "C:/example_path/plots/"
 
 [colors]
 red = "tab:red"

@@ -38,7 +38,6 @@ Zimmer
 config
 toml
 comsol
-grafics
 utf
 rb
 pyplot
@@ -58,3 +57,7 @@ materialdatabase
 df
 booleans
 matplotlib
+ComplexDataType
+MeasurementSetup
+mdb
+DatasheetCurveType

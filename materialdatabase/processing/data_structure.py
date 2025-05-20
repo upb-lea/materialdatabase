@@ -21,7 +21,7 @@ class Data:
 
     def _scan_structure(self) -> dict:
         """
-        Scan the folder tree for CSV files using pathlib.
+        Scan the folder tree for CSV files.
 
         :return: A dictionary mapping relative folder paths to lists of CSV files.
         """

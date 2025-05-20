@@ -6,7 +6,7 @@ class UserPaths(BaseModel):
 
     comsol_results: str
     material_data: str
-    grafics: str
+    graphics: str
 
 class UserColors(BaseModel):
     """Customized pyplot colors."""
