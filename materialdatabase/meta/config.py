@@ -34,17 +34,35 @@ def ensure_config_exists() -> None:
     config_path = get_config_path()
     if not config_path.exists():
         config_path.write_text(DUMMY_CONFIG, encoding="utf-8")
-        raise FileNotFoundError((f"config.toml"
-                                 f"\n\n A default file was created at: {config_path}\n"
-                                 f"Please update it with your local paths and preferences."))
+        raise FileNotFoundError(
+            f"'config.toml' was missing.\n\n"
+            f"A default file was created at: {config_path.resolve()}\n"
+            f"Please update it with your local paths and preferences."
+        )
 
 
-def ensure_config_path_exists(path: Path) -> None:
-    """Ensure config.toml exists. If not, generate one with dummy values."""
+def check_paths_in_toml() -> None:
+    """Ensure config.toml exists and check if all paths under [paths] exist. Raises FileNotFoundError if any path is missing."""
+    ensure_config_exists()
+
     config_path = get_config_path()
-    if not path.exists():
-        raise FileNotFoundError(f"\n\n The path '{path}', specified in '{config_path}' does not exist.\n"
-                                f"Please update it with your local paths.")
+    config = toml.load(config_path)
+    paths_section = config.get("paths", {})
+
+    if not paths_section:
+        raise ValueError("No [paths] section found in the config.toml file.")
+
+    missing = []
+    for key, path_str in paths_section.items():
+        path = Path(path_str).expanduser().resolve()
+        if not path.exists():
+            missing.append(f"{key} → {path}")
+
+    if missing:
+        raise FileNotFoundError(
+            "The following paths do not exist:\n" + "\n".join(f" - {entry}" for entry in missing)
+        )
+
 
 def load_config() -> Config:
     """Load and parse the config.toml file into a validated Config object."""

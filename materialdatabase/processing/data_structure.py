@@ -25,6 +25,7 @@ class Data:
         :param root_dir: The base directory to scan for CSV files.
         """
         self.root_dir = Path(root_dir).resolve()
+        self.config_dir = Path(self.root_dir.resolve().parent / "meta" / "config.toml")
         self.structure = self._scan_structure()
         self.all_paths = self.get_all_paths()
 
@@ -34,7 +35,7 @@ class Data:
 
         :return: A dictionary mapping relative folder paths to lists of CSV files.
         """
-        ensure_config_path_exists(self.root_dir)
+        check_paths_in_toml()
 
         structure: dict[str, dict[str, list[str]]] = {}
         root_path = Path(self.root_dir)
