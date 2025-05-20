@@ -181,9 +181,9 @@ class Data:
         """
         Get a complex data set of a certain material, data type and measurement.
 
-        :param material:
-        :param measurement_setup:
-        :param data_type:
+        :param material: e.g. mdb.Material.N95
+        :param measurement_setup: e.g. mdb.MeasurementSetup.TDK_MDT
+        :param data_type: e.g. mdb.ComplexDataType.complex_permeability
         :return:
         """
         if data_type not in {item.value for item in ComplexDataType}:
@@ -200,8 +200,8 @@ class Data:
         """
         Get a data sheet curve of a certain material.
 
-        :param material:
-        :param curve_type:
+        :param material: e.g. mdb.Material.N95
+        :param curve_type: e.g. mdb.DatasheetCurveType.mu_vs_b_at_T
         :return:
         """
         if curve_type not in {item.value for item in DatasheetCurveType}:
