@@ -1,11 +1,18 @@
 """Class to represent the data structure and load material data."""
+import logging
+# python libraries
 from pathlib import Path, PurePath
+
+# 3rd party libraries
 import toml
-from materialdatabase.meta.data_enums import *
 import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
-from typing import Dict, List
+
+# own libraries
+from materialdatabase.meta.data_enums import *
+
+logger = logging.getLogger(__name__)
 
 class Data:
     """Represent the structure of a folder tree containing CSV files."""
@@ -26,7 +33,7 @@ class Data:
 
         :return: A dictionary mapping relative folder paths to lists of CSV files.
         """
-        structure: Dict[str, Dict[str, List[str]]] = {}
+        structure: dict[str, dict[str, list[str]]] = {}
         root_path = Path(self.root_dir)
 
         for path in root_path.rglob("*.csv"):
@@ -44,7 +51,7 @@ class Data:
         """
         with open(output_file, "w") as f:
             toml.dump(self.structure, f)
-        print(f"TOML file written to: {output_file}")
+        logger.info(f"TOML file written to: {output_file}")
 
     def get_all_paths(self) -> list[Path]:
         """
@@ -175,7 +182,7 @@ class Data:
 
     def plot_available_data(self) -> None:
         """Plot the existing data of the materialdatabase."""
-        print(self.build_overview_table())
+        logger.info(self.build_overview_table())
         self.plot_boolean_dataframe(self.build_overview_table())
 
     def get_complex_data_set(self, material: Material, measurement_setup: MeasurementSetup, data_type: ComplexDataType) -> pd.DataFrame:
@@ -195,6 +202,7 @@ class Data:
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
+                logger.info(f"Complex data written to {path2file}.")
                 return pd.read_csv(path2file, sep=",")
 
     def get_datasheet_curve(self, material: Material, curve_type: DatasheetCurveType) -> pd.DataFrame:

@@ -1,5 +1,9 @@
 """Example file to show how to get different material data."""
+import logging
 import materialdatabase as mdb
+
+# configure logging to show femmt terminal output
+logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 # init a material database instance
 mdb_data = mdb.Data(root_dir=mdb.get_user_paths().material_data)

@@ -1,9 +1,16 @@
 """Handles loading and validating the configuration from config.toml."""
 
-import toml
+# python libraries
 from pathlib import Path
+import logging
+
+# 3rd party libraries
+import toml
+
+# own libraries
 from materialdatabase.meta.toml_checker import Config, UserPaths, UserColors
 
+logger = logging.getLogger(__name__)
 
 DUMMY_CONFIG = """\
 [paths]
@@ -27,8 +34,8 @@ def ensure_config_exists() -> None:
     config_path = get_config_path()
     if not config_path.exists():
         config_path.write_text(DUMMY_CONFIG, encoding="utf-8")
-        print(f"[INFO] config.toml not found. A default file was created at: {config_path}")
-        print("[INFO] Please update it with your local paths and preferences.")
+        logger.info(f"config.toml not found. A default file was created at: {config_path}")
+        logger.info("Please update it with your local paths and preferences.")
 
 
 def load_config() -> Config:
