@@ -1,6 +1,6 @@
 """Handles loading and validating the configuration from config.toml."""
 
-import tomllib
+import toml
 from pathlib import Path
 from materialdatabase.meta.toml_checker import Config, UserPaths, UserColors
 
@@ -35,8 +35,8 @@ def load_config() -> Config:
     """Load and parse the config.toml file into a validated Config object."""
     ensure_config_exists()
     config_path = get_config_path()
-    with config_path.open("rb") as file:
-        config_dict = tomllib.load(file)
+    with config_path.open("r", encoding="utf-8") as file:
+        config_dict = toml.load(file)
     return Config(**config_dict)
 
 

@@ -1,5 +1,4 @@
 """Class to represent the data structure and load material data."""
-import os
 from pathlib import Path
 import toml
 from materialdatabase.meta.data_enums import *
@@ -22,17 +21,17 @@ class Data:
 
     def _scan_structure(self) -> dict:
         """
-        Scan the folder tree for CSV files.
+        Scan the folder tree for CSV files using pathlib.
 
         :return: A dictionary mapping relative folder paths to lists of CSV files.
         """
         structure = {}
+        root_path = Path(self.root_dir)
 
-        for dirpath, _, filenames in os.walk(self.root_dir):
-            csv_files = [f for f in filenames if f.lower().endswith('.csv')]
-            if csv_files:
-                rel_path = os.path.relpath(dirpath, self.root_dir)
-                structure[rel_path] = {"files": csv_files}
+        for path in root_path.rglob("*.csv"):
+            if path.is_file():
+                rel_dir = path.parent.relative_to(root_path)
+                structure.setdefault(str(rel_dir), {"files": []})["files"].append(path.name)
 
         return structure
 
@@ -111,7 +110,7 @@ class Data:
         for _, row in df.iterrows():
             category = row["category"]
             subcategory = row["subcategory"]
-            filename = os.path.splitext(row["filename"])[0]  # remove .csv extension
+            filename = Path(row["filename"]).stem
 
             if category == "datasheet_curves":
                 label = subcategory  # <- label = folder name like "N95"
