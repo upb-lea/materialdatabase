@@ -2,3 +2,4 @@ pandas
 pandas-stubs
 matplotlib
 pydantic
+toml
