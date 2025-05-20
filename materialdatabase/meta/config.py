@@ -34,9 +34,17 @@ def ensure_config_exists() -> None:
     config_path = get_config_path()
     if not config_path.exists():
         config_path.write_text(DUMMY_CONFIG, encoding="utf-8")
-        logger.info(f"config.toml not found. A default file was created at: {config_path}")
-        logger.info("Please update it with your local paths and preferences.")
+        raise FileNotFoundError((f"config.toml"
+                                 f"\n\n A default file was created at: {config_path}\n"
+                                 f"Please update it with your local paths and preferences."))
 
+
+def ensure_config_path_exists(path: Path) -> None:
+    """Ensure config.toml exists. If not, generate one with dummy values."""
+    config_path = get_config_path()
+    if not path.exists():
+        raise FileNotFoundError(f"\n\n The path '{path}', specified in '{config_path}' does not exist.\n"
+                                f"Please update it with your local paths.")
 
 def load_config() -> Config:
     """Load and parse the config.toml file into a validated Config object."""

@@ -11,6 +11,7 @@ import numpy as np
 
 # own libraries
 from materialdatabase.meta.data_enums import *
+from materialdatabase.meta.config import *
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,8 @@ class Data:
 
         :return: A dictionary mapping relative folder paths to lists of CSV files.
         """
+        ensure_config_path_exists(self.root_dir)
+
         structure: dict[str, dict[str, list[str]]] = {}
         root_path = Path(self.root_dir)
 
