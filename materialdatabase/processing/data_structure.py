@@ -1,5 +1,5 @@
 """Class to represent the data structure and load material data."""
-from pathlib import Path
+from pathlib import Path, PurePath
 import toml
 from materialdatabase.meta.data_enums import *
 import pandas as pd
@@ -77,12 +77,13 @@ class Data:
         records = []
 
         for path, values in self.structure.items():
-            try:
-                category, subcategory = path.split("\\")
-            except ValueError as err:
+            parts = PurePath(path).parts
+            if len(parts) != 2:
                 raise ValueError(
-                    f"Invalid path format: '{path}'. Expected 'category\\subcategory'."
-                ) from err  # <-- keep original traceback
+                    f"Invalid path format: '{path}'. Expected exactly two components (category/subcategory)."
+                )
+
+            category, subcategory = parts
 
             for filename in values.get("files", []):
                 records.append({
