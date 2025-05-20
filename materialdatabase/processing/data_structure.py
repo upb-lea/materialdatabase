@@ -5,6 +5,7 @@ from materialdatabase.meta.data_enums import *
 import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
+from typing import Dict, List
 
 class Data:
     """Represent the structure of a folder tree containing CSV files."""
@@ -25,7 +26,7 @@ class Data:
 
         :return: A dictionary mapping relative folder paths to lists of CSV files.
         """
-        structure = {}
+        structure: Dict[str, Dict[str, List[str]]] = {}
         root_path = Path(self.root_dir)
 
         for path in root_path.rglob("*.csv"):
