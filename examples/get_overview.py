@@ -7,8 +7,7 @@ logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 
 def get_overview() -> None:
-    """Init the materialdatabase and plot the material overview in a colored table. """
-
+    """Init the materialdatabase and plot the material overview in a colored table."""
     mdb_data = mdb.Data(root_dir=mdb.get_user_paths().material_data)
     mdb_data.plot_available_data()
 
