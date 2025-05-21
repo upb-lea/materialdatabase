@@ -50,4 +50,3 @@ class MeasurementParameter(str, Enum):
     mu_phi_deg = "mu_phi_deg"
     epsilon_r = "epsilon_r"
     epsilon_phi_deg = "epsilon_phi_deg"
-

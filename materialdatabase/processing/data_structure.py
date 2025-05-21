@@ -12,6 +12,7 @@ import numpy as np
 # own libraries
 from materialdatabase.meta.data_enums import *
 from materialdatabase.meta.config import *
+from materialdatabase.processing.complex_permeability import *
 
 logger = logging.getLogger(__name__)
 
@@ -206,8 +207,38 @@ class Data:
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
-                logger.info(f"Complex data written to {path2file}.")
+                logger.info(f"Complex data read from {path2file}.")
                 return pd.read_csv(path2file, sep=",")
+
+    def get_complex_permeability(self, material, measurement_setup):
+        """
+        Get a complex permeability data set of a certain material and measurement type.
+
+        :param material: e.g. mdb.Material.N95
+        :param measurement_setup: e.g. mdb.MeasurementSetup.TDK_MDT
+        :return:
+        """
+        dataset = self.get_complex_data_set(
+            material=material,
+            measurement_setup=measurement_setup,
+            data_type=ComplexDataType.complex_permeability,
+        )
+        return ComplexPermeability(dataset, material, measurement_setup)
+
+    def get_complex_permittivity(self, material, measurement_setup):
+        """
+        Get a complex permittivity data set of a certain material and measurement type.
+
+        :param material: e.g. mdb.Material.N95
+        :param measurement_setup: e.g. mdb.MeasurementSetup.LEA_MTB
+        :return:
+        """
+        dataset = self.get_complex_data_set(
+            material=material,
+            measurement_setup=measurement_setup,
+            data_type=ComplexDataType.complex_permittivity
+        )
+        return ComplexPermeability(dataset, material, measurement_setup)
 
     def get_datasheet_curve(self, material: Material, curve_type: DatasheetCurveType) -> pd.DataFrame:
         """
