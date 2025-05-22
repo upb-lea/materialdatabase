@@ -10,9 +10,10 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 # own libraries
-from materialdatabase.meta.data_enums import *
-from materialdatabase.meta.config import *
-from materialdatabase.processing.complex_permeability import *
+from materialdatabase.meta.data_enums import ComplexDataType, Material, MeasurementSetup, DatasheetCurveType, DatasheetCurvesFolder
+from materialdatabase.meta.config import check_paths_in_toml
+from materialdatabase.processing.complex_permeability import ComplexPermeability
+from materialdatabase.processing.complex_permittivity import ComplexPermittivity
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +211,7 @@ class Data:
                 logger.info(f"Complex data read from {path2file}.")
                 return pd.read_csv(path2file, sep=",")
 
-    def get_complex_permeability(self, material, measurement_setup):
+    def get_complex_permeability(self, material: Material, measurement_setup: MeasurementSetup) -> ComplexPermeability:
         """
         Get a complex permeability data set of a certain material and measurement type.
 
@@ -225,7 +226,7 @@ class Data:
         )
         return ComplexPermeability(dataset, material, measurement_setup)
 
-    def get_complex_permittivity(self, material, measurement_setup):
+    def get_complex_permittivity(self, material: Material, measurement_setup: MeasurementSetup) -> ComplexPermittivity:
         """
         Get a complex permittivity data set of a certain material and measurement type.
 
@@ -238,7 +239,7 @@ class Data:
             measurement_setup=measurement_setup,
             data_type=ComplexDataType.complex_permittivity
         )
-        return ComplexPermeability(dataset, material, measurement_setup)
+        return ComplexPermittivity(dataset, material, measurement_setup)
 
     def get_datasheet_curve(self, material: Material, curve_type: DatasheetCurveType) -> pd.DataFrame:
         """
