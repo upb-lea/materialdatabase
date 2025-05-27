@@ -48,6 +48,22 @@ def steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.n
     return steinmetz((f, b), alpha, beta, k)
 
 
+def log_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
+                 alpha: float, beta: float, c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
+    """
+    Temperature-dependent Steinmetz model using quadratic temperature function.
+
+    :param fTb: Tuple (f, T, B) of frequency, temperature, and flux density
+    :param alpha: Frequency exponent
+    :param beta: Flux density exponent
+    :param c_0: Constant coefficient for temperature scaling
+    :param c_1: Linear temperature coefficient
+    :param c_2: Quadratic temperature coefficient
+    :return: Power loss density
+    """
+    return np.log(steinmetz_qT(fTb, alpha, beta, c_0, c_1, c_2))
+
+
 def fit_mu_abs(fb: tuple[float | np.ndarray, float | np.ndarray],
                A: float, beta: float, b0: float, C: float, f0: float, n: float) -> float | np.ndarray:
     """

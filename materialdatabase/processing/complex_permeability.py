@@ -118,9 +118,9 @@ class ComplexPermeability:
         pv = pv_mag(self.measurement_data["f"],
                     -self.measurement_data["mu_imag"] * mu_0,
                     self.measurement_data["b"] / mu_abs / mu_0)
-        popt_pv, pcov_pv = curve_fit(steinmetz_qT,
+        popt_pv, pcov_pv = curve_fit(log_steinmetz_qT,
                                      (self.measurement_data["f"],
                                       self.measurement_data["T"],
                                       self.measurement_data["b"]),
-                                     pv, maxfev=100000)
+                                     np.log(pv), maxfev=100000)
         return popt_pv
