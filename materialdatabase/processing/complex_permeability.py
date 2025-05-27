@@ -104,13 +104,14 @@ class ComplexPermeability:
                                              mu_abs, maxfev=100000)
         return popt_mu_abs
 
-    def fit_losses(self):
+    def fit_losses(self, log_pv_fit_function):
         """
         Fit the magnetic power loss density p_v as a function of frequency, temperature, and magnetic flux density.
 
         The losses are calculated from the imaginary part of the permeability using the helper function `pv_mag()`,
         and then fitted using e.g. the Steinmetz-based `..._steinmetz_...(f, T, b, ...)`.
 
+        :param log_pv_fit_function: e.g. mdb.log_steinmetz_qT, mdb.log_enhanced_steinmetz_qT
         :return: Fitted parameters (popt_pv) of the Steinmetz-based power loss model.
         :rtype: np.ndarray
         """
@@ -118,7 +119,7 @@ class ComplexPermeability:
         pv = pv_mag(self.measurement_data["f"],
                     -self.measurement_data["mu_imag"] * mu_0,
                     self.measurement_data["b"] / mu_abs / mu_0)
-        popt_pv, pcov_pv = curve_fit(log_steinmetz_qT,
+        popt_pv, pcov_pv = curve_fit(log_pv_fit_function,
                                      (self.measurement_data["f"],
                                       self.measurement_data["T"],
                                       self.measurement_data["b"]),
