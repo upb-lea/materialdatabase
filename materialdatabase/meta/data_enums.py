@@ -4,30 +4,52 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 """
 
 from enum import Enum
+from typing import Any
+from materialdatabase.processing.utils.empirical import log_enhanced_steinmetz_qT, log_steinmetz_qT
+
+
+class FitFunction(str, Enum):
+    """Set the usable fit function."""
+
+    Steinmetz = "steinmetz"
+    enhancedSteinmetz = "enhanced_steinmetz"
+
+    def get_function(self) -> Any:
+        """
+        Get a callable function according to the defined enum.
+
+        :return:
+        """
+        return {
+            FitFunction.Steinmetz: log_steinmetz_qT,
+            FitFunction.enhancedSteinmetz: log_enhanced_steinmetz_qT,
+        }[self]
 
 
 class DatasheetCurvesFolder(str, Enum):
-    """Sets the name of the datasheet curves folder."""
+    """Set the name of the datasheet curves folder."""
 
     name = "datasheet_curves"
 
+
 class DatasheetCurveType(str, Enum):
-    """Sets the type of datasheet curve."""
+    """Set the type of datasheet curve."""
 
     mu_vs_b_at_T = "mu_vs_b_at_T"
     pv_vs_b_at_f_and_T = "pv_vs_b_at_f_and_T"
     pv_vs_f_at_b_and_T = "pv_vs_f_at_b_and_T"
     pv_vs_T_at_f_and_b = "pv_vs_T_at_f_and_b"
 
+
 class ComplexDataType(str, Enum):
-    """Sets the type of complex material data."""
+    """Set the type of complex material data."""
 
     complex_permeability = "complex_permeability"
     complex_permittivity = "complex_permittivity"
 
 
 class MeasurementSetup(str, Enum):
-    """Sets the setup of the measurement."""
+    """Set the setup of the measurement."""
 
     LEA_MTB = "LEA_MTB"
     LEA_MTB_small_signal = "LEA_MTB_small_signal"
@@ -37,7 +59,7 @@ class MeasurementSetup(str, Enum):
 
 
 class MeasurementMethod(str, Enum):
-    """Sets the method of the measurement."""
+    """Set the method of the measurement."""
 
     ImpedanceAnalyzer = "Impedance Analyzer"
     Calorimetric = "Calorimetric"
@@ -47,13 +69,13 @@ class MeasurementMethod(str, Enum):
 
 
 class Company(str, Enum):
-    """Sets the name of the company."""
+    """Set the name of the company."""
 
     UPB = "Paderborn University"
 
 
 class Manufacturer(str, Enum):
-    """Sets the name of the manufacturer."""
+    """Set the name of the manufacturer."""
 
     TDK = "TDK"
     Ferroxcube = "Ferroxcube"
@@ -64,7 +86,7 @@ class Manufacturer(str, Enum):
 
 
 class MeasurementDevice(str, Enum):
-    """Sets the type of the measurement device."""
+    """Set the type of the measurement device."""
 
     lecroy = "LeCroy_HDO4104"
     wayne_kerr = "Wayne_Kerr_6500B"
@@ -72,7 +94,7 @@ class MeasurementDevice(str, Enum):
 
 
 class Material(str, Enum):
-    """Sets the name of the core material as enums."""
+    """Set the name of the core material as enums."""
 
     TEST = "TEST"  # FOR TESTING STUFF
     _3F46 = "3F46"
@@ -101,7 +123,7 @@ class Material(str, Enum):
 
 class ToroidDirectoryName(str, Enum):
     """
-    Sets the type of Permeability Measurement Probe.
+    Set the type of Permeability Measurement Probe.
 
     d_out: outer diameter of toroid in mm
     d_in: inner diameter of toroid in mm
@@ -117,7 +139,7 @@ class ToroidDirectoryName(str, Enum):
 
 class CuboidDirectoryName(str, Enum):
     """
-    Sets the type of Permittivity Measurement Probe.
+    Set the type of Permittivity Measurement Probe.
 
     string with:
     a x b x c

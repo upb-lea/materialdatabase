@@ -1,8 +1,7 @@
 """Physical functions."""
 import numpy as np
 
-
-def pv_mag(f: float, mu_imag: float, h_abs: float) -> float:
+def pv_mag(f: float | np.ndarray, mu_imag: float | np.ndarray, h_abs: float | np.ndarray) -> float | np.ndarray:
     """
     Calculate the magentic loss density in frequency domain.
 
@@ -14,7 +13,7 @@ def pv_mag(f: float, mu_imag: float, h_abs: float) -> float:
     return -0.5 * 2 * np.pi * f * mu_imag * h_abs ** 2
 
 
-def pv_el(f: float, eps_imag: float, e_abs: float) -> float:
+def pv_el(f: float | np.ndarray, eps_imag: float | np.ndarray, e_abs: float | np.ndarray) -> float | np.ndarray:
     """
     Calculate the (di-)electric loss density in frequency domain.
 

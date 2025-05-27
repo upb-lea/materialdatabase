@@ -1,6 +1,7 @@
 """Class to represent the data structure and load material data."""
 import logging
 # python libraries
+from typing import Any
 
 # 3rd party libraries
 import numpy as np
@@ -104,21 +105,23 @@ class ComplexPermeability:
                                              mu_abs, maxfev=100000)
         return popt_mu_abs
 
-    def fit_losses(self, log_pv_fit_function):
+    def fit_losses(self, loss_fit_function: FitFunction) -> Any:
         """
         Fit the magnetic power loss density p_v as a function of frequency, temperature, and magnetic flux density.
 
         The losses are calculated from the imaginary part of the permeability using the helper function `pv_mag()`,
         and then fitted using e.g. the Steinmetz-based `..._steinmetz_...(f, T, b, ...)`.
 
-        :param log_pv_fit_function: e.g. mdb.log_steinmetz_qT, mdb.log_enhanced_steinmetz_qT
+        :param loss_fit_function: e.g. mdb.FitFunction.Steinmetz
         :return: Fitted parameters (popt_pv) of the Steinmetz-based power loss model.
         :rtype: np.ndarray
         """
+        log_pv_fit_function = loss_fit_function.get_function()
+
         mu_abs = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
-        pv = pv_mag(self.measurement_data["f"],
-                    -self.measurement_data["mu_imag"] * mu_0,
-                    self.measurement_data["b"] / mu_abs / mu_0)
+        pv = pv_mag(self.measurement_data["f"].to_numpy(),
+                    (-self.measurement_data["mu_imag"] * mu_0).to_numpy(),
+                    (self.measurement_data["b"] / mu_abs / mu_0).to_numpy())
         popt_pv, pcov_pv = curve_fit(log_pv_fit_function,
                                      (self.measurement_data["f"],
                                       self.measurement_data["T"],

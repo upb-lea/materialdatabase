@@ -72,3 +72,5 @@ steinmetz
 sqrt
 linspace
 qT
+FitFunction
+enum
