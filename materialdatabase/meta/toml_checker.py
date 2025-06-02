@@ -10,8 +10,15 @@ class UserPaths(BaseModel):
 class UserColors(BaseModel):
     """Customized pyplot colors."""
 
-    red: str
-    blue: str
+    gtruth: str
+    compare1: str
+    compare2: str
+    compare3: str
+    compare4: str
+    # green: str
+    # olive: str
+    # red: str
+    # orange: str
 
 class Config(BaseModel):
     """Paths to the local directories."""

@@ -85,11 +85,11 @@ class ComplexPermeability:
 
         return grid
 
-    def fit_permeability_amplitude(self):
+    def fit_permeability_magnitude(self):
         """
-        Fit the amplitude permeability μ_abs as a function of frequency, temperature, and magnetic flux density.
+        Fit the permeability magnitude μ_abs as a function of frequency, temperature, and magnetic flux density.
 
-        This method computes the absolute permeability from the real and imaginary components using:
+        This method computes the permeability magnitude from the real and imaginary components using:
             μ_abs = sqrt(μ_real² + μ_imag²)
 
         It then fits this data using a predefined model function `fit_mu_abs_...(f, T, b, ...)`.
