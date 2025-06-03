@@ -13,6 +13,7 @@ dist/
 gpgit/
 docs/build
 materialdatabase/core_materials_temp.pro
+venv_linux
 
 # Files
 tests/core_materials_temp.pro
