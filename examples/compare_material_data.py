@@ -1,12 +1,9 @@
 """Example file to show how to compare material data of different measurement setups or different materials."""
 import pandas as pd
-
 import materialdatabase as mdb
 from materialdatabase import get_user_colors as colors
 import logging
 import numpy as np
-from materialdatabase.processing.utils.physic import pv_mag
-from materialdatabase.processing.utils.constants import mu_0
 from materialdatabase.processing.plot import plot_combined_loss, plot_mu_all, StyleDict
 from typing import cast
 from itertools import product
