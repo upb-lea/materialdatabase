@@ -196,8 +196,6 @@ def fit_mu_abs_Tb(Tb: tuple[float | np.ndarray, float | np.ndarray],
     :param beta: Controls the width of the Gaussian
     :param b0: Center of the Gaussian (optimal B)
     :param C: Offset or baseline permeability
-    :param f0: Characteristic frequency of decay
-    :param n: Order of frequency decay
     :param c_0: Constant coefficient for temperature scaling
     :param c_1: Linear temperature coefficient
     :param c_2: Quadratic temperature coefficient
