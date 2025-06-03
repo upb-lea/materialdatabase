@@ -127,8 +127,8 @@ def log_enhanced_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray,
     return np.log(enhanced_steinmetz_qT(fTb, alpha, beta, k_b, k_f, k_alpha2, c_0, c_1, c_2))
 
 
-def fit_mu_abs(fb: tuple[float | np.ndarray, float | np.ndarray],
-               A: float, beta: float, b0: float, C: float, f0: float, n: float) -> float | np.ndarray:
+def fit_mu_abs_fb(fb: tuple[float | np.ndarray, float | np.ndarray],
+                  A: float, beta: float, b0: float, C: float, f0: float, n: float) -> float | np.ndarray:
     """
     Fit for amplitude permeability μₐ(B, f) using a Gaussian in B and decay in f.
 
@@ -147,9 +147,9 @@ def fit_mu_abs(fb: tuple[float | np.ndarray, float | np.ndarray],
     return gauss_b * decay_f
 
 
-def fit_mu_abs_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
-                  A: float, beta: float, b0: float, C: float, f0: float, n: float,
-                  c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
+def fit_mu_abs_fTb(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
+                   A: float, beta: float, b0: float, C: float, f0: float, n: float,
+                   c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
     """
     Fit for amplitude permeability μₐ(B, f, T) with temperature scaling factor.
 
@@ -167,4 +167,42 @@ def fit_mu_abs_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.
     """
     f, T, b = fTb
     k = quadratic_temperature(T, c_0, c_1, c_2)
-    return fit_mu_abs((f, b), A, beta, b0, C, f0, n) * k
+    return fit_mu_abs_fb((f, b), A, beta, b0, C, f0, n) * k
+
+
+def fit_mu_abs_b(b: float | np.ndarray,
+                 A: float, beta: float, b0: float, C: float) -> float | np.ndarray:
+    """
+    Fit for amplitude permeability μₐ(B) using a Gaussian in B and decay in f.
+
+    :param b: flux density
+    :param A: Amplitude of Gaussian peak
+    :param beta: Controls the width of the Gaussian
+    :param b0: Center of the Gaussian (optimal B)
+    :param C: Offset or baseline permeability
+    :return: Amplitude permeability μₐ
+    """
+    return A * np.exp(-beta * (b - b0) ** 2) + C
+
+
+def fit_mu_abs_Tb(Tb: tuple[float | np.ndarray, float | np.ndarray],
+                  A: float, beta: float, b0: float, C: float,
+                  c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
+    """
+    Fit for amplitude permeability μₐ(B, T) with temperature scaling factor.
+
+    :param Tb: Tuple (T, B) of temperature and flux density
+    :param A: Amplitude of Gaussian peak
+    :param beta: Controls the width of the Gaussian
+    :param b0: Center of the Gaussian (optimal B)
+    :param C: Offset or baseline permeability
+    :param f0: Characteristic frequency of decay
+    :param n: Order of frequency decay
+    :param c_0: Constant coefficient for temperature scaling
+    :param c_1: Linear temperature coefficient
+    :param c_2: Quadratic temperature coefficient
+    :return: Amplitude permeability μₐ
+    """
+    T, b = Tb
+    k = quadratic_temperature(T, c_0, c_1, c_2)
+    return fit_mu_abs_b(b, A, beta, b0, C) * k

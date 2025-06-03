@@ -41,11 +41,11 @@ df_common = pd.DataFrame(combinations, columns=["f", "T", "b"])
 if MU_ABS:
     # Fitting of TDK-MDT data
     params_mu_abs_TDK = mu_N49_TDK_MDT.fit_permeability_magnitude()
-    df_common["mu_abs_TDK"] = mdb.fit_mu_abs_qT((df_common["f"].to_numpy(), df_common["T"].to_numpy(), df_common["b"].to_numpy()), *params_mu_abs_TDK)
+    df_common["mu_abs_TDK"] = mdb.fit_mu_abs_fTb((df_common["f"].to_numpy(), df_common["T"].to_numpy(), df_common["b"].to_numpy()), *params_mu_abs_TDK)
 
     # Fitting of LEA-MTB data
     params_mu_abs_LEA = mu_N49_LEA_MTB.fit_permeability_magnitude()
-    df_common["mu_abs_LEA"] = mdb.fit_mu_abs_qT((df_common["f"].to_numpy(), df_common["T"].to_numpy(), df_common["b"].to_numpy()), *params_mu_abs_LEA)
+    df_common["mu_abs_LEA"] = mdb.fit_mu_abs_fTb((df_common["f"].to_numpy(), df_common["T"].to_numpy(), df_common["b"].to_numpy()), *params_mu_abs_LEA)
 
     # plot TDK vs LEA data
     y_columns = ["mu_abs_TDK", "mu_abs_LEA"]

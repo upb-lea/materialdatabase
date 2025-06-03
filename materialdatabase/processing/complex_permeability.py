@@ -98,7 +98,7 @@ class ComplexPermeability:
         :rtype: np.ndarray
         """
         mu_abs = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
-        popt_mu_abs, pcov_mu_abs = curve_fit(fit_mu_abs_qT,
+        popt_mu_abs, pcov_mu_abs = curve_fit(fit_mu_abs_fTb,
                                              (self.measurement_data["f"],
                                               self.measurement_data["T"],
                                               self.measurement_data["b"]),

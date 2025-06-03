@@ -6,6 +6,7 @@ class UserPaths(BaseModel):
 
     material_data: str
     graphics: str
+    external_material_data: str
 
 class UserColors(BaseModel):
     """Customized pyplot colors."""
