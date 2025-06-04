@@ -29,7 +29,7 @@ df_N49["pv"] = pv_mag(df_N49["f"].to_numpy(), -df_N49["mu_imag"].to_numpy() * mu
 
 if MU_ABS:
     # Fitting of the permeability magnitude mu_abs
-    params_mu_abs = mu_N49.fit_permeability_magnitude()
+    params_mu_abs = mu_N49.fit_permeability_magnitude(mdb.FitFunction.mu_abs_fTb)
     df_N49["mu_abs_fitted"] = mdb.fit_mu_abs_fTb((df_N49["f"].to_numpy(), df_N49["T"].to_numpy(), df_N49["b"].to_numpy()), *params_mu_abs)
     rel_error_mu_abs = abs(df_N49["mu_abs_fitted"] - df_N49["mu_abs"]) / df_N49["mu_abs"]
     print(f"MRE (mu_abs) = {np.mean(rel_error_mu_abs)}")

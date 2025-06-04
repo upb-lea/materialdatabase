@@ -5,7 +5,7 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 
 from enum import Enum
 from typing import Any
-from materialdatabase.processing.utils.empirical import log_enhanced_steinmetz_qT, log_steinmetz_qT
+from materialdatabase.processing.utils.empirical import log_enhanced_steinmetz_qT, log_steinmetz_qT, fit_mu_abs_Tb, fit_mu_abs_fTb
 
 
 class FitFunction(str, Enum):
@@ -13,6 +13,8 @@ class FitFunction(str, Enum):
 
     Steinmetz = "steinmetz"
     enhancedSteinmetz = "enhanced_steinmetz"
+    mu_abs_Tb = "mu_abs_Tb"
+    mu_abs_fTb = "mu_abs_fTb"
 
     def get_function(self) -> Any:
         """
@@ -23,6 +25,8 @@ class FitFunction(str, Enum):
         return {
             FitFunction.Steinmetz: log_steinmetz_qT,
             FitFunction.enhancedSteinmetz: log_enhanced_steinmetz_qT,
+            FitFunction.mu_abs_Tb: fit_mu_abs_Tb,
+            FitFunction.mu_abs_fTb: fit_mu_abs_fTb,
         }[self]
 
 

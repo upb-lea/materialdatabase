@@ -17,6 +17,7 @@ from materialdatabase.processing.complex_permittivity import ComplexPermittivity
 
 logger = logging.getLogger(__name__)
 
+
 class Data:
     """Represent the structure of a folder tree containing CSV files."""
 
@@ -240,6 +241,56 @@ class Data:
             data_type=ComplexDataType.complex_permittivity
         )
         return ComplexPermittivity(dataset, material, measurement_setup)
+
+    def set_complex_data_set(self, material: Material, measurement_setup: MeasurementSetup, data_type: ComplexDataType, df: pd.DataFrame) -> None:
+        """
+        Store a complex data set (DataFrame) for a specific material, measurement setup, and data type.
+
+        :param material: e.g. mdb.Material.N95
+        :param measurement_setup: e.g. mdb.MeasurementSetup.TDK_MDT
+        :param data_type: e.g. mdb.ComplexDataType.complex_permeability
+        :param df: the DataFrame to store
+        """
+        if data_type not in {item.value for item in ComplexDataType}:
+            raise ValueError(f"{data_type} is not a valid complex data type.\n"
+                             f"Valid complex data types are: {[item.value for item in ComplexDataType]}")
+
+        path2file = Path(f"{self.root_dir}/{data_type.name}/{measurement_setup.name}")
+        path2file.mkdir(parents=True, exist_ok=True)  # create directories if needed
+        file_path = path2file / f"{material.name}.csv"
+
+        df.to_csv(file_path, index=False, encoding="utf-8")
+        logger.info(f"Complex data written to {file_path}.")
+
+    def set_complex_permeability(self, material: Material, measurement_setup: MeasurementSetup, df: pd.DataFrame) -> None:
+        """
+        Save a complex permeability data set for a given material and measurement type.
+
+        :param material: e.g. mdb.Material.N95
+        :param measurement_setup: e.g. mdb.MeasurementSetup.TDK_MDT
+        :param df: the DataFrame containing the complex permeability data
+        """
+        self.set_complex_data_set(
+            material=material,
+            measurement_setup=measurement_setup,
+            data_type=ComplexDataType.complex_permeability,
+            df=df
+        )
+
+    def set_complex_permittivity(self, material: Material, measurement_setup: MeasurementSetup, df: pd.DataFrame) -> None:
+        """
+        Save a complex permittivity data set for a given material and measurement type.
+
+        :param material: e.g. mdb.Material.N95
+        :param measurement_setup: e.g. mdb.MeasurementSetup.LEA_MTB
+        :param df: the DataFrame containing the complex permittivity data
+        """
+        self.set_complex_data_set(
+            material=material,
+            measurement_setup=measurement_setup,
+            data_type=ComplexDataType.complex_permittivity,
+            df=df
+        )
 
     def get_datasheet_curve(self, material: Material, curve_type: DatasheetCurveType) -> pd.DataFrame:
         """

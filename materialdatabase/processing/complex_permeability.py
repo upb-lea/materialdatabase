@@ -85,7 +85,7 @@ class ComplexPermeability:
 
         return grid
 
-    def fit_permeability_magnitude(self):
+    def fit_permeability_magnitude(self, mu_a_fit_function: FitFunction) -> Any:
         """
         Fit the permeability magnitude μ_abs as a function of frequency, temperature, and magnetic flux density.
 
@@ -94,16 +94,19 @@ class ComplexPermeability:
 
         It then fits this data using a predefined model function `fit_mu_abs_...(f, T, b, ...)`.
 
+        :param mu_a_fit_function: fit function
         :return: Fitted parameters (popt_mu_abs) of the μ_abs model.
         :rtype: np.ndarray
         """
-        mu_abs = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
-        popt_mu_abs, pcov_mu_abs = curve_fit(fit_mu_abs_fTb,
-                                             (self.measurement_data["f"],
-                                              self.measurement_data["T"],
-                                              self.measurement_data["b"]),
-                                             mu_abs, maxfev=100000)
-        return popt_mu_abs
+        fit_mu_a = mu_a_fit_function.get_function()
+
+        mu_a = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
+        popt_mu_a, pcov_mu_a = curve_fit(fit_mu_a,
+                                         (self.measurement_data["f"],
+                                          self.measurement_data["T"],
+                                          self.measurement_data["b"]),
+                                         mu_a, maxfev=int(1e6))
+        return popt_mu_a
 
     def fit_losses(self, loss_fit_function: FitFunction) -> Any:
         """
