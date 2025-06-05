@@ -1,7 +1,7 @@
 """Collection of dataclasses."""
 from dataclasses import dataclass
 
-from data_enums import Material, MeasurementSetup
+from materialdatabase.meta.data_enums import Material, MeasurementSetup
 
 
 @dataclass
