@@ -46,7 +46,7 @@ materials_to_process = {
 
 
 def process_materials():
-    """Processes all enabled materials using the tdkmdt2pandas conversion."""
+    """Process all enabled materials using the tdkmdt2pandas conversion."""
     for name, config in materials_to_process.items():
         if config["enabled"]:
             logging.info(f"Processing material: {name}")
