@@ -27,7 +27,8 @@ def _flatten_y_columns(y_columns: Union[List[str], tuple]) -> List[str]:
 
 def plot_loss_vs_temperature(ax: Axes, df: pd.DataFrame,
                              y_columns: Union[List[str], tuple], styles: Dict[str, StyleDict],
-                             annotate: bool = False, y_label: bool = False) -> None:
+                             annotate: bool = False, y_label: bool = False,
+                             connect_all: bool = True) -> None:
     """
     Plot core loss density versus temperature for multiple data series.
 
@@ -37,17 +38,20 @@ def plot_loss_vs_temperature(ax: Axes, df: pd.DataFrame,
     :param styles: Dictionary mapping y_column to dict with keys 'marker', 'color', 'label'
     :param annotate: If True, annotate final data points with (b, f) values
     :param y_label: If True, plot the y_label
+    :param connect_all: If True, draw a line connecting all points of each y_column
     """
     y_columns = _flatten_y_columns(y_columns)
 
     for y_col in y_columns:
         style = styles[y_col]
 
+        # Plot individual points
         ax.semilogy(df["T"], df[y_col] / 1000,
                     style["marker"],
                     color=style["color"],
                     label=style["label"])
 
+        # Plot lines for each (b, f) group
         for (b, f), group in df.groupby(["b", "f"]):
             sorted_group = group.sort_values("T")
             T_vals = sorted_group["T"]
@@ -61,6 +65,12 @@ def plot_loss_vs_temperature(ax: Axes, df: pd.DataFrame,
                         fontsize=8, color=style["color"],
                         ha="left", va="bottom", alpha=0.9)
 
+        # Plot a single line connecting all points (optional)
+        if connect_all:
+            sorted_df = df.sort_values("T")
+            ax.semilogy(sorted_df["T"], sorted_df[y_col] / 1000,
+                        linestyle="--", color=style["color"], alpha=0.5)
+
     ax.set_xlabel(r"$T$ in $\mathrm{\degree C}$")
     if y_label:
         ax.set_ylabel(r"$p_\mathrm{v}$ in $\mathrm{kW}/\mathrm{m}^3$")
@@ -71,7 +81,8 @@ def plot_loss_vs_temperature(ax: Axes, df: pd.DataFrame,
 
 def plot_loss_vs_frequency(ax: Axes, df: pd.DataFrame,
                            y_columns: Union[List[str], tuple], styles: Dict[str, StyleDict],
-                           annotate: bool = False, y_label: bool = False) -> None:
+                           annotate: bool = False, y_label: bool = False,
+                           connect_all: bool = True) -> None:
     """
     Plot core loss density versus frequency for multiple data series.
 
@@ -81,18 +92,23 @@ def plot_loss_vs_frequency(ax: Axes, df: pd.DataFrame,
     :param styles: Dictionary mapping y_column to dict with keys 'marker', 'color', 'label'
     :param annotate: If True, annotate final data points with (b, T) values
     :param y_label: If True, plot the y_label
+    :param connect_all: If True, draw a line connecting all points of each y_column
     """
     y_columns = _flatten_y_columns(y_columns)
 
+    # Precompute frequency in kHz for the raw scatter plot
     f_kHz = df["f"] / 1000
 
     for y_col in y_columns:
         style = styles[y_col]
+
+        # Plot individual points
         ax.loglog(f_kHz, df[y_col] / 1000,
                   style["marker"],
                   color=style["color"],
                   label=style["label"])
 
+        # Plot lines for each (b, T) group
         for (b, T), group in df.groupby(["b", "T"]):
             sorted_group = group.sort_values("f")
             f_vals = sorted_group["f"] / 1000
@@ -102,9 +118,15 @@ def plot_loss_vs_frequency(ax: Axes, df: pd.DataFrame,
 
             if annotate:
                 ax.text(f_vals.iloc[-1], y_vals.iloc[-1],
-                        f" {int(b * 1000)} mT, {int(T)} C",
+                        f"{int(b * 1000)} mT, {int(T)} C",
                         fontsize=8, color=style["color"],
                         ha="left", va="bottom", alpha=0.9)
+
+        # Plot a single dashed line connecting all points (optional)
+        if connect_all:
+            sorted_df = df.sort_values("f")
+            ax.loglog(sorted_df["f"] / 1000, sorted_df[y_col] / 1000,
+                      linestyle="--", color=style["color"], alpha=0.5)
 
     ax.set_xlabel(r"$f$ in $\mathrm{kHz}$")
     if y_label:
@@ -116,7 +138,8 @@ def plot_loss_vs_frequency(ax: Axes, df: pd.DataFrame,
 
 def plot_loss_vs_flux_density(ax: Axes, df: pd.DataFrame,
                               y_columns: Union[List[str], tuple], styles: Dict[str, StyleDict],
-                              annotate: bool = False, y_label: bool = False) -> None:
+                              annotate: bool = False, y_label: bool = False,
+                              connect_all: bool = True) -> None:
     """
     Plot core loss density versus flux density for multiple data series.
 
@@ -126,16 +149,20 @@ def plot_loss_vs_flux_density(ax: Axes, df: pd.DataFrame,
     :param styles: Dictionary mapping y_column to dict with keys 'marker', 'color', 'label'
     :param annotate: If True, annotate final data points with (T, f) values
     :param y_label: If True, plot the y_label
+    :param connect_all: If True, draw a line connecting all points of each y_column
     """
     y_columns = _flatten_y_columns(y_columns)
 
     for y_col in y_columns:
         style = styles[y_col]
+
+        # Plot individual points
         ax.loglog(df["b"] * 1000, df[y_col] / 1000,
                   style["marker"],
                   color=style["color"],
                   label=style["label"])
 
+        # Plot lines for each (T, f) group
         for (T, f), group in df.groupby(["T", "f"]):
             sorted_group = group.sort_values("b")
             b_vals = sorted_group["b"] * 1000
@@ -149,6 +176,12 @@ def plot_loss_vs_flux_density(ax: Axes, df: pd.DataFrame,
                         fontsize=8, color=style["color"],
                         ha="left", va="bottom", alpha=0.9)
 
+        # Plot a single line connecting all points (optional)
+        if connect_all:
+            sorted_df = df.sort_values("b")
+            ax.loglog(sorted_df["b"] * 1000, sorted_df[y_col] / 1000,
+                      linestyle="--", color=style["color"], alpha=0.5)
+
     ax.set_xlabel(r"$b_\mathrm{peak}$ in $\mathrm{mT}$")
     if y_label:
         ax.set_ylabel(r"$p_\mathrm{v}$ in $\mathrm{kW}/\mathrm{m}^3$")
@@ -160,7 +193,7 @@ def plot_loss_vs_flux_density(ax: Axes, df: pd.DataFrame,
 def plot_combined_loss(df: pd.DataFrame,
                        y_columns: Union[List[str], Tuple[str, ...]],
                        styles: Dict[str, StyleDict],
-                       annotate: bool = False) -> None:
+                       annotate: bool = False, connect_all: bool = False) -> None:
     """
     Plot core loss density versus temperature, frequency, and flux density in subplots.
 
@@ -171,9 +204,9 @@ def plot_combined_loss(df: pd.DataFrame,
     """
     fig, axs = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
 
-    plot_loss_vs_temperature(ax=axs[0], df=df, y_columns=y_columns, styles=styles, annotate=annotate, y_label=True)
-    plot_loss_vs_frequency(ax=axs[1], df=df, y_columns=y_columns, styles=styles, annotate=annotate)
-    plot_loss_vs_flux_density(ax=axs[2], df=df, y_columns=y_columns, styles=styles, annotate=annotate)
+    plot_loss_vs_temperature(ax=axs[0], df=df, y_columns=y_columns, styles=styles, annotate=annotate, y_label=True, connect_all=connect_all)
+    plot_loss_vs_frequency(ax=axs[1], df=df, y_columns=y_columns, styles=styles, annotate=annotate, connect_all=connect_all)
+    plot_loss_vs_flux_density(ax=axs[2], df=df, y_columns=y_columns, styles=styles, annotate=annotate, connect_all=connect_all)
     plt.tight_layout()
     plt.show()
 
