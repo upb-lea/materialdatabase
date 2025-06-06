@@ -201,6 +201,7 @@ def plot_combined_loss(df: pd.DataFrame,
     :param y_columns: List or tuple of column names representing loss data series
     :param styles: Dictionary mapping each y_column to a style dict with keys like 'marker', 'color', 'label'
     :param annotate: If True, annotate final data points with (b, f) values
+    :param connect_all: Connect all single plotted points
     """
     fig, axs = plt.subplots(1, 3, figsize=(18, 5), sharey=True)
 
