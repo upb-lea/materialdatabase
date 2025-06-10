@@ -11,7 +11,7 @@ import numpy as np
 
 # own libraries
 from materialdatabase.meta.data_enums import ComplexDataType, Material, MeasurementSetup, DatasheetCurveType, DatasheetCurvesFolder
-from materialdatabase.meta.config import check_paths_in_toml
+from materialdatabase.meta.config import check_paths_in_toml, get_user_paths
 from materialdatabase.processing.complex_permeability import ComplexPermeability
 from materialdatabase.processing.complex_permittivity import ComplexPermittivity
 
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class Data:
     """Represent the structure of a folder tree containing CSV files."""
 
-    def __init__(self, root_dir: str):
+    def __init__(self, root_dir: str = get_user_paths().material_data):
         """
         Initialize the Structure by scanning a directory.
 

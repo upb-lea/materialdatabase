@@ -56,7 +56,7 @@ materials_config: dict[str, MaterialPlotConfig] = {
 # Load Material Data and Prepare Grid
 # ---------------------------------------------
 
-mdb_data = mdb.Data(root_dir=mdb.get_user_paths().material_data)
+mdb_data = mdb.Data()
 
 # Create sweep grid of all combinations
 df_common = pd.DataFrame(

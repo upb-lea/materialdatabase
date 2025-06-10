@@ -17,7 +17,7 @@ MU_ABS = True
 PV = True
 
 # init a material database instance
-mdb_data = mdb.Data(root_dir=mdb.get_user_paths().material_data)
+mdb_data = mdb.Data()
 
 # load ComplexMaterial instance
 mu_N49 = mdb_data.get_complex_permeability(material=mdb.Material.N49, measurement_setup=mdb.MeasurementSetup.TDK_MDT)

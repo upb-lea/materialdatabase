@@ -71,7 +71,7 @@ materials_config: dict[str, MaterialPlotConfig] = {
 # Load Material Data
 # ---------------------------------------------
 
-mdb_data = mdb.Data(root_dir=mdb.get_user_paths().material_data)
+mdb_data = mdb.Data()
 
 # Create sweep grid
 df_common = pd.DataFrame(

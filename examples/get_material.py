@@ -6,7 +6,7 @@ import materialdatabase as mdb
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 # init a material database instance
-mdb_data = mdb.Data(root_dir=mdb.get_user_paths().material_data)
+mdb_data = mdb.Data()
 
 mu_N49 = mdb_data.get_complex_permeability(material=mdb.Material.N49, measurement_setup=mdb.MeasurementSetup.TDK_MDT)
 print(f"Exemplary complex permeability data: \n {mu_N49.measurement_data} \n")
