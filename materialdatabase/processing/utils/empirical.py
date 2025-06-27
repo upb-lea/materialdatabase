@@ -1,6 +1,6 @@
 """Empirical functions."""
 import numpy as np
-
+import numpy.typing as npt
 
 def quadratic_temperature(T: float | np.ndarray, c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
     """
@@ -127,80 +127,73 @@ def log_enhanced_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray,
     return np.log(enhanced_steinmetz_qT(fTb, alpha, beta, k_b, k_f, k_alpha2, c_0, c_1, c_2))
 
 
-def fit_mu_abs_fb(fb: tuple[float | np.ndarray, float | np.ndarray],
-                  A: float, beta: float, b0: float, C: float, f0: float, n: float) -> float | np.ndarray:
+def fit_mu_abs_TDK_MDT(
+        _Tb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
+        mur_0: float,
+        mur_1: float,
+        mur_2: float,
+        mur_3: float,
+        mur_4: float,
+        c_0: float,
+        c_1: float
+) -> float | npt.NDArray[np.float64]:
     """
-    Fit for amplitude permeability μₐ(B, f) using a Gaussian in B and decay in f.
+    Fit function for amplitude permeability μₐ(B, T) based on polynomial B-dependence and linear temperature scaling.
 
-    :param fb: Tuple (f, B) of frequency and flux density
-    :param A: Amplitude of Gaussian peak
-    :param beta: Controls the width of the Gaussian
-    :param b0: Center of the Gaussian (optimal B)
-    :param C: Offset or baseline permeability
-    :param f0: Characteristic frequency of decay
-    :param n: Order of frequency decay
+    Typically accurate for b < 0.3 T.
+
+    :param _Tb:
+    :param mur_0: Base relative permeability (T-independent offset)
+    :param mur_1: Polynomial coefficients B^1
+    :param mur_2: Polynomial coefficients B^2
+    :param mur_3: Polynomial coefficients B^3
+    :param mur_4: Polynomial coefficients B^4
+    :param c_0: Temperature scaling coefficient for constant offset term
+    :param c_1: Temperature scaling coefficient for B-dependent terms
     :return: Amplitude permeability μₐ
     """
-    f, b = fb
-    gauss_b = A * np.exp(-beta * (b - b0) ** 2) + C
-    decay_f = 1 / (1 + (f / f0) ** n)
-    return gauss_b * decay_f
+    _, T, b = _Tb
+
+    k_0 = 1 + T * c_0  # Temperature scaling for base permeability
+    k_1 = 1 + T * c_1  # Temperature scaling for B-dependent polynomial
+
+    return mur_0 * k_0 + k_1 * (mur_1 * b + mur_2 * b ** 2 + mur_3 * b ** 3 + mur_4 * b ** 4)
 
 
-def fit_mu_abs_fTb(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
-                   A: float, beta: float, b0: float, C: float, f0: float, n: float,
-                   c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
+def fit_mu_abs_LEA_MTB(
+        fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
+        mur_0: float,
+        mur_1: float,
+        mur_2: float,
+        c_0: float,
+        c_1: float,
+        c_f: float
+) -> float | np.ndarray:
     """
-    Fit for amplitude permeability μₐ(B, f, T) with temperature scaling factor.
+    Polynomial (up to B^2) and logarithmic frequency fit for amplitude permeability μₐ(f, B, T).
 
-    :param fTb: Tuple (f, T, B) of frequency, temperature, and flux density
-    :param A: Amplitude of Gaussian peak
-    :param beta: Controls the width of the Gaussian
-    :param b0: Center of the Gaussian (optimal B)
-    :param C: Offset or baseline permeability
-    :param f0: Characteristic frequency of decay
-    :param n: Order of frequency decay
-    :param c_0: Constant coefficient for temperature scaling
-    :param c_1: Linear temperature coefficient
-    :param c_2: Quadratic temperature coefficient
-    :return: Amplitude permeability μₐ
+    Parameters:
+        fTb: Tuple (f, T, B)
+            f (float or np.ndarray): Frequency in Hz
+            T (float or np.ndarray): Temperature in °C
+            B (float or np.ndarray): Magnetic flux density in T
+        mur_0: Base permeability (T-dependent only)
+        mur_1: Linear B coefficient
+        mur_2: Quadratic B coefficient
+        c_0: Temperature coefficient for base permeability
+        c_1: Temperature coefficient for B-dependent terms
+        c_f: Frequency coefficient (log-scale)
+
+    Returns:
+        float or np.ndarray: Fitted amplitude permeability μₐ
     """
-    f, T, b = fTb
-    k = quadratic_temperature(T, c_0, c_1, c_2)
-    return fit_mu_abs_fb((f, b), A, beta, b0, C, f0, n) * k
+    f, T, B = fTb
 
+    # Temperature scaling
+    k_0 = 1 + T * c_0
+    k_1 = 1 + T * c_1
 
-def fit_mu_abs_b(b: float | np.ndarray,
-                 A: float, beta: float, b0: float, C: float) -> float | np.ndarray:
-    """
-    Fit for amplitude permeability μₐ(B) using a Gaussian in B and decay in f.
+    # Frequency influence (linear)
+    k_f = 1 + c_f * f
 
-    :param b: flux density
-    :param A: Amplitude of Gaussian peak
-    :param beta: Controls the width of the Gaussian
-    :param b0: Center of the Gaussian (optimal B)
-    :param C: Offset or baseline permeability
-    :return: Amplitude permeability μₐ
-    """
-    return A * np.exp(-beta * (b - b0) ** 2) + C
-
-
-def fit_mu_abs_Tb(Tb: tuple[float | np.ndarray, float | np.ndarray],
-                  A: float, beta: float, b0: float, C: float,
-                  c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
-    """
-    Fit for amplitude permeability μₐ(B, T) with temperature scaling factor.
-
-    :param Tb: Tuple (T, B) of temperature and flux density
-    :param A: Amplitude of Gaussian peak
-    :param beta: Controls the width of the Gaussian
-    :param b0: Center of the Gaussian (optimal B)
-    :param C: Offset or baseline permeability
-    :param c_0: Constant coefficient for temperature scaling
-    :param c_1: Linear temperature coefficient
-    :param c_2: Quadratic temperature coefficient
-    :return: Amplitude permeability μₐ
-    """
-    T, b = Tb
-    k = quadratic_temperature(T, c_0, c_1, c_2)
-    return fit_mu_abs_b(b, A, beta, b0, C) * k
+    return (mur_0 * k_0 + k_1 * (mur_1 * B + mur_2 * B ** 2)) * k_f

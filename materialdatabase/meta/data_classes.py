@@ -2,16 +2,25 @@
 from dataclasses import dataclass
 import numpy as np
 
-from materialdatabase.meta.data_enums import Material, MeasurementSetup
+from materialdatabase.meta.data_enums import Material, MeasurementSetup, FitFunction
 
 
 @dataclass
-class MaterialPlotConfig:
-    """Configuration container for a magnetic material to be included in the plots."""
+class ComplexPermeabilityConfig:
+    """Configuration container for a magnetic material."""
 
-    enabled: bool
     material: Material
     setup: MeasurementSetup
+    mu_a_fit_function: FitFunction
+    pv_fit_function: FitFunction
+
+
+@dataclass
+class ComplexPermeabilityPlotConfig:
+    """Configuration container for a magnetic material to be included in the plots."""
+
+    mat_cfg: ComplexPermeabilityConfig
+    enabled: bool
     label: str
     color: str
     marker: str

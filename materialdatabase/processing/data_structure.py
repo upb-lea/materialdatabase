@@ -10,12 +10,33 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 # own libraries
-from materialdatabase.meta.data_enums import ComplexDataType, Material, MeasurementSetup, DatasheetCurveType, DatasheetCurvesFolder
+from materialdatabase.meta.data_enums import ComplexDataType, Material, MeasurementSetup, DatasheetCurveType, DatasheetCurvesFolder, FitFunction
 from materialdatabase.meta.config import check_paths_in_toml, get_user_paths
 from materialdatabase.processing.complex_permeability import ComplexPermeability
 from materialdatabase.processing.complex_permittivity import ComplexPermittivity
 
 logger = logging.getLogger(__name__)
+
+
+def get_material_attribute(material: Material, attribute: str) -> float:
+    """
+    Get a data sheet curve of a certain material.
+
+    :param material: e.g. mdb.Material.N95
+    :param attribute: e.g. mdb.DatasheetCurveType.mu_vs_b_at_T
+    :return:
+    """
+    print(f"{attribute} is loaded from material {material.name}.")
+    if attribute == "initial_permeability":
+        return 3000
+    if attribute == "resistivity":
+        return 1/6
+    if attribute == "saturation_flux_density":
+        return 0.4
+    if attribute == "volumetric_mass_density":
+        return 1
+    else:
+        raise ValueError
 
 
 class Data:
@@ -212,20 +233,26 @@ class Data:
                 logger.info(f"Complex data read from {path2file}.")
                 return pd.read_csv(path2file, sep=",")
 
-    def get_complex_permeability(self, material: Material, measurement_setup: MeasurementSetup) -> ComplexPermeability:
+    def get_complex_permeability(self,
+                                 material: Material,
+                                 measurement_setup: MeasurementSetup,
+                                 mu_a_fit_function: FitFunction,
+                                 pv_fit_function: FitFunction) -> ComplexPermeability:
         """
         Get a complex permeability data set of a certain material and measurement type.
 
         :param material: e.g. mdb.Material.N95
         :param measurement_setup: e.g. mdb.MeasurementSetup.TDK_MDT
+        :param mu_a_fit_function:
+        :param pv_fit_function:
         :return:
         """
         dataset = self.get_complex_data_set(
             material=material,
             measurement_setup=measurement_setup,
-            data_type=ComplexDataType.complex_permeability,
+            data_type=ComplexDataType.complex_permeability
         )
-        return ComplexPermeability(dataset, material, measurement_setup)
+        return ComplexPermeability(dataset, material, measurement_setup, mu_a_fit_function, pv_fit_function)
 
     def get_complex_permittivity(self, material: Material, measurement_setup: MeasurementSetup) -> ComplexPermittivity:
         """

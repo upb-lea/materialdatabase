@@ -20,18 +20,24 @@ PV = True
 mdb_data = mdb.Data()
 
 # load ComplexMaterial instance
-mu_N49 = mdb_data.get_complex_permeability(material=mdb.Material.N49, measurement_setup=mdb.MeasurementSetup.TDK_MDT)
+mu_mat = mdb_data.get_complex_permeability(material=mdb.Material.N49,
+                                           measurement_setup=mdb.MeasurementSetup.TDK_MDT,
+                                           mu_a_fit_function=mdb.FitFunction.mu_abs_TDK_MDT,
+                                           pv_fit_function=mdb.FitFunction.Steinmetz)
 
 # copy measurement in an extra dataframe
-df_N49 = mu_N49.measurement_data.copy(deep=True)
-df_N49["mu_abs"] = np.sqrt(df_N49["mu_real"] ** 2 + df_N49["mu_imag"] ** 2)
-df_N49["pv"] = pv_mag(df_N49["f"].to_numpy(), -df_N49["mu_imag"].to_numpy() * mu_0, df_N49["b"].to_numpy() / df_N49["mu_abs"].to_numpy() / mu_0)
+df_mat = mu_mat.measurement_data.copy(deep=True)
+df_mat["mu_abs"] = np.sqrt(df_mat["mu_real"] ** 2 + df_mat["mu_imag"] ** 2)
+df_mat["pv"] = pv_mag(df_mat["f"].to_numpy(), -df_mat["mu_imag"].to_numpy() * mu_0, df_mat["b"].to_numpy() / df_mat["mu_abs"].to_numpy() / mu_0)
 
 if MU_ABS:
     # Fitting of the permeability magnitude mu_abs
-    params_mu_abs = mu_N49.fit_permeability_magnitude(mdb.FitFunction.mu_abs_fTb)
-    df_N49["mu_abs_fitted"] = mdb.fit_mu_abs_fTb((df_N49["f"].to_numpy(), df_N49["T"].to_numpy(), df_N49["b"].to_numpy()), *params_mu_abs)
-    rel_error_mu_abs = abs(df_N49["mu_abs_fitted"] - df_N49["mu_abs"]) / df_N49["mu_abs"]
+    mu_mat.fit_permeability_magnitude()
+    df_mat["mu_abs_fitted"] = mu_mat.mu_a_fit_function.get_function()((df_mat["f"].to_numpy(),
+                                                                       df_mat["T"].to_numpy(),
+                                                                       df_mat["b"].to_numpy()),
+                                                                      *mu_mat.params_mu_a)
+    rel_error_mu_abs = abs(df_mat["mu_abs_fitted"] - df_mat["mu_abs"]) / df_mat["mu_abs"]
     print(f"MRE (mu_abs) = {np.mean(rel_error_mu_abs)}")
 
     # # plot measurement vs fitted data
@@ -40,22 +46,23 @@ if MU_ABS:
         "mu_abs": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured"}),
         "mu_abs_fitted": cast(StyleDict, {"marker": "*", "color": colors().compare1, "label": "Fitted"}),
     }
-    plot_mu_all(df=df_N49[(df_N49["T"].isin([25, 60, 100])) & (df_N49["f"].isin([25e3, 100e3, 500e3, 1e6]))],
+    plot_mu_all(df=df_mat[(df_mat["T"].isin([25, 40, 60, 80, 100, 120])) & (df_mat["f"].isin([25e3, 100e3, 500e3, 1e6]))],
                 y_columns=y_columns,
                 styles=styles_mu,
                 annotate=False)
 
 if PV:
     # fit the Steinmetz equation
-    params_SE = mu_N49.fit_losses(loss_fit_function=mdb.FitFunction.Steinmetz)
-    df_N49["pv_fitted_SE"] = mdb.steinmetz_qT((df_N49["f"].to_numpy(), df_N49["T"].to_numpy(), df_N49["b"].to_numpy()), *params_SE)
-    rel_error_SE = abs(df_N49["pv_fitted_SE"] - df_N49["pv"]) / df_N49["pv"]
+    params_SE = mu_mat.fit_losses()
+    df_mat["pv_fitted_SE"] = mdb.steinmetz_qT((df_mat["f"].to_numpy(), df_mat["T"].to_numpy(), df_mat["b"].to_numpy()), *params_SE)
+    rel_error_SE = abs(df_mat["pv_fitted_SE"] - df_mat["pv"]) / df_mat["pv"]
     print(f"MRE (SE) = {np.mean(rel_error_SE)}")
 
     # fit the enhanced Steinmetz equation
-    params_eSE = mu_N49.fit_losses(loss_fit_function=mdb.FitFunction.enhancedSteinmetz)
-    df_N49["pv_fitted_eSE"] = mdb.enhanced_steinmetz_qT((df_N49["f"].to_numpy(), df_N49["T"].to_numpy(), df_N49["b"].to_numpy()), *params_eSE)
-    rel_error_eSE = abs(df_N49["pv_fitted_eSE"] - df_N49["pv"]) / df_N49["pv"]
+    mu_mat.pv_fit_function = mdb.FitFunction.enhancedSteinmetz
+    params_eSE = mu_mat.fit_losses()
+    df_mat["pv_fitted_eSE"] = mdb.enhanced_steinmetz_qT((df_mat["f"].to_numpy(), df_mat["T"].to_numpy(), df_mat["b"].to_numpy()), *params_eSE)
+    rel_error_eSE = abs(df_mat["pv_fitted_eSE"] - df_mat["pv"]) / df_mat["pv"]
     print(f"MRE (eSE) = {np.mean(rel_error_eSE)}")
 
     # plot the fitted data
@@ -65,7 +72,7 @@ if PV:
         "pv_fitted_SE": cast(StyleDict, {"marker": ".", "color": colors().compare1, "label": "Fitted SE"}),
         "pv_fitted_eSE": cast(StyleDict, {"marker": "*", "color": colors().compare2, "label": "Fitted eSE"}),
     }
-    plot_combined_loss(df=df_N49[(df_N49["T"].isin([25, 60, 100])) & (df_N49["f"].isin([25e3, 100e3, 500e3, 1e6]))],
+    plot_combined_loss(df=df_mat[(df_mat["T"].isin([25, 60, 100])) & (df_mat["f"].isin([25e3, 100e3, 500e3, 1e6]))],
                        y_columns=y_columns,
                        styles=styles_losses,
                        annotate=False)

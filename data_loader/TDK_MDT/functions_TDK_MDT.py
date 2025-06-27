@@ -6,19 +6,21 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
+from matplotlib import pyplot as plt
 
 import materialdatabase as mdb
-from materialdatabase.meta.data_enums import Material
-from materialdatabase.processing.utils.empirical import fit_mu_abs_Tb
+from materialdatabase.meta.data_enums import Material, FitFunction
 from materialdatabase.processing.utils.physic import mu_imag_from_pv
 from materialdatabase.processing.utils.constants import mu_0
+from materialdatabase import get_user_colors as colors
 
 logger = logging.getLogger(__name__)
 
 
-def read_mu_abs_TDK_MDT(
-    material_path: Path, material_name: str, temperatures: list[int]
-) -> pd.DataFrame:
+def read_mu_abs_TDK_MDT(material_path: Path,
+                        material_name: str,
+                        temperatures: list[int],
+                        b_lim: float = 0.3) -> pd.DataFrame:
     """
     Read mu_a vs. B data from TDK MDT xlsx files.
 
@@ -26,6 +28,7 @@ def read_mu_abs_TDK_MDT(
         material_path: Path to material-specific folder
         material_name: Name of material (string)
         temperatures: List of temperatures in °C for which mu_a data is available
+        b_lim: maximum flux density (crop higher flux densities)
 
     Returns:
         Combined DataFrame of mu_a data
@@ -38,8 +41,8 @@ def read_mu_abs_TDK_MDT(
         df.columns = pd.Index(["b", "mu_a"])
         df["T"] = temp
         df["b"] = df["b"] / 1000  # Convert mT to T
+        df = df[df["b"] <= b_lim]  # crop for b_lim
         df_list.append(df)
-
     return pd.concat(df_list, ignore_index=True)
 
 
@@ -70,14 +73,33 @@ def tdkmdt2pandas(
     data_dir = Path(data_dir)
     material_path = data_dir / material.name
 
-    # Read mu_a data and fit model
+    # Read mu_a data
     df_mu_a = read_mu_abs_TDK_MDT(material_path, material.name, T_mu_a)
+
+    # fit permeability magnitude
+    mu_a_fit_function = FitFunction.mu_abs_TDK_MDT.get_function()
     params_mu_abs, _ = curve_fit(
-        fit_mu_abs_Tb,
-        (df_mu_a["T"], df_mu_a["b"]),
+        mu_a_fit_function,
+        (np.ones_like(df_mu_a["T"]), df_mu_a["T"], df_mu_a["b"]),
         df_mu_a["mu_a"],
         maxfev=100_000,
     )
+    # print(df_mu_a)
+    print(params_mu_abs)
+
+    color_palette = [colors().compare1, colors().compare2, colors().compare3]
+    # Check the quality of the plot
+    for i, (T_val, group) in enumerate(df_mu_a.groupby("T")):
+        plt.plot(group["b"], group["mu_a"], color=color_palette[i], label=f"T = {T_val} °C")
+        mu_a_fit = mu_a_fit_function((np.ones_like(group["b"]), T_val * np.ones_like(group["b"]), group["b"]), *params_mu_abs)
+        plt.plot(group["b"], mu_a_fit, "x", color=color_palette[i])
+
+    plt.xlabel("B [T]")
+    plt.ylabel("μ_a")
+    plt.title("Permeability μ_a vs. B for Different Temperatures")
+    plt.legend()
+    plt.grid(True)
+    plt.show()
 
     # Collect loss density data
     data = []
@@ -106,7 +128,7 @@ def tdkmdt2pandas(
     df = pd.DataFrame(data).sort_values(by=["f", "T", "b"]).reset_index(drop=True)
 
     # Compute magnetic parameters
-    df["mu_a"] = fit_mu_abs_Tb((df["T"].to_numpy(), df["b"].to_numpy()), *params_mu_abs)
+    df["mu_a"] = mu_a_fit_function((df["f"].to_numpy(), df["T"].to_numpy(), df["b"].to_numpy()), *params_mu_abs)
     H = df["b"] / df["mu_a"] / mu_0
     df["mu_imag"] = -mu_imag_from_pv(df["f"].to_numpy(), H.to_numpy(), df["pv"].to_numpy()) / mu_0
     df["mu_real"] = np.sqrt(np.maximum(df["mu_a"]**2 - df["mu_imag"]**2, 0))

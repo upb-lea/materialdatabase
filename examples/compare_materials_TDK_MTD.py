@@ -1,10 +1,12 @@
-"""Example to compare materials based on (f, b)-operation points which can represent different designs and/or operation points.
+"""Example to compare material data from different measurement setups or materials.
 
 This script enables users to selectively visualize permeability and power loss
 for various materials under customizable frequency, temperature, and flux conditions.
+Each material can have its own measurement setup.
 """
 
 import logging
+from itertools import product
 from typing import cast
 
 import numpy as np
@@ -21,14 +23,15 @@ from materialdatabase.meta.data_classes import ComplexPermeabilityPlotConfig, Co
 
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
 
+
 # Flags to control which plots to generate
 PLOT_MU_ABS = True
 PLOT_PV = True
 
 # Operating points of interest
-FREQS = np.linspace(2e5, 4e5, 5)  # Frequency range in Hertz
-FLUX_DENSITIES = np.linspace(0.14, 0.07, 5)  # Flux densities in Tesla
-TEMPS = np.ones_like(FREQS) * 100  # Temperatures in Celsius
+FREQS = np.linspace(5e5, 1e6, 5)         # Frequency range in Hertz
+TEMPS = [100]                            # Temperatures in Celsius
+FLUX_DENSITIES = np.linspace(0.04, 0.1, 10)  # Flux densities in Tesla
 
 # Materials to evaluate
 materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
@@ -90,11 +93,9 @@ mdb_data = mdb.Data()
 
 # Create sweep grid
 df_common = pd.DataFrame(
+    product(FREQS, TEMPS, FLUX_DENSITIES),
     columns=["f", "T", "b"]
 )
-df_common["f"] = FREQS
-df_common["T"] = TEMPS
-df_common["b"] = FLUX_DENSITIES
 
 # ---------------------------------------------
 # Plot Permeability Magnitude
@@ -107,17 +108,17 @@ if PLOT_MU_ABS:
             continue
 
         logging.info(f"Computing permeability for: {cfg.label} (Setup: {cfg.mat_cfg.setup.name})")
-        material = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
-                                                     measurement_setup=cfg.mat_cfg.setup,
-                                                     mu_a_fit_function=cfg.mat_cfg.mu_a_fit_function,
-                                                     pv_fit_function=cfg.mat_cfg.pv_fit_function)
-        material.fit_permeability_magnitude()
+        permeability = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
+                                                         measurement_setup=cfg.mat_cfg.setup,
+                                                         mu_a_fit_function=cfg.mat_cfg.mu_a_fit_function,
+                                                         pv_fit_function=cfg.mat_cfg.pv_fit_function)
+        params = permeability.fit_permeability_magnitude()
         col = f"mu_abs_{key}"
-        df_common[col] = material.mu_a_fit_function.get_function()(
+        df_common[col] = permeability.mu_a_fit_function.get_function()(
             (df_common["f"].to_numpy(),
              df_common["T"].to_numpy(),
              df_common["b"].to_numpy()),
-            *material.params_mu_a
+            *params
         )
         styles_mu[col] = cast(StyleDict, {
             "marker": cfg.marker,
@@ -137,18 +138,18 @@ if PLOT_PV:
         if not cfg.enabled:
             continue
 
-        logging.info(f"Computing power loss for: {cfg.label} (Setup: {cfg.mat_cfg.setup.name})")
-        material = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
-                                                     measurement_setup=cfg.mat_cfg.setup,
-                                                     mu_a_fit_function=cfg.mat_cfg.mu_a_fit_function,
-                                                     pv_fit_function=cfg.mat_cfg.pv_fit_function)
-        material.fit_losses()
+        logging.info(f"Computing permeability for: {cfg.label} (Setup: {cfg.mat_cfg.setup.name})")
+        permeability = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
+                                                         measurement_setup=cfg.mat_cfg.setup,
+                                                         mu_a_fit_function=cfg.mat_cfg.mu_a_fit_function,
+                                                         pv_fit_function=cfg.mat_cfg.pv_fit_function)
+        params = permeability.fit_losses()
         col = f"pv_{key}"
-        df_common[col] = material.pv_fit_function.get_function()(
+        df_common[col] = permeability.pv_fit_function.get_function()(
             (df_common["f"].to_numpy(),
              df_common["T"].to_numpy(),
              df_common["b"].to_numpy()),
-            *material.params_pv
+            *params
         )
         styles_pv[col] = cast(StyleDict, {
             "marker": cfg.marker,
@@ -156,4 +157,4 @@ if PLOT_PV:
             "label": cfg.label
         })
 
-    plot_combined_loss(df=df_common, y_columns=list(styles_pv.keys()), styles=styles_pv, annotate=True, connect_all=True)
+    plot_combined_loss(df=df_common, y_columns=list(styles_pv.keys()), styles=styles_pv, annotate=False)

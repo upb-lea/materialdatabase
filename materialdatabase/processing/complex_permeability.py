@@ -6,7 +6,6 @@ from typing import Any
 # 3rd party libraries
 import numpy as np
 import pandas as pd
-from scipy.interpolate import RegularGridInterpolator
 from scipy.optimize import curve_fit
 
 # own libraries
@@ -22,7 +21,12 @@ logger = logging.getLogger(__name__)
 class ComplexPermeability:
     """Class to process complex permeability data."""
 
-    def __init__(self, df_complex_permeability: pd.DataFrame, material: Material, measurement_setup: MeasurementSetup):
+    def __init__(self,
+                 df_complex_permeability: pd.DataFrame,
+                 material: Material,
+                 measurement_setup: MeasurementSetup,
+                 mu_a_fit_function: FitFunction,
+                 pv_fit_function: FitFunction):
         """
         Initialize the complex permeability measurement data.
 
@@ -34,8 +38,10 @@ class ComplexPermeability:
         self.material = material
         self.measurement_setup = measurement_setup
         self._fitted_data: pd.DataFrame | None = None
-        self._mu_real_interp: RegularGridInterpolator | None = None
-        self._mu_imag_interp: RegularGridInterpolator | None = None
+        self.params_mu_a = None
+        self.mu_a_fit_function = mu_a_fit_function
+        self.params_pv = None
+        self.pv_fit_function = pv_fit_function
 
     def get_measurement_bounds(self) -> dict:
         """
@@ -85,7 +91,7 @@ class ComplexPermeability:
 
         return grid
 
-    def fit_permeability_magnitude(self, mu_a_fit_function: FitFunction) -> Any:
+    def fit_permeability_magnitude(self) -> Any:
         """
         Fit the permeability magnitude μ_abs as a function of frequency, temperature, and magnetic flux density.
 
@@ -94,11 +100,10 @@ class ComplexPermeability:
 
         It then fits this data using a predefined model function `fit_mu_abs_...(f, T, b, ...)`.
 
-        :param mu_a_fit_function: fit function
         :return: Fitted parameters (popt_mu_abs) of the μ_abs model.
         :rtype: np.ndarray
         """
-        fit_mu_a = mu_a_fit_function.get_function()
+        fit_mu_a = self.mu_a_fit_function.get_function()
 
         mu_a = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
         popt_mu_a, pcov_mu_a = curve_fit(fit_mu_a,
@@ -106,20 +111,21 @@ class ComplexPermeability:
                                           self.measurement_data["T"],
                                           self.measurement_data["b"]),
                                          mu_a, maxfev=int(1e6))
+        self.params_mu_a = popt_mu_a
         return popt_mu_a
 
-    def fit_losses(self, loss_fit_function: FitFunction) -> Any:
+    def fit_losses(self) -> Any:
         """
         Fit the magnetic power loss density p_v as a function of frequency, temperature, and magnetic flux density.
 
         The losses are calculated from the imaginary part of the permeability using the helper function `pv_mag()`,
         and then fitted using e.g. the Steinmetz-based `..._steinmetz_...(f, T, b, ...)`.
 
-        :param loss_fit_function: e.g. mdb.FitFunction.Steinmetz
         :return: Fitted parameters (popt_pv) of the Steinmetz-based power loss model.
         :rtype: np.ndarray
         """
-        log_pv_fit_function = loss_fit_function.get_function()
+        log_pv_fit_function = self.pv_fit_function.get_log_function()
+        pv_fit_function = self.pv_fit_function.get_function()
 
         mu_abs = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
         pv = pv_mag(self.measurement_data["f"].to_numpy(),
@@ -130,4 +136,5 @@ class ComplexPermeability:
                                       self.measurement_data["T"],
                                       self.measurement_data["b"]),
                                      np.log(pv), maxfev=100000)
+        self.params_pv = popt_pv
         return popt_pv
