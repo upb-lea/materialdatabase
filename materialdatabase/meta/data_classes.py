@@ -11,7 +11,6 @@ class ComplexPermeabilityConfig:
 
     material: Material
     setup: MeasurementSetup
-    mu_a_fit_function: FitFunction
     pv_fit_function: FitFunction
 
 

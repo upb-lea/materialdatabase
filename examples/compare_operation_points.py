@@ -36,7 +36,6 @@ materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
         mat_cfg=ComplexPermeabilityConfig(
             material=mdb.Material.N49,
             setup=mdb.MeasurementSetup.TDK_MDT,
-            mu_a_fit_function=mdb.FitFunction.mu_abs_TDK_MDT,
             pv_fit_function=mdb.FitFunction.enhancedSteinmetz
         ),
         enabled=True,
@@ -48,7 +47,6 @@ materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
         mat_cfg=ComplexPermeabilityConfig(
             material=mdb.Material.N95,
             setup=mdb.MeasurementSetup.TDK_MDT,
-            mu_a_fit_function=mdb.FitFunction.mu_abs_TDK_MDT,
             pv_fit_function=mdb.FitFunction.enhancedSteinmetz
         ),
         enabled=True,
@@ -60,7 +58,6 @@ materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
         mat_cfg=ComplexPermeabilityConfig(
             material=mdb.Material.N87,
             setup=mdb.MeasurementSetup.TDK_MDT,
-            mu_a_fit_function=mdb.FitFunction.mu_abs_TDK_MDT,
             pv_fit_function=mdb.FitFunction.enhancedSteinmetz
         ),
         enabled=True,
@@ -72,7 +69,6 @@ materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
         mat_cfg=ComplexPermeabilityConfig(
             material=mdb.Material.PC200,
             setup=mdb.MeasurementSetup.TDK_MDT,
-            mu_a_fit_function=mdb.FitFunction.mu_abs_TDK_MDT,
             pv_fit_function=mdb.FitFunction.enhancedSteinmetz
         ),
         enabled=False,
@@ -109,7 +105,6 @@ if PLOT_MU_ABS:
         logging.info(f"Computing permeability for: {cfg.label} (Setup: {cfg.mat_cfg.setup.name})")
         material = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
                                                      measurement_setup=cfg.mat_cfg.setup,
-                                                     mu_a_fit_function=cfg.mat_cfg.mu_a_fit_function,
                                                      pv_fit_function=cfg.mat_cfg.pv_fit_function)
         material.fit_permeability_magnitude()
         col = f"mu_abs_{key}"
@@ -140,7 +135,6 @@ if PLOT_PV:
         logging.info(f"Computing power loss for: {cfg.label} (Setup: {cfg.mat_cfg.setup.name})")
         material = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
                                                      measurement_setup=cfg.mat_cfg.setup,
-                                                     mu_a_fit_function=cfg.mat_cfg.mu_a_fit_function,
                                                      pv_fit_function=cfg.mat_cfg.pv_fit_function)
         material.fit_losses()
         col = f"pv_{key}"

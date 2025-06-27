@@ -1,7 +1,7 @@
 """Class to represent the data structure and load material data."""
 import logging
 # python libraries
-from typing import Any
+from typing import Any, Tuple
 
 # 3rd party libraries
 import numpy as np
@@ -11,8 +11,9 @@ from scipy.optimize import curve_fit
 # own libraries
 from materialdatabase.meta.data_enums import *
 from materialdatabase.meta.config import *
+from materialdatabase.meta.mapping import *
 from materialdatabase.processing.utils.empirical import *
-from materialdatabase.processing.utils.physic import pv_mag
+from materialdatabase.processing.utils.physic import pv_mag, mu_imag_from_pv
 from materialdatabase.processing.utils.constants import mu_0
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,6 @@ class ComplexPermeability:
                  df_complex_permeability: pd.DataFrame,
                  material: Material,
                  measurement_setup: MeasurementSetup,
-                 mu_a_fit_function: FitFunction,
                  pv_fit_function: FitFunction):
         """
         Initialize the complex permeability measurement data.
@@ -39,7 +39,7 @@ class ComplexPermeability:
         self.measurement_setup = measurement_setup
         self._fitted_data: pd.DataFrame | None = None
         self.params_mu_a = None
-        self.mu_a_fit_function = mu_a_fit_function
+        self.mu_a_fit_function = get_fit_function_from_setup(measurement_setup)  # permeability fit is coupled to measurement setup
         self.params_pv = None
         self.pv_fit_function = pv_fit_function
 
@@ -138,3 +138,46 @@ class ComplexPermeability:
                                      np.log(pv), maxfev=100000)
         self.params_pv = popt_pv
         return popt_pv
+
+    def fit_real_and_imaginary_part_at_f_and_T(
+            self,
+            f_op: float,
+            T_op: float,
+            b_vals: npt.NDArray
+    ) -> Tuple[npt.NDArray, npt.NDArray]:
+        """
+        Fit permeability and losses for a given material and return real/imaginary parts.
+
+        :param f_op: Operating frequency in Hz
+        :param T_op: Operating temperature in °C
+        :param b_vals: 1D np.ndarray of magnetic flux density values in T
+        :return: Tuple (mu_real, mu_imag) of fitted real and imaginary parts of permeability
+        """
+        assert isinstance(b_vals, np.ndarray), "b_vals must be a NumPy array"
+
+        if self.params_pv is None:
+            self.fit_losses()
+        if self.params_mu_a is None:
+            self.fit_permeability_magnitude()
+
+        # Avoid division by zero
+        if b_vals[0] == 0:
+            b_vals = b_vals.copy()
+            b_vals[0] = 1e-6
+
+        # Fit permeability magnitude μₐ(f, T, B)
+        mu_a = self.mu_a_fit_function.get_function()((f_op, T_op, b_vals), *self.params_mu_a)
+
+        # Fit specific power loss using provided model
+        pv_vals = self.pv_fit_function.get_function()((f_op, T_op, b_vals), *self.params_pv)
+
+        # Compute excitation field strength H = B / (μₐ * μ₀)
+        h_vals = b_vals / mu_a / mu_0
+
+        # Compute imaginary part of permeability from losses
+        mu_imag = -mu_imag_from_pv(f_op, h_vals, pv_vals) / mu_0
+
+        # Compute real part using magnitude and imaginary part
+        mu_real = np.sqrt(np.maximum(mu_a ** 2 - mu_imag ** 2, 0))
+
+        return np.array(mu_real), np.array(mu_imag)

@@ -84,8 +84,6 @@ def tdkmdt2pandas(
         df_mu_a["mu_a"],
         maxfev=100_000,
     )
-    # print(df_mu_a)
-    print(params_mu_abs)
 
     color_palette = [colors().compare1, colors().compare2, colors().compare3]
     # Check the quality of the plot

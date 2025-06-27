@@ -10,7 +10,6 @@ mdb_data = mdb.Data()
 
 mu_N49 = mdb_data.get_complex_permeability(material=mdb.Material.N49,
                                            measurement_setup=mdb.MeasurementSetup.TDK_MDT,
-                                           mu_a_fit_function=mdb.FitFunction.mu_abs_TDK_MDT,
                                            pv_fit_function=mdb.FitFunction.enhancedSteinmetz)
 print(f"Exemplary complex permeability data: \n {mu_N49.measurement_data} \n")
 

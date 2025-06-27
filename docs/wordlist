@@ -83,3 +83,5 @@ fTb
 dataclasses
 precompute
 dataclass
+vals
+NumPy
