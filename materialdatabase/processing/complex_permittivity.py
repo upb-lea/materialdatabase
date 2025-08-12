@@ -32,8 +32,8 @@ class ComplexPermittivity:
         self.measurement_setup = measurement_setup
         self.params_eps_a = None
         self.eps_a_fit_function = FitFunction.eps_abs
-        self.params_eps_v = None
-        self.eps_v_fit_function = FitFunction.eps_abs
+        self.params_eps_pv = None
+        self.eps_pv_fit_function = FitFunction.eps_abs
 
     def fit_permittivity_magnitude(self) -> Any:
         """
@@ -42,7 +42,7 @@ class ComplexPermittivity:
         This method:
           1. Computes ε_abs = sqrt(ε_real² + ε_imag²).
           2. Interpolates the magnitude to a uniform frequency grid at each temperature.
-          3. Fits the interpolated data using `fit_eps_qT`.
+          3. Fits the interpolated data.
 
         :return: Fitted parameters (popt_eps_a) of the ε_abs model.
         :rtype: np.ndarray
@@ -75,12 +75,62 @@ class ComplexPermittivity:
             interpolated_eps_a.extend(eps_a_uniform)
 
         # Step 3: Fit to interpolated dataset
-        popt_eps_a, pcov_eps_a = curve_fit(
-            fit_eps_qT,
+        params_eps_a, pcov_eps_a = curve_fit(
+            self.eps_a_fit_function.get_function(),
             (np.array(interpolated_f), np.array(interpolated_T)),
             np.array(interpolated_eps_a),
             maxfev=int(1e6)
         )
 
-        self.params_eps_a = popt_eps_a
-        return popt_eps_a
+        self.params_eps_a = params_eps_a
+        return params_eps_a
+
+    def fit_loss_angle(self) -> Any:
+        """
+        Fit the dielectric losses as a function of frequency and temperature.
+
+        This method:
+          1. Computes loss density p_el.
+          2. Interpolates p_el to a uniform frequency grid at each temperature.
+          3. Fits the interpolated.
+
+        :return: Fitted parameters (popt_eps_pv) of the ε_abs model.
+        :rtype: np.ndarray
+        """
+        # Step 1: Compute magnitude
+        eps_angle = np.arctan(self.measurement_data["eps_imag"] / self.measurement_data["eps_real"])
+
+        df = self.measurement_data.copy()
+        df["eps_angle"] = eps_angle
+
+        # Step 2: Interpolate to uniform frequency grid for each T
+        interpolated_f: List[float] = []
+        interpolated_T: List[float] = []
+        interpolated_eps_angle: List[float] = []
+
+        unique_Ts = np.unique(df["T"])
+        for T in unique_Ts:
+            df_T = df[df["T"] == T].sort_values("f")
+            f_min, f_max = df_T["f"].min(), df_T["f"].max()
+
+            # Create evenly spaced frequency grid (e.g., same number as original points)
+            f_uniform = np.linspace(f_min, f_max, len(df_T))
+
+            # Interpolate magnitude over uniform grid
+            interp_func = interp1d(df_T["f"], df_T["eps_angle"], kind="linear", fill_value="extrapolate")
+            eps_angle_uniform = interp_func(f_uniform)
+
+            interpolated_f.extend(f_uniform)
+            interpolated_T.extend([T] * len(f_uniform))
+            interpolated_eps_angle.extend(eps_angle_uniform)
+
+        # Step 3: Fit to interpolated dataset
+        params_eps_pv, pcov_eps_pv = curve_fit(
+            self.eps_pv_fit_function.get_function(),
+            (np.array(interpolated_f), np.array(interpolated_T)),
+            np.array(interpolated_eps_angle),
+            maxfev=int(1e6)
+        )
+
+        self.params_eps_pv = params_eps_pv
+        return params_eps_pv
