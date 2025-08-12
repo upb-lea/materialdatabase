@@ -2,6 +2,10 @@
 import numpy as np
 import numpy.typing as npt
 
+# ----------------
+# Temperature Fits
+# ----------------
+
 def quadratic_temperature(T: float | np.ndarray, c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
     """
     Quadratic temperature dependence: k(T) = c₀ - c₁·T + c₂·T².
@@ -14,6 +18,9 @@ def quadratic_temperature(T: float | np.ndarray, c_0: float, c_1: float, c_2: fl
     """
     return c_0 - c_1 * T + c_2 * T ** 2
 
+# ----------------
+# Permeability Fits
+# ----------------
 
 def steinmetz(fb: tuple[float | np.ndarray, float | np.ndarray],
               alpha: float, beta: float, k: float | np.ndarray) -> float | np.ndarray:
@@ -197,3 +204,41 @@ def fit_mu_abs_LEA_MTB(
     k_f = 1 + c_f * f
 
     return (mur_0 * k_0 + k_1 * (mur_1 * B + mur_2 * B ** 2)) * k_f
+
+# ----------------
+# Permittivity Fits
+# ----------------
+
+def fit_eps(f: float | np.ndarray,
+            e_0: float, e_1: float, e_2: float, e_3: float) -> float | np.ndarray:
+    """
+    Polynomial fit suitable for permittivity fit.
+
+    :param f:
+    :param e_0: constant frequency coefficient
+    :param e_1: linear frequency coefficient
+    :param e_2: quadratic frequency coefficient
+    :param e_3: cubic frequency coefficient
+    :return:
+    """
+    return e_0 + e_1 * f + e_2 * f ** 2 + e_3 * f ** 3
+
+
+def fit_eps_qT(fT: tuple[float | np.ndarray, float | np.ndarray],
+               e_1: float, e_2: float, e_3: float,
+               c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
+    """
+    Temperature-dependent polynomial fit suitable for permittivity fit.
+
+    :param fT: tuple of frequency and temperature
+    :param e_1: linear frequency coefficient
+    :param e_2: quadratic frequency coefficient
+    :param e_3: cubic frequency coefficient
+    :param c_0: constant coefficient
+    :param c_1: linear temperature coefficient
+    :param c_2: quadratic temperature coefficient
+    :return: fitted permittivity (real, imaginary, amplitude or loss angle)
+    """
+    f, T = fT
+    k = quadratic_temperature(T, c_0, c_1, c_2)
+    return k / (1.0 + e_1 * f**(e_2+e_3/T))
