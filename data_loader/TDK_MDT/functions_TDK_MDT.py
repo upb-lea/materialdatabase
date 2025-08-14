@@ -24,14 +24,11 @@ def read_mu_abs_TDK_MDT(material_path: Path,
     """
     Read mu_a vs. B data from TDK MDT xlsx files.
 
-    Args:
-        material_path: Path to material-specific folder
-        material_name: Name of material (string)
-        temperatures: List of temperatures in °C for which mu_a data is available
-        b_lim: maximum flux density (crop higher flux densities)
-
-    Returns:
-        Combined DataFrame of mu_a data
+    :param material_path: Path to material-specific folder
+    :param material_name: Name of material (string)
+    :param temperatures: List of temperatures in °C for which mu_a data is available
+    :param b_lim: maximum flux density (crop higher flux densities)
+    :return: combined DataFrame of mu_a data
     """
     df_list = []
 
@@ -58,14 +55,13 @@ def tdkmdt2pandas(
     """
     Read and process TDK MDT data to generate complex permeability values.
 
-    Args:
-        data_dir: Path to base data directory
-        material: Material enum (e.g., mdb.Material.N49)
-        f_: List of frequencies in kHz
-        T_: List of temperatures in °C
-        T_mu_a: List of temperatures for mu_a fitting
-        save2file: Whether to save results to material DB
-        pv_max: Optional max loss density (W/m³)
+    :param data_dir: Path to base data directory
+    :param material: Material enum (e.g., mdb.Material.N49)
+    :param f_: List of frequencies in kHz
+    :param T_: List of temperatures in °C
+    :param T_mu_a: List of temperatures for mu_a fitting
+    :param save2file: Whether to save results to material DB
+    :param pv_max: Optional max loss density (W/m³)
     """
     if T_mu_a is None:
         T_mu_a = [25, 100]
