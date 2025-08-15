@@ -1,7 +1,7 @@
 """Class to represent the data structure and load material data."""
-import logging
 # python libraries
 from typing import List
+import os
 
 # 3rd party libraries
 import pandas as pd
@@ -169,3 +169,57 @@ class ComplexPermittivity:
         eps_imag = eps_a * np.sin(phi)
 
         return eps_real, eps_imag
+
+    @staticmethod
+    def txt2grid2d(df: pd.DataFrame, path: os.PathLike | str) -> None:
+        """
+        Export 2D permittivity data to grid text file format.
+
+        :params df: Expected DataFrame columns:
+                      0 -> frequency
+                      1 -> temperature
+                      2 -> real part of permittivity
+                      3 -> imaginary part of permittivity
+        :params path: path where the txt file should be stored
+        """
+        with open(path, "w+") as f:
+            f.write("%Grid\n")
+
+            # frequency
+            f_grid: list[float] = sorted(set(df[0].values.tolist()))
+            f.write(str(f_grid)[1:-1] + "\n")
+
+            # temperature
+            T_grid: list[float] = sorted(set(df[1].values.tolist()))
+            f.write(str(T_grid)[1:-1] + "\n")
+
+            f.write("%Data\n")
+            eps_real: list[float] = df[2].values.tolist()
+            f.write(str(eps_real)[1:-1] + "\n")
+
+            f.write("%Data\n")
+            eps_imag: list[float] = df[3].values.tolist()
+            f.write(str(eps_imag)[1:-1])
+
+    def export_to_txt(
+            self,
+            path: str | os.PathLike,
+            frequencies: npt.NDArray[np.float64],
+            temperatures: npt.NDArray[np.float64]
+    ) -> None:
+        """
+        Export fitted permittivity data to a text file in grid format.
+        """
+        if self.params_eps_a is None:
+            self.fit_permittivity_magnitude()
+        if self.params_eps_pv is None:
+            self.fit_loss_angle()
+
+        records: list[list[float]] = []
+        for T in temperatures:
+            for f in frequencies:
+                eps_real, eps_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T)
+                records.append([f, T, eps_real, eps_imag])
+
+        df_export: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3])
+        self.txt2grid2d(df_export, path)

@@ -167,25 +167,25 @@ def main():
     mdb_data = mdb.Data()
 
     # Load permittivity data for a specific material and setup
-    eps_N49 = mdb_data.get_complex_permittivity(
+    permittivity = mdb_data.get_complex_permittivity(
         material=mdb.Material.N49,
         measurement_setup=mdb.MeasurementSetup.LEA_MTB
     )
 
     print("Exemplary complex permittivity data:")
-    print(eps_N49.measurement_data, "\n")
+    print(permittivity.measurement_data, "\n")
 
     # Fit permittivity magnitude ε_abs
-    eps_N49.fit_permittivity_magnitude()
-    eps_N49.fit_loss_angle()
+    permittivity.fit_permittivity_magnitude()
+    permittivity.fit_loss_angle()
 
     # Plot measured vs fitted magnitude
-    plot_permittivity_magnitude_fit(eps_N49)
-    plot_permittivity_loss_angle_fit(eps_N49)
+    plot_permittivity_magnitude_fit(permittivity)
+    plot_permittivity_loss_angle_fit(permittivity)
 
     # Plot measured and fitted ε_abs vs frequency for each temperature
-    plot_permittivity_vs_frequency(eps_N49)
-    plot_permittivity_loss_angle_vs_frequency(eps_N49)
+    plot_permittivity_vs_frequency(permittivity)
+    plot_permittivity_loss_angle_vs_frequency(permittivity)
 
 
 if __name__ == "__main__":

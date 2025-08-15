@@ -20,22 +20,22 @@ PV = True
 mdb_data = mdb.Data()
 
 # load ComplexMaterial instance
-mu_mat = mdb_data.get_complex_permeability(material=mdb.Material.N49,
-                                           measurement_setup=mdb.MeasurementSetup.TDK_MDT,
-                                           pv_fit_function=mdb.FitFunction.Steinmetz)
+permeability = mdb_data.get_complex_permeability(material=mdb.Material.N49,
+                                                 measurement_setup=mdb.MeasurementSetup.TDK_MDT,
+                                                 pv_fit_function=mdb.FitFunction.Steinmetz)
+permeability.fit_permeability_magnitude()
+params_SE = permeability.fit_losses()
 
 # copy measurement in an extra dataframe
-df_mat = mu_mat.measurement_data.copy(deep=True)
+df_mat = permeability.measurement_data.copy(deep=True)
 df_mat["mu_abs"] = np.sqrt(df_mat["mu_real"] ** 2 + df_mat["mu_imag"] ** 2)
 df_mat["pv"] = pv_mag(df_mat["f"].to_numpy(), -df_mat["mu_imag"].to_numpy() * mu_0, df_mat["b"].to_numpy() / df_mat["mu_abs"].to_numpy() / mu_0)
 
 if MU_ABS:
-    # Fitting of the permeability magnitude mu_abs
-    mu_mat.fit_permeability_magnitude()
-    df_mat["mu_abs_fitted"] = mu_mat.mu_a_fit_function.get_function()((df_mat["f"].to_numpy(),
-                                                                       df_mat["T"].to_numpy(),
-                                                                       df_mat["b"].to_numpy()),
-                                                                      *mu_mat.params_mu_a)
+    df_mat["mu_abs_fitted"] = permeability.mu_a_fit_function.get_function()((df_mat["f"].to_numpy(),
+                                                                             df_mat["T"].to_numpy(),
+                                                                             df_mat["b"].to_numpy()),
+                                                                            *permeability.params_mu_a)
     rel_error_mu_abs = abs(df_mat["mu_abs_fitted"] - df_mat["mu_abs"]) / df_mat["mu_abs"]
     print(f"MRE (mu_abs) = {np.mean(rel_error_mu_abs)}")
 
@@ -51,15 +51,13 @@ if MU_ABS:
                 annotate=False)
 
 if PV:
-    # fit the Steinmetz equation
-    params_SE = mu_mat.fit_losses()
     df_mat["pv_fitted_SE"] = mdb.steinmetz_qT((df_mat["f"].to_numpy(), df_mat["T"].to_numpy(), df_mat["b"].to_numpy()), *params_SE)
     rel_error_SE = abs(df_mat["pv_fitted_SE"] - df_mat["pv"]) / df_mat["pv"]
     print(f"MRE (SE) = {np.mean(rel_error_SE)}")
 
     # fit the enhanced Steinmetz equation
-    mu_mat.pv_fit_function = mdb.FitFunction.enhancedSteinmetz
-    params_eSE = mu_mat.fit_losses()
+    permeability.pv_fit_function = mdb.FitFunction.enhancedSteinmetz
+    params_eSE = permeability.fit_losses()
     df_mat["pv_fitted_eSE"] = mdb.enhanced_steinmetz_qT((df_mat["f"].to_numpy(), df_mat["T"].to_numpy(), df_mat["b"].to_numpy()), *params_eSE)
     rel_error_eSE = abs(df_mat["pv_fitted_eSE"] - df_mat["pv"]) / df_mat["pv"]
     print(f"MRE (eSE) = {np.mean(rel_error_eSE)}")
@@ -75,3 +73,4 @@ if PV:
                        y_columns=y_columns,
                        styles=styles_losses,
                        annotate=False)
+

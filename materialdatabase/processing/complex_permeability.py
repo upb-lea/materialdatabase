@@ -1,6 +1,6 @@
 """Class to represent the data structure and load material data."""
-import logging
 # python libraries
+import os
 from typing import Any, Tuple
 
 # 3rd party libraries
@@ -181,3 +181,64 @@ class ComplexPermeability:
         mu_real = np.sqrt(np.maximum(mu_a ** 2 - mu_imag ** 2, 0))
 
         return np.array(mu_real), np.array(mu_imag)
+
+    @staticmethod
+    def txt2grid3d(df: pd.DataFrame, path: os.PathLike | str) -> None:
+        """
+        Export 3D permeability data to grid text file format.
+
+        :params df: Expected DataFrame columns:
+                      0 -> frequency
+                      1 -> temperature
+                      2 -> flux density
+                      3 -> real part of permeability
+                      4 -> imaginary part of permeability
+        :params path: path where the txt file should be stored
+        """
+        with open(path, "w+") as f:
+            f.write("%Grid\n")
+
+            # magnetic flux density
+            b_grid: list[float] = sorted(set(df[2].values.tolist()))
+            f.write(str(b_grid)[1:-1] + "\n")
+
+            # frequency
+            f_grid: list[float] = sorted(set(df[0].values.tolist()))
+            f.write(str(f_grid)[1:-1] + "\n")
+
+            # temperature
+            T_grid: list[float] = sorted(set(df[1].values.tolist()))
+            f.write(str(T_grid)[1:-1] + "\n")
+
+            f.write("%Data\n")
+            mu_real: list[float] = df[3].values.tolist()
+            f.write(str(mu_real)[1:-1] + "\n")
+
+            f.write("%Data\n")
+            mu_imag: list[float] = df[4].values.tolist()
+            f.write(str(mu_imag)[1:-1])
+
+    def export_to_txt(
+        self,
+        path: str | os.PathLike,
+        frequencies: npt.NDArray[np.float64],
+        temperatures: npt.NDArray[np.float64],
+        b_vals: npt.NDArray[np.float64]
+    ) -> None:
+        """
+        Export fitted permeability data (real & imaginary parts) to a txt grid file.
+        """
+        if self.params_pv is None:
+            self.fit_losses()
+        if self.params_mu_a is None:
+            self.fit_permeability_magnitude()
+
+        records: list[list[float]] = []
+        for T in temperatures:
+            for f in frequencies:
+                mu_real, mu_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T, b_vals)
+                for i, b in enumerate(b_vals):
+                    records.append([f, T, b, mu_real[i], mu_imag[i]])
+
+        df_export: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3, 4])
+        self.txt2grid3d(df_export, path)
