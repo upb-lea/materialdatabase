@@ -1,8 +1,6 @@
 """Load permittivity data in the mdb."""
 from pathlib import Path
-import os
 
-from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 

@@ -7,7 +7,6 @@ from typing import List
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
-from matplotlib import pyplot as plt
 
 # own libraries
 from materialdatabase.meta.data_enums import *

@@ -3,16 +3,13 @@
 import logging
 
 import os
-from typing import Dict, List, Any
+from typing import Dict, List
 
-import numpy as np
-from scipy import constants
-import pandas as pd
 
 logger = logging.getLogger(__name__)
 
 
-def collect_probes_and_temperatures(root_dir: str = "raw") -> Dict[str, Dict[str, Dict[str, List[int]]]]:
+def collect_probes_and_temperatures(root_dir: str | os.PathLike) -> Dict[str, Dict[str, Dict[str, List[int]]]]:
     """
     Collect available probes and their measurement temperatures from a directory structure.
 
