@@ -205,7 +205,7 @@ class Data:
             raise ValueError(f"{data_type} is no valid complex data type.\n"
                              f"Valid complex data types are: {[item.value for item in ComplexDataType]}")
         else:
-            path2file = Path(f"{self.root_dir}/{data_type.name}/{measurement_setup.name}/{material.name}.csv")
+            path2file = Path(f"{self.root_dir}/{data_type.value}/{measurement_setup.value}/{material.value}.csv")
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:

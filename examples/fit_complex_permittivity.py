@@ -168,7 +168,7 @@ def main():
 
     # Load permittivity data for a specific material and setup
     eps_N49 = mdb_data.get_complex_permittivity(
-        material=mdb.Material.N49,
+        material=mdb.Material._3F46,
         measurement_setup=mdb.MeasurementSetup.LEA_MTB
     )
 

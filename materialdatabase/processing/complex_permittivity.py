@@ -7,6 +7,7 @@ from typing import List
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
+from matplotlib import pyplot as plt
 
 # own libraries
 from materialdatabase.meta.data_enums import *
@@ -63,8 +64,9 @@ class ComplexPermittivity:
             df_T = df[df["T"] == T].sort_values("f")
             f_min, f_max = df_T["f"].min(), df_T["f"].max()
 
-            # Create evenly spaced frequency grid (e.g., same number as original points)
-            f_uniform = np.linspace(f_min, f_max, len(df_T))
+            # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
+            # f_uniform = np.linspace(f_min, f_max, len(df_T))
+            f_uniform = np.linspace(f_min, f_max, 20)
 
             # Interpolate magnitude over uniform grid
             interp_func = interp1d(df_T["f"], df_T["eps_a"], kind="linear", fill_value="extrapolate")
