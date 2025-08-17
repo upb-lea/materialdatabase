@@ -187,13 +187,8 @@ class ComplexPermeability:
         """
         Export 3D permeability data to grid text file format.
 
-        :params df: Expected DataFrame columns:
-                      0 -> frequency
-                      1 -> temperature
-                      2 -> flux density
-                      3 -> real part of permeability
-                      4 -> imaginary part of permeability
-        :params path: path where the txt file should be stored
+        :param df: Expected DataFrame columns: [frequency, temperature, flux density, real part of permeability, imaginary part of permeability]
+        :param path: path where the txt file should be stored
         """
         with open(path, "w+") as f:
             f.write("%Grid\n")
@@ -218,15 +213,15 @@ class ComplexPermeability:
             mu_imag: list[float] = df[4].values.tolist()
             f.write(str(mu_imag)[1:-1])
 
-    def export_to_txt(
-        self,
-        path: str | os.PathLike,
-        frequencies: npt.NDArray[np.float64],
-        temperatures: npt.NDArray[np.float64],
-        b_vals: npt.NDArray[np.float64]
-    ) -> None:
+    def export_to_txt(self, path: str | os.PathLike, frequencies: npt.NDArray[Any], temperatures: npt.NDArray[Any],
+                      b_vals: npt.NDArray[Any]) -> None:
         """
         Export fitted permeability data (real & imaginary parts) to a txt grid file.
+
+        :param path: path to exported txt-file
+        :param frequencies: frequencies for the interpolation grid
+        :param temperatures: temperatures for the interpolation grid
+        :param b_vals: magnetic flux density values for the interpolation grid
         """
         if self.params_pv is None:
             self.fit_losses()

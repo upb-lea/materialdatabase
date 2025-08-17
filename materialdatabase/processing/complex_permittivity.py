@@ -175,12 +175,8 @@ class ComplexPermittivity:
         """
         Export 2D permittivity data to grid text file format.
 
-        :params df: Expected DataFrame columns:
-                      0 -> frequency
-                      1 -> temperature
-                      2 -> real part of permittivity
-                      3 -> imaginary part of permittivity
-        :params path: path where the txt file should be stored
+        :param df: Expected DataFrame columns: [frequency, temperature, real part of permeability, imaginary part of permeability]
+        :param path: path where the txt file should be stored
         """
         with open(path, "w+") as f:
             f.write("%Grid\n")
@@ -201,14 +197,13 @@ class ComplexPermittivity:
             eps_imag: list[float] = df[3].values.tolist()
             f.write(str(eps_imag)[1:-1])
 
-    def export_to_txt(
-            self,
-            path: str | os.PathLike,
-            frequencies: npt.NDArray[np.float64],
-            temperatures: npt.NDArray[np.float64]
-    ) -> None:
+    def export_to_txt(self, path: str | os.PathLike, frequencies: npt.NDArray[Any], temperatures: npt.NDArray[Any]) -> None:
         """
-        Export fitted permittivity data to a text file in grid format.
+        Export fitted permittivity data (real & imaginary parts) to a txt grid file.
+
+        :param path: path to exported txt-file
+        :param frequencies: frequencies for the interpolation grid
+        :param temperatures: temperatures for the interpolation grid
         """
         if self.params_eps_a is None:
             self.fit_permittivity_magnitude()

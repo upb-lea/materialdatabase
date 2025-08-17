@@ -73,4 +73,3 @@ if PV:
                        y_columns=y_columns,
                        styles=styles_losses,
                        annotate=False)
-
