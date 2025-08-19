@@ -58,11 +58,11 @@ class DatasheetAttribute(str, Enum):
     Application = "application"
     Material = "material"
     InitialPermeability = "initial permeability"
-    CurieTemperature = "curie temperature"
-    Density = "density (kg/m^3)"
-    Resistivity = "resistivity (Ohm m)"
-    SaturationFluxDensity25 = "saturation flux density (mT) at 25 C"
-    SaturationFluxDensity100 = "saturation flux density (mT) at 100 C"
+    CurieTemperature = "curie temperature in C"
+    Density = "density in kg/m^3"
+    Resistivity = "resistivity in Ohm m"
+    SaturationFluxDensity25 = "saturation flux density in T at 25 C"
+    SaturationFluxDensity100 = "saturation flux density in T at 100 C"
 
 class DatasheetCurveType(str, Enum):
     """Set the type of datasheet curve."""
