@@ -52,6 +52,18 @@ class DatasheetCurvesFolder(str, Enum):
     name = "datasheet_curves"
 
 
+class DatasheetAttribute(str, Enum):
+    """General information categories in every datasheet."""
+
+    Application = "application"
+    Material = "material"
+    InitialPermeability = "initial permeability"
+    CurieTemperature = "curie temperature"
+    Density = "density (kg/m^3)"
+    Resistivity = "resistivity (Ohm m)"
+    SaturationFluxDensity25 = "saturation flux density (mT) at 25 C"
+    SaturationFluxDensity100 = "saturation flux density (mT) at 100 C"
+
 class DatasheetCurveType(str, Enum):
     """Set the type of datasheet curve."""
 

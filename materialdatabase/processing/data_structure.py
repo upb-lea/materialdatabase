@@ -2,6 +2,7 @@
 import logging
 # python libraries
 from pathlib import Path, PurePath
+from typing import Any
 
 # 3rd party libraries
 import toml
@@ -10,7 +11,8 @@ from matplotlib import pyplot as plt
 import numpy as np
 
 # own libraries
-from materialdatabase.meta.data_enums import ComplexDataType, Material, MeasurementSetup, DatasheetCurveType, DatasheetCurvesFolder, FitFunction
+from materialdatabase.meta.data_enums import ComplexDataType, Material, MeasurementSetup, FitFunction, \
+    DatasheetCurveType, DatasheetCurvesFolder, DatasheetAttribute
 from materialdatabase.meta.config import check_paths_in_toml, get_user_paths
 from materialdatabase.processing.complex_permeability import ComplexPermeability
 from materialdatabase.processing.complex_permittivity import ComplexPermittivity
@@ -308,32 +310,33 @@ class Data:
             raise ValueError(f"{curve_type} is no valid datasheet curve type.\n"
                              f"Valid curve types are: {[item.value for item in DatasheetCurveType]}")
         else:
-            path2file = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.name}/{material.name}/{curve_type}.csv")
+            path2file = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.value}/{material.name}/{curve_type}.csv")
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
                 return pd.read_csv(path2file, sep=",")
 
-    @staticmethod
-    def get_material_attribute(material: Material, attribute: str) -> float:
+    def get_datasheet_information(self, material: Material, attribute: DatasheetAttribute) -> Any:
         """
-        Get a data sheet curve of a certain material.
+        Get a datasheet attribute value of a certain material.
 
         :param material: e.g. mdb.Material.N95
-        :param attribute: e.g. mdb.DatasheetCurveType.mu_vs_b_at_T
-        :return:
+        :param attribute: e.g. mdb.DatasheetGeneralInformation.Resistivity
+        :return: float value of the requested attribute
         """
-        print(f"{attribute} is loaded from material {material.name}.")
-        if attribute == "initial_permeability":
-            return 3000
-        if attribute == "resistivity":
-            return 1 / 6
-        if attribute == "saturation_flux_density":
-            return 0.4
-        if attribute == "volumetric_mass_density":
-            return 1
-        else:
-            raise ValueError
+        link2info = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.value}/{material.value}/general_information.csv")
+        if link2info not in self.all_paths:
+            raise ValueError(f"The specified general information file with path {link2info} does not exist.")
+
+        df_info = pd.read_csv(link2info, sep=",")
+
+        if attribute.value not in df_info.columns:
+            raise ValueError(f"Requested attribute '{attribute.value}' not found in {link2info}. "
+                             f"Available columns: {list(df_info.columns)}")
+
+        logger.info(f"Attribute {attribute.value} is loaded from material {material.value} datasheet: {df_info[attribute.value].iloc[0]}")
+        # Return the scalar value (first row of the requested column)
+        return df_info[attribute.value].iloc[0]
 
     def __str__(self) -> str:
         """

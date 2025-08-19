@@ -1,7 +1,7 @@
 """Class to represent the data structure and load material data."""
 # python libraries
 import os
-from typing import Any, Tuple
+from typing import Tuple
 
 # 3rd party libraries
 import numpy as np
