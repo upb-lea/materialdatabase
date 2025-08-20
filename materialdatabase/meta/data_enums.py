@@ -83,7 +83,7 @@ class ComplexDataType(str, Enum):
 class DataSource(str, Enum):
     """Set the setup of the measurement."""
 
-    Datasheet = "Datasheet"
+    Datasheet = "datasheet"
     LEA_MTB = "LEA_MTB"
     MagNet = "MagNet"
     TDK_MDT = "TDK_MDT"

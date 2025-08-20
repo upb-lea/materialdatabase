@@ -4,6 +4,7 @@ from materialdatabase.meta.data_enums import FitFunction, DataSource
 
 MEASUREMENT_TO_FITFUNCTION: Dict[DataSource, FitFunction] = {
     DataSource.TDK_MDT: FitFunction.mu_abs_TDK_MDT,
+    DataSource.Datasheet: FitFunction.mu_abs_TDK_MDT,
     DataSource.LEA_MTB: FitFunction.mu_abs_LEA_MTB,
 }
 
