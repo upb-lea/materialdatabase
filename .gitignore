@@ -13,10 +13,13 @@ dist/
 gpgit/
 docs/build
 materialdatabase/core_materials_temp.pro
+venv_linux
 materialdatabase/meta
 
 # Files
 tests/core_materials_temp.pro
-materialdatabase/paths.py
+materialdatabase/meta/config.toml
 dictionary.dic
+
+
 # General File Types
