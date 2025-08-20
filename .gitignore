@@ -14,10 +14,12 @@ gpgit/
 docs/build
 materialdatabase/core_materials_temp.pro
 venv_linux
+materialdatabase/meta
 
 # Files
 tests/core_materials_temp.pro
 materialdatabase/meta/config.toml
 dictionary.dic
+
 
 # General File Types
