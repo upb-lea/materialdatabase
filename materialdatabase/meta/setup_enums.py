@@ -6,14 +6,6 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 from enum import Enum
 
 
-class MaterialDataSource(str, Enum):
-    """Sets the source from where data is taken."""
-
-    Custom = "custom"
-    Measurement = "measurements"
-    ManufacturerDatasheet = "manufacturer_datasheet"
-
-
 class MeasurementDataType(str, Enum):
     """Sets the type of the measurement data."""
 
