@@ -19,17 +19,17 @@ logger = logging.getLogger(__name__)
 class ComplexPermittivity:
     """Class to process complex permittivity data."""
 
-    def __init__(self, df_complex_permittivity: pd.DataFrame, material: Material, measurement_setup: MeasurementSetup):
+    def __init__(self, df_complex_permittivity: pd.DataFrame, material: Material, data_source: DataSource):
         """
         Initialize the complex permeability measurement data.
 
         :param df_complex_permittivity: pd.DataFrame with header ["f", "T", "eps_real", "eps_imag"]
         :param material: e.g. mdb.Material.N95
-        :param measurement_setup: e.g. mdb.MeasurementSetup.TDK_MDT
+        :param data_source: e.g. mdb.MeasurementSetup.TDK_MDT
         """
         self.measurement_data = df_complex_permittivity
         self.material = material
-        self.measurement_setup = measurement_setup
+        self.data_source = data_source
         self.params_eps_a = None
         self.eps_a_fit_function = FitFunction.eps_abs
         self.params_eps_pv = None

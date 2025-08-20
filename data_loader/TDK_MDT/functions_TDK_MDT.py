@@ -134,6 +134,6 @@ def tdkmdt2pandas(
         mdb_data = mdb.Data(root_dir=mdb.get_user_paths().material_data)
         mdb_data.set_complex_permeability(
             material=material,
-            measurement_setup=mdb.MeasurementSetup.TDK_MDT,
+            data_source=mdb.DataSource.TDK_MDT,
             df=df,
         )

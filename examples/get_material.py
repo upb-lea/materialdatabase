@@ -11,11 +11,11 @@ mdb_data = mdb.Data()
 material_name = mdb.Material.N49
 
 permeability = mdb_data.get_complex_permeability(material=material_name,
-                                                 measurement_setup=mdb.MeasurementSetup.TDK_MDT,
+                                                 data_source=mdb.DataSource.TDK_MDT,
                                                  pv_fit_function=mdb.FitFunction.enhancedSteinmetz)
 print(f"Exemplary complex permeability data: \n {permeability.measurement_data} \n")
 
 
 permittivity = mdb_data.get_complex_permittivity(material=material_name,
-                                                 measurement_setup=mdb.MeasurementSetup.LEA_MTB)
+                                                 data_source=mdb.DataSource.LEA_MTB)
 print(f"Exemplary complex permittivity data: \n {permittivity.measurement_data} \n ")

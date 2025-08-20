@@ -25,21 +25,21 @@ class ComplexPermeability:
     def __init__(self,
                  df_complex_permeability: pd.DataFrame,
                  material: Material,
-                 measurement_setup: MeasurementSetup,
+                 data_source: DataSource,
                  pv_fit_function: FitFunction):
         """
         Initialize the complex permeability measurement data.
 
         :param df_complex_permeability: pd.DataFrame with header ["f", "T", "b", "mu_real", "mu_imag"]
         :param material: e.g. mdb.Material.N95
-        :param measurement_setup: e.g. mdb.MeasurementSetup.TDK_MDT
+        :param data_source: e.g. mdb.MeasurementSetup.TDK_MDT
         """
         self.measurement_data = df_complex_permeability
         self.material = material
-        self.measurement_setup = measurement_setup
+        self.data_source = data_source
         self._fitted_data: pd.DataFrame | None = None
         self.params_mu_a = None
-        self.mu_a_fit_function = get_fit_function_from_setup(measurement_setup)  # permeability fit is coupled to measurement setup
+        self.mu_a_fit_function = get_fit_function_from_setup(data_source)  # permeability fit is coupled to measurement setup
         self.params_pv = None
         self.pv_fit_function = pv_fit_function
 

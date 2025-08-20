@@ -1,13 +1,13 @@
 """Map e.g. functions to enums."""
 from typing import Dict, Any
-from materialdatabase.meta.data_enums import FitFunction, MeasurementSetup
+from materialdatabase.meta.data_enums import FitFunction, DataSource
 
-MEASUREMENT_TO_FITFUNCTION: Dict[MeasurementSetup, FitFunction] = {
-    MeasurementSetup.TDK_MDT: FitFunction.mu_abs_TDK_MDT,
-    MeasurementSetup.LEA_MTB: FitFunction.mu_abs_LEA_MTB,
+MEASUREMENT_TO_FITFUNCTION: Dict[DataSource, FitFunction] = {
+    DataSource.TDK_MDT: FitFunction.mu_abs_TDK_MDT,
+    DataSource.LEA_MTB: FitFunction.mu_abs_LEA_MTB,
 }
 
-def get_fit_function_from_setup(setup: MeasurementSetup) -> Any:
+def get_fit_function_from_setup(setup: DataSource) -> Any:
     """
     Retrieve the corresponding fit function for a given measurement setup.
 

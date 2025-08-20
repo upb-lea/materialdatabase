@@ -15,7 +15,7 @@ path2grid_export = Path(get_user_paths().grid_export_data)
 material_name = mdb.Material.N49
 
 permeability = mdb_data.get_complex_permeability(material=material_name,
-                                                 measurement_setup=mdb.MeasurementSetup.TDK_MDT,
+                                                 data_source=mdb.DataSource.TDK_MDT,
                                                  pv_fit_function=mdb.FitFunction.enhancedSteinmetz)
 permeability.export_to_txt(path2grid_export.joinpath(f"{material_name.value}_permeability_grid.txt"),
                            frequencies=np.linspace(1e5, 1e6, 10),
@@ -25,7 +25,7 @@ print(f"Exemplary complex permeability data: \n {permeability.measurement_data} 
 
 
 permittivity = mdb_data.get_complex_permittivity(material=material_name,
-                                                 measurement_setup=mdb.MeasurementSetup.LEA_MTB)
+                                                 data_source=mdb.DataSource.LEA_MTB)
 permittivity.export_to_txt(path2grid_export.joinpath(f"{material_name.value}_permittivity_grid.txt"),
                            frequencies=np.linspace(1e5, 1e6, 10),
                            temperatures=np.linspace(25, 120, 10))

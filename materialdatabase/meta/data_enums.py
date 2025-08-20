@@ -80,12 +80,11 @@ class ComplexDataType(str, Enum):
     complex_permittivity = "complex_permittivity"
 
 
-class MeasurementSetup(str, Enum):
+class DataSource(str, Enum):
     """Set the setup of the measurement."""
 
+    Datasheet = "Datasheet"
     LEA_MTB = "LEA_MTB"
-    LEA_MTB_small_signal = "LEA_MTB_small_signal"
-    LEA_LK = "LEA_LK"
     MagNet = "MagNet"
     TDK_MDT = "TDK_MDT"
 

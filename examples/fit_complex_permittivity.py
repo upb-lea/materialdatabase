@@ -169,7 +169,7 @@ def main():
     # Load permittivity data for a specific material and setup
     permittivity = mdb_data.get_complex_permittivity(
         material=mdb.Material.N49,
-        measurement_setup=mdb.MeasurementSetup.LEA_MTB
+        data_source=mdb.DataSource.LEA_MTB
     )
 
     print("Exemplary complex permittivity data:")

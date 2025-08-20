@@ -21,7 +21,7 @@ mdb_data = mdb.Data()
 
 # load ComplexMaterial instance
 permeability = mdb_data.get_complex_permeability(material=mdb.Material.N49,
-                                                 measurement_setup=mdb.MeasurementSetup.TDK_MDT,
+                                                 data_source=mdb.DataSource.TDK_MDT,
                                                  pv_fit_function=mdb.FitFunction.Steinmetz)
 permeability.fit_permeability_magnitude()
 params_SE = permeability.fit_losses()

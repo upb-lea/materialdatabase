@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 import numpy as np
 
-from materialdatabase.meta.data_enums import Material, MeasurementSetup, FitFunction
+from materialdatabase.meta.data_enums import Material, DataSource, FitFunction
 
 
 @dataclass
@@ -10,7 +10,7 @@ class ComplexPermeabilityConfig:
     """Configuration container for a magnetic material."""
 
     material: Material
-    setup: MeasurementSetup
+    setup: DataSource
     pv_fit_function: FitFunction
 
 

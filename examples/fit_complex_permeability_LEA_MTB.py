@@ -21,7 +21,7 @@ mdb_data = mdb.Data()
 
 # load ComplexMaterial instance
 mu_mat = mdb_data.get_complex_permeability(material=mdb.Material.N49,
-                                           measurement_setup=mdb.MeasurementSetup.LEA_MTB,
+                                           data_source=mdb.DataSource.LEA_MTB,
                                            pv_fit_function=mdb.FitFunction.Steinmetz)
 
 # copy measurement in an extra dataframe
