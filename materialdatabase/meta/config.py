@@ -3,6 +3,7 @@
 # python libraries
 from pathlib import Path
 import logging
+import os
 
 # 3rd party libraries
 import toml
@@ -12,15 +13,22 @@ from materialdatabase.meta.toml_checker import Config, UserPaths, UserColors
 
 logger = logging.getLogger(__name__)
 
-DUMMY_CONFIG = """\
+
+material_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), os.path.pardir, 'data')
+
+DUMMY_CONFIG = f"""\
 [paths]
-comsol_results = "N:/example_path/"
-material_data = "C:/example_path/material/"
-graphics = "C:/example_path/plots/"
+material_data = '{material_data_path}'
+graphics = '{material_data_path}'
+external_material_data = '{material_data_path}'
+grid_export_data = '{material_data_path}'
 
 [colors]
-red = "tab:red"
-blue = "tab:blue"
+gtruth="tab:red"
+compare1="tab:blue"
+compare2="tab:green"
+compare3="tab:purple"
+compare4="tab:black"
 """
 
 
@@ -34,7 +42,7 @@ def ensure_config_exists() -> None:
     config_path = get_config_path()
     if not config_path.exists():
         config_path.write_text(DUMMY_CONFIG, encoding="utf-8")
-        raise FileNotFoundError(
+        logger.info(
             f"'config.toml' was missing.\n\n"
             f"A default file was created at: {config_path.resolve()}\n"
             f"Please update it with your local paths and preferences."
