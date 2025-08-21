@@ -182,19 +182,19 @@ class ComplexPermittivity:
             f.write("%Grid\n")
 
             # frequency
-            f_grid: list[float] = sorted(set(df[0].values.tolist()))
+            f_grid = sorted(set(df[0].values.tolist()))
             f.write(str(f_grid)[1:-1] + "\n")
 
             # temperature
-            T_grid: list[float] = sorted(set(df[1].values.tolist()))
+            T_grid = sorted(set(df[1].values.tolist()))
             f.write(str(T_grid)[1:-1] + "\n")
 
             f.write("%Data\n")
-            eps_real: list[float] = df[2].values.tolist()
+            eps_real = df[2].values.tolist()
             f.write(str(eps_real)[1:-1] + "\n")
 
             f.write("%Data\n")
-            eps_imag: list[float] = df[3].values.tolist()
+            eps_imag = df[3].values.tolist()
             f.write(str(eps_imag)[1:-1])
 
     def export_to_txt(self, path: str | os.PathLike, frequencies: npt.NDArray[Any], temperatures: npt.NDArray[Any]) -> None:

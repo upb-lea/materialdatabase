@@ -165,8 +165,8 @@ class Data:
         row_labels = df.index.astype(str).tolist()
         col_labels = df.columns.astype(str).tolist()
 
-        cell_text: list[list[str]] = np.where(bool_data.values, "✓", "✗").tolist()
-        cell_colors: list[list[str]] = np.where(bool_data.values, "lightgreen", "lightcoral").tolist()
+        cell_text = list(np.where(bool_data.values, "✓", "✗").tolist())
+        cell_colors = list(np.where(bool_data.values, "lightgreen", "lightcoral").tolist())
 
         # Create figure
         fig, ax = plt.subplots(figsize=(0.5 * len(col_labels) + 3, 0.4 * len(row_labels) + 2))
