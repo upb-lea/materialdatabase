@@ -1,6 +1,5 @@
 """Collection of dataclasses."""
 from dataclasses import dataclass
-import numpy as np
 
 from materialdatabase.meta.data_enums import Material, DataSource, FitFunction
 
@@ -23,4 +22,3 @@ class ComplexPermeabilityPlotConfig:
     label: str
     color: str
     marker: str
-
