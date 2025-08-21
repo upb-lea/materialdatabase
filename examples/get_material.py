@@ -3,7 +3,7 @@ import logging
 
 import materialdatabase as mdb
 
-# configure logging to show femmt terminal output
+# configure logging to show terminal output
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 # init a material database instance

@@ -67,11 +67,14 @@ class DatasheetAttribute(str, Enum):
 class DatasheetCurveType(str, Enum):
     """Set the type of datasheet curve."""
 
-    mu_vs_b_at_T = "mu_vs_b_at_T"
-    pv_vs_b_at_f_and_T = "pv_vs_b_at_f_and_T"
-    pv_vs_f_at_b_and_T = "pv_vs_f_at_b_and_T"
-    pv_vs_T_at_f_and_b = "pv_vs_T_at_f_and_b"
-
+    b_over_h_at_f_T = "b_over_h_at_f_T"
+    mu_amplitude_over_b_at_T = "mu_amplitude_over_b_at_T"
+    p_v_over_b_at_f_T = "p_v_over_b_at_f_T"
+    p_v_over_f_at_b_T = "p_v_over_f_at_b_T"
+    p_v_over_T_at_f_b = "p_v_over_T_at_f_b"
+    small_signal_mu_imag_over_f_at_T = "small_signal_mu_imag_over_f_at_T"
+    small_signal_mu_initial_over_T = "small_signal_mu_initial_over_T"
+    small_signal_mu_real_over_f_at_T = "small_signal_mu_real_over_f_at_T"
 
 class ComplexDataType(str, Enum):
     """Set the type of complex material data."""

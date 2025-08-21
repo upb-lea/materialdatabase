@@ -303,14 +303,14 @@ class Data:
         Get a data sheet curve of a certain material.
 
         :param material: e.g. mdb.Material.N95
-        :param curve_type: e.g. mdb.DatasheetCurveType.mu_vs_b_at_T
+        :param curve_type: e.g. mdb.DatasheetCurveType.mu_amplitude_over_b_at_T
         :return:
         """
         if curve_type not in {item.value for item in DatasheetCurveType}:
             raise ValueError(f"{curve_type} is no valid datasheet curve type.\n"
                              f"Valid curve types are: {[item.value for item in DatasheetCurveType]}")
         else:
-            path2file = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.value}/{material.name}/{curve_type}.csv")
+            path2file = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.value}/{material.name}/{curve_type.name}.csv")
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
