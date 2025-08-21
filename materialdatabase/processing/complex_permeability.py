@@ -194,23 +194,23 @@ class ComplexPermeability:
             f.write("%Grid\n")
 
             # magnetic flux density
-            b_grid: list[float] = sorted(set(df[2].values.tolist()))
+            b_grid = sorted(set(df[2].values.tolist()))
             f.write(str(b_grid)[1:-1] + "\n")
 
             # frequency
-            f_grid: list[float] = sorted(set(df[0].values.tolist()))
+            f_grid = sorted(set(df[0].values.tolist()))
             f.write(str(f_grid)[1:-1] + "\n")
 
             # temperature
-            T_grid: list[float] = sorted(set(df[1].values.tolist()))
+            T_grid = sorted(set(df[1].values.tolist()))
             f.write(str(T_grid)[1:-1] + "\n")
 
             f.write("%Data\n")
-            mu_real: list[float] = df[3].values.tolist()
+            mu_real = df[3].values.tolist()
             f.write(str(mu_real)[1:-1] + "\n")
 
             f.write("%Data\n")
-            mu_imag: list[float] = df[4].values.tolist()
+            mu_imag = df[4].values.tolist()
             f.write(str(mu_imag)[1:-1])
 
     def export_to_txt(self, path: str | os.PathLike, frequencies: npt.NDArray[Any], temperatures: npt.NDArray[Any],
