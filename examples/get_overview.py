@@ -6,11 +6,11 @@ import logging
 logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
 
 
-def get_overview() -> None:
+def get_overview_example() -> None:
     """Init the materialdatabase and plot the material overview in a colored table."""
     mdb_data = mdb.Data()
     mdb_data.plot_available_data()
 
 
 if __name__ == "__main__":
-    get_overview()
+    get_overview_example()

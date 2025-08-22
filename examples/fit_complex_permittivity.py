@@ -161,8 +161,12 @@ def plot_permittivity_loss_angle_vs_frequency(complex_perm):
     plt.show()
 
 
-def main():
-    """Fit the permittivity."""
+def fit_complex_permittivity_example(is_plot: bool = True) -> None:
+    """Fit the permittivity.
+
+    :param is_plot: True to show visual outputs
+    :type is_plot: bool
+    """
     # Initialize the material database
     mdb_data = mdb.Data()
 
@@ -179,14 +183,15 @@ def main():
     permittivity.fit_permittivity_magnitude()
     permittivity.fit_loss_angle()
 
-    # Plot measured vs fitted magnitude
-    plot_permittivity_magnitude_fit(permittivity)
-    plot_permittivity_loss_angle_fit(permittivity)
+    if is_plot:
+        # Plot measured vs fitted magnitude
+        plot_permittivity_magnitude_fit(permittivity)
+        plot_permittivity_loss_angle_fit(permittivity)
 
-    # Plot measured and fitted ε_abs vs frequency for each temperature
-    plot_permittivity_vs_frequency(permittivity)
-    plot_permittivity_loss_angle_vs_frequency(permittivity)
+        # Plot measured and fitted ε_abs vs frequency for each temperature
+        plot_permittivity_vs_frequency(permittivity)
+        plot_permittivity_loss_angle_vs_frequency(permittivity)
 
 
 if __name__ == "__main__":
-    main()
+    fit_complex_permittivity_example(is_plot=True)

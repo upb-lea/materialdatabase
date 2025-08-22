@@ -6,6 +6,7 @@ matrix:
   sources:
   - materialdatabase/*.py
   - materialdatabase/*/*.py
+  - examples/*.py
   dictionary:
     wordlists:
       - docs/wordlist
