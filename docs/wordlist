@@ -1,4 +1,5 @@
 FEMMT
+femmt
 Paderborn
 Changelog
 changelog
@@ -92,3 +93,13 @@ len
 txt
 DatasheetGeneralInformation
 gtruth
+ComplexPermittivity
+ComplexPermeability
+levelname
+init
+MRE
+eSE
+bool
+customizable
+atan
+iterable

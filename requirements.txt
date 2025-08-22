@@ -3,3 +3,4 @@ pandas-stubs
 matplotlib
 pydantic
 toml
+scipy

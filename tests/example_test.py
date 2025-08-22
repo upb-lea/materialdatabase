@@ -1,0 +1,20 @@
+"""Tests for the example files."""
+
+from examples.get_datasheet_curve import get_datasheet_curve_example
+from examples.get_datasheet_information import get_datasheet_information_example
+from examples.get_material import get_material_example
+from examples.fit_single_operation_point import fit_single_operation_point_example
+from examples.export_material2grid import export_material2grid_example
+from examples.fit_complex_permeability_LEA_MTB import fit_complex_permeability_lea_mtb_example
+from examples.fit_complex_permeability_TDK_MDT import fit_complex_permeability_tdk_mdt_example
+from examples.fit_complex_permittivity import fit_complex_permittivity_example
+
+
+get_datasheet_curve_example()
+get_datasheet_information_example()
+get_material_example()
+fit_single_operation_point_example(is_plot=False)
+export_material2grid_example()
+fit_complex_permeability_lea_mtb_example(mu_abs_flag=True, pv_flag=True, is_plot=False)
+fit_complex_permeability_tdk_mdt_example(mu_abs_flag=True, pv_flag=True, is_plot=False)
+fit_complex_permittivity_example(is_plot=False)
