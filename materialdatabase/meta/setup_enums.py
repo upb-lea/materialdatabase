@@ -5,15 +5,6 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 
 from enum import Enum
 
-
-class MeasurementDataType(str, Enum):
-    """Sets the type of the measurement data."""
-
-    ComplexPermeability = "complex_permeability"
-    ComplexPermittivity = "complex_permittivity"
-    Steinmetz = "Steinmetz"
-
-
 class DatasheetPlotName(str, Enum):
     """Sets the type of the datasheet plot."""
 
