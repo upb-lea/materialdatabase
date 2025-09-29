@@ -29,8 +29,8 @@ PLOT_PV = True
 
 # Operating points of interest
 FREQS = np.linspace(1e5, 1e6, 5)  # Frequency in Hz
-TEMPS = [25]  # Temperature in °C
-FLUX_DENSITIES = np.linspace(0.025, 0.1, 5)  # Flux density in T
+TEMPS = [50, 60, 70]  # Temperature in °C
+FLUX_DENSITIES = np.linspace(0.025, 0.15, 5)  # Flux density in T
 
 # Materials to compare
 materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
