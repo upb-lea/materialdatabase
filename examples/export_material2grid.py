@@ -23,7 +23,7 @@ def export_material2grid_example():
     permeability = mdb_data.get_complex_permeability(material=material_name,
                                                      data_source=permeability_data_source,
                                                      pv_fit_function=mdb.FitFunction.enhancedSteinmetz)
-    permeability.export_to_txt(path2grid_export.joinpath(f"{material_name.value}_{permeability_data_source.value}_reduced_permeability_grid.txt"),
+    permeability.export_to_txt(path2grid_export.joinpath(f"{material_name.value}_{permeability_data_source.value}_permeability_grid.txt"),
                                frequencies=np.linspace(1e5, 1.5e6, 50),
                                temperatures=np.linspace(25, 70, 20),
                                b_vals=np.linspace(0, 0.2, 50),
