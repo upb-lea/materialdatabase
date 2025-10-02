@@ -102,8 +102,8 @@ def tdkmdt2pandas(
         df_pv_T = pd.read_excel(filename)
 
         for j, temperature in enumerate(T_):
-            b = df_pv_T[f"Series{j + 1}.X"].to_numpy() / 1000  # mT → T
-            pv = df_pv_T[f"Series{j + 1}.Y"].to_numpy() * 1000  # mW/cm³ → W/m³
+            b = df_pv_T[f"Series{j + 1}.X"].to_numpy(dtype=float) / 1000  # mT → T
+            pv = df_pv_T[f"Series{j + 1}.Y"].to_numpy(dtype=float) * 1000  # mW/cm³ → W/m³
 
             for bi, pvi in zip(b, pv, strict=False):
                 if pv_max is None or pvi <= pv_max:

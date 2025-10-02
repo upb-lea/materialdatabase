@@ -38,7 +38,9 @@ def fit_complex_permeability_lea_mtb_example(mu_abs_flag: bool, pv_flag: bool,
     # copy measurement in an extra dataframe
     df_mat = mu_mat.measurement_data.copy(deep=True)
     df_mat["mu_abs"] = np.sqrt(df_mat["mu_real"] ** 2 + df_mat["mu_imag"] ** 2)
-    df_mat["pv"] = pv_mag(df_mat["f"].to_numpy(), -df_mat["mu_imag"].to_numpy() * mu_0, df_mat["b"].to_numpy() / df_mat["mu_abs"].to_numpy() / mu_0)
+    df_mat["pv"] = pv_mag(df_mat["f"].to_numpy(dtype=float),
+                          (-1) * df_mat["mu_imag"].to_numpy(dtype=float) * mu_0,
+                          df_mat["b"] / df_mat["mu_abs"].to_numpy(dtype=float) / mu_0)
 
     if mu_abs_flag:
         # Fitting of the permeability magnitude mu_abs
