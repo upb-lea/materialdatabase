@@ -1,7 +1,7 @@
 """Class to represent the data structure and load material data."""
 # python libraries
 import os
-from typing import Tuple
+from typing import Tuple, Optional
 
 # 3rd party libraries
 import numpy as np
@@ -91,7 +91,41 @@ class ComplexPermeability:
 
         return grid
 
-    def fit_permeability_magnitude(self) -> Any:
+    @staticmethod
+    def filter_fTb(df: pd.DataFrame,
+                   f_min: Optional[float] = None, f_max: Optional[float] = None,
+                   T_min: Optional[float] = None, T_max: Optional[float] = None,
+                   b_min: Optional[float] = None, b_max: Optional[float] = None) -> pd.DataFrame:
+        """
+        Filter a material dataframe df for min/max frequency, temperature, and flux density.
+
+        :param df: original material dataframe
+        :param f_min: minimum frequency (default: None)
+        :param f_max: maximum frequency (default: None)
+        :param T_min: minimum temperature (default: None)
+        :param T_max: maximum temperature (default: None)
+        :param b_min: minimum flux density (default: None)
+        :param b_max: maximum flux density (default: None)
+        :return: filtered material dataframe
+        """
+        if f_min is not None:
+            df = df[df['f'] >= f_min]
+        if f_max is not None:
+            df = df[df['f'] <= f_max]
+        if T_min is not None:
+            df = df[df['T'] >= T_min]
+        if T_max is not None:
+            df = df[df['T'] <= T_max]
+        if b_min is not None:
+            df = df[df['b'] >= b_min]
+        if b_max is not None:
+            df = df[df['b'] <= b_max]
+        return df
+
+    def fit_permeability_magnitude(self,
+                                   f_min: Optional[float] = None, f_max: Optional[float] = None,
+                                   T_min: Optional[float] = None, T_max: Optional[float] = None,
+                                   b_min: Optional[float] = None, b_max: Optional[float] = None) -> Any:
         """
         Fit the permeability magnitude μ_abs as a function of frequency, temperature, and magnetic flux density.
 
@@ -100,41 +134,89 @@ class ComplexPermeability:
 
         It then fits this data using a predefined model function `fit_mu_abs_...(f, T, b, ...)`.
 
+        :param f_min: measurements for lower frequencies will be excluded from fitting
+        :param f_max: measurements for higher frequencies will be excluded from fitting
+        :param T_min: measurements for lower temperatures will be excluded from fitting
+        :param T_max: measurements for higher temperatures will be excluded from fitting
+        :param b_min: measurements for lower flux densities will be excluded from fitting
+        :param b_max: measurements for higher flux densities will be excluded from fitting
         :return: Fitted parameters (popt_mu_abs) of the μ_abs model.
         :rtype: np.ndarray
         """
+        fit_data = self.filter_fTb(self.measurement_data,
+                                   f_min=f_min, f_max=f_max,
+                                   T_min=T_min, T_max=T_max,
+                                   b_min=b_min, b_max=b_max)
+
         fit_mu_a = self.mu_a_fit_function.get_function()
 
-        mu_a = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
+        logger.info(f"\n"
+                    f"Fitting of the permeability amplitude with the fit function'{self.mu_a_fit_function.value}'.\n"
+                    f" Following limits are applied to the measurement data:\n"
+                    f"  {f_min = }\n"
+                    f"  {f_max = }\n"
+                    f"  {T_min = }\n"
+                    f"  {T_max = }\n"
+                    f"  {b_min = }\n"
+                    f"  {b_max = }\n"
+                    f" Following data is used for the loss fitting:\n "
+                    f"  {fit_data}")
+
+        mu_a = np.sqrt(fit_data["mu_real"] ** 2 + fit_data["mu_imag"] ** 2)
         popt_mu_a, pcov_mu_a = curve_fit(fit_mu_a,
-                                         (self.measurement_data["f"],
-                                          self.measurement_data["T"],
-                                          self.measurement_data["b"]),
+                                         (fit_data["f"],
+                                          fit_data["T"],
+                                          fit_data["b"]),
                                          mu_a, maxfev=int(1e6))
         self.params_mu_a = popt_mu_a
         return popt_mu_a
 
-    def fit_losses(self) -> Any:
+    def fit_losses(self,
+                   f_min: Optional[float] = None, f_max: Optional[float] = None,
+                   T_min: Optional[float] = None, T_max: Optional[float] = None,
+                   b_min: Optional[float] = None, b_max: Optional[float] = None) -> Any:
         """
         Fit the magnetic power loss density p_v as a function of frequency, temperature, and magnetic flux density.
 
         The losses are calculated from the imaginary part of the permeability using the helper function `pv_mag()`,
         and then fitted using e.g. the Steinmetz-based `..._steinmetz_...(f, T, b, ...)`.
 
+        :param f_min: measurements for lower frequencies will be excluded from fitting
+        :param f_max: measurements for higher frequencies will be excluded from fitting
+        :param T_min: measurements for lower temperatures will be excluded from fitting
+        :param T_max: measurements for higher temperatures will be excluded from fitting
+        :param b_min: measurements for lower flux densities will be excluded from fitting
+        :param b_max: measurements for higher flux densities will be excluded from fitting
         :return: Fitted parameters (popt_pv) of the Steinmetz-based power loss model.
         :rtype: np.ndarray
         """
         log_pv_fit_function = self.pv_fit_function.get_log_function()
-        pv_fit_function = self.pv_fit_function.get_function()
 
-        mu_abs = np.sqrt(self.measurement_data["mu_real"] ** 2 + self.measurement_data["mu_imag"] ** 2)
-        pv = pv_mag(self.measurement_data["f"].to_numpy(),
-                    (-self.measurement_data["mu_imag"] * mu_0).to_numpy(),
-                    (self.measurement_data["b"] / mu_abs / mu_0).to_numpy())
+        fit_data = self.filter_fTb(self.measurement_data,
+                                   f_min=f_min, f_max=f_max,
+                                   T_min=T_min, T_max=T_max,
+                                   b_min=b_min, b_max=b_max)
+
+        logger.info(f"\n"
+                    f"Fitting of the magnetic losses with the fit function'{self.pv_fit_function.value}'.\n"
+                    f" Following limits are applied to the measurement data:\n"
+                    f"  {f_min = }\n"
+                    f"  {f_max = }\n"
+                    f"  {T_min = }\n"
+                    f"  {T_max = }\n"
+                    f"  {b_min = }\n"
+                    f"  {b_max = }\n"
+                    f" Following data is used for the loss fitting:\n "
+                    f"  {fit_data}")
+
+        mu_abs = np.sqrt(fit_data["mu_real"] ** 2 + fit_data["mu_imag"] ** 2)
+        pv = pv_mag(fit_data["f"].to_numpy(),
+                    (-fit_data["mu_imag"] * mu_0).to_numpy(),
+                    (fit_data["b"] / mu_abs / mu_0).to_numpy())
         popt_pv, pcov_pv = curve_fit(log_pv_fit_function,
-                                     (self.measurement_data["f"],
-                                      self.measurement_data["T"],
-                                      self.measurement_data["b"]),
+                                     (fit_data["f"],
+                                      fit_data["T"],
+                                      fit_data["b"]),
                                      np.log(pv), maxfev=100000)
         self.params_pv = popt_pv
         return popt_pv
@@ -213,8 +295,15 @@ class ComplexPermeability:
             mu_imag = df[4].values.tolist()
             f.write(str(mu_imag)[1:-1])
 
-    def export_to_txt(self, path: str | os.PathLike, frequencies: npt.NDArray[Any], temperatures: npt.NDArray[Any],
-                      b_vals: npt.NDArray[Any]) -> None:
+    def export_to_txt(self,
+                      path: str | os.PathLike,
+                      frequencies: npt.NDArray[Any],
+                      temperatures: npt.NDArray[Any],
+                      b_vals: npt.NDArray[Any],
+                      f_min_measurement: Optional[float] = None, f_max_measurement: Optional[float] = None,
+                      T_min_measurement: Optional[float] = None, T_max_measurement: Optional[float] = None,
+                      b_min_measurement: Optional[float] = None, b_max_measurement: Optional[float] = None
+                      ) -> None:
         """
         Export fitted permeability data (real & imaginary parts) to a txt grid file.
 
@@ -222,11 +311,21 @@ class ComplexPermeability:
         :param frequencies: frequencies for the interpolation grid
         :param temperatures: temperatures for the interpolation grid
         :param b_vals: magnetic flux density values for the interpolation grid
+        :param f_min_measurement: measurements for lower frequencies will be excluded from fitting
+        :param f_max_measurement: measurements for higher frequencies will be excluded from fitting
+        :param T_min_measurement: measurements for lower temperatures will be excluded from fitting
+        :param T_max_measurement: measurements for higher temperatures will be excluded from fitting
+        :param b_min_measurement: measurements for lower flux densities will be excluded from fitting
+        :param b_max_measurement: measurements for higher flux densities will be excluded from fitting
         """
         if self.params_pv is None:
-            self.fit_losses()
+            self.fit_losses(f_min_measurement, f_max_measurement,
+                            T_min_measurement, T_max_measurement,
+                            b_min_measurement, b_max_measurement)
         if self.params_mu_a is None:
-            self.fit_permeability_magnitude()
+            self.fit_permeability_magnitude(f_min_measurement, f_max_measurement,
+                                            T_min_measurement, T_max_measurement,
+                                            b_min_measurement, b_max_measurement)
 
         records: list[list[float]] = []
         for T in temperatures:
