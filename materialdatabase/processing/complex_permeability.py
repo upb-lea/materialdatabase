@@ -265,7 +265,7 @@ class ComplexPermeability:
         return np.array(mu_real), np.array(mu_imag)
 
     @staticmethod
-    def txt2grid3d(df: pd.DataFrame, path: os.PathLike | str) -> None:
+    def grid2txt(df: pd.DataFrame, path: os.PathLike | str) -> None:
         """
         Export 3D permeability data to grid text file format.
 
@@ -295,22 +295,20 @@ class ComplexPermeability:
             mu_imag = df[4].values.tolist()
             f.write(str(mu_imag)[1:-1])
 
-    def export_to_txt(self,
-                      path: str | os.PathLike,
-                      frequencies: npt.NDArray[Any],
-                      temperatures: npt.NDArray[Any],
-                      b_vals: npt.NDArray[Any],
-                      f_min_measurement: Optional[float] = None, f_max_measurement: Optional[float] = None,
-                      T_min_measurement: Optional[float] = None, T_max_measurement: Optional[float] = None,
-                      b_min_measurement: Optional[float] = None, b_max_measurement: Optional[float] = None
-                      ) -> None:
+    def to_grid(self,
+                grid_frequency: npt.NDArray[Any],
+                grid_temperature: npt.NDArray[Any],
+                grid_flux_density: npt.NDArray[Any],
+                f_min_measurement: Optional[float] = None, f_max_measurement: Optional[float] = None,
+                T_min_measurement: Optional[float] = None, T_max_measurement: Optional[float] = None,
+                b_min_measurement: Optional[float] = None, b_max_measurement: Optional[float] = None
+                ) -> pd.DataFrame:
         """
         Export fitted permeability data (real & imaginary parts) to a txt grid file.
 
-        :param path: path to exported txt-file
-        :param frequencies: frequencies for the interpolation grid
-        :param temperatures: temperatures for the interpolation grid
-        :param b_vals: magnetic flux density values for the interpolation grid
+        :param grid_frequency: frequencies for the interpolation grid
+        :param grid_temperature: temperatures for the interpolation grid
+        :param grid_flux_density: magnetic flux density values for the interpolation grid
         :param f_min_measurement: measurements for lower frequencies will be excluded from fitting
         :param f_max_measurement: measurements for higher frequencies will be excluded from fitting
         :param T_min_measurement: measurements for lower temperatures will be excluded from fitting
@@ -328,11 +326,12 @@ class ComplexPermeability:
                                             b_min_measurement, b_max_measurement)
 
         records: list[list[float]] = []
-        for T in temperatures:
-            for f in frequencies:
-                mu_real, mu_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T, b_vals)
-                for i, b in enumerate(b_vals):
+        for T in grid_temperature:
+            for f in grid_frequency:
+                mu_real, mu_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T, grid_flux_density)
+                for i, b in enumerate(grid_flux_density):
                     records.append([f, T, b, mu_real[i], mu_imag[i]])
 
-        df_export: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3, 4])
-        self.txt2grid3d(df_export, path)
+        df_grid: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3, 4])
+        return df_grid
+

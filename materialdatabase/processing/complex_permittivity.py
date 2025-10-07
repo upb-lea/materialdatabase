@@ -171,7 +171,7 @@ class ComplexPermittivity:
         return eps_real, eps_imag
 
     @staticmethod
-    def txt2grid2d(df: pd.DataFrame, path: os.PathLike | str) -> None:
+    def grid2txt(df: pd.DataFrame, path: os.PathLike | str) -> None:
         """
         Export 2D permittivity data to grid text file format.
 
@@ -197,13 +197,14 @@ class ComplexPermittivity:
             eps_imag = df[3].values.tolist()
             f.write(str(eps_imag)[1:-1])
 
-    def export_to_txt(self, path: str | os.PathLike, frequencies: npt.NDArray[Any], temperatures: npt.NDArray[Any]) -> None:
+    def to_grid(self,
+                grid_frequency: npt.NDArray[Any],
+                grid_temperature: npt.NDArray[Any]) -> pd.DataFrame:
         """
         Export fitted permittivity data (real & imaginary parts) to a txt grid file.
 
-        :param path: path to exported txt-file
-        :param frequencies: frequencies for the interpolation grid
-        :param temperatures: temperatures for the interpolation grid
+        :param grid_frequency: frequencies for the interpolation grid
+        :param grid_temperature: temperatures for the interpolation grid
         """
         if self.params_eps_a is None:
             self.fit_permittivity_magnitude()
@@ -211,10 +212,10 @@ class ComplexPermittivity:
             self.fit_loss_angle()
 
         records: list[list[float]] = []
-        for T in temperatures:
-            for f in frequencies:
+        for T in grid_temperature:
+            for f in grid_frequency:
                 eps_real, eps_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T)
                 records.append([f, T, eps_real, eps_imag])
 
-        df_export: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3])
-        self.txt2grid2d(df_export, path)
+        df_grid: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3])
+        return df_grid
