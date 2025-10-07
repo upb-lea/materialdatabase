@@ -175,26 +175,26 @@ class ComplexPermittivity:
         """
         Export 2D permittivity data to grid text file format.
 
-        :param df: Expected DataFrame columns: [frequency, temperature, real part of permeability, imaginary part of permeability]
+        :param df: Expected DataFrame columns: [frequency, temperature, real part of permittivity, imaginary part of permittivity]
         :param path: path where the txt file should be stored
         """
         with open(path, "w+") as f:
             f.write("%Grid\n")
 
             # frequency
-            f_grid = sorted(set(df[0].values.tolist()))
+            f_grid = sorted(set(df["f"].values.tolist()))
             f.write(str(f_grid)[1:-1] + "\n")
 
             # temperature
-            T_grid = sorted(set(df[1].values.tolist()))
+            T_grid = sorted(set(df["T"].values.tolist()))
             f.write(str(T_grid)[1:-1] + "\n")
 
             f.write("%Data\n")
-            eps_real = df[2].values.tolist()
+            eps_real = df["eps_real"].values.tolist()
             f.write(str(eps_real)[1:-1] + "\n")
 
             f.write("%Data\n")
-            eps_imag = df[3].values.tolist()
+            eps_imag = df["eps_imag"].values.tolist()
             f.write(str(eps_imag)[1:-1])
 
     def to_grid(self,
@@ -217,5 +217,5 @@ class ComplexPermittivity:
                 eps_real, eps_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T)
                 records.append([f, T, eps_real, eps_imag])
 
-        df_grid: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3])
+        df_grid: pd.DataFrame = pd.DataFrame(records, columns=["f", "T", "eps_real", "eps_imag"])
         return df_grid

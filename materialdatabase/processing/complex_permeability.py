@@ -7,6 +7,8 @@ from typing import Tuple, Optional
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
+from scipy.interpolate import griddata
+from matplotlib import pyplot as plt
 
 # own libraries
 from materialdatabase.meta.data_enums import *
@@ -276,23 +278,23 @@ class ComplexPermeability:
             f.write("%Grid\n")
 
             # magnetic flux density
-            b_grid = sorted(set(df[2].values.tolist()))
+            b_grid = sorted(set(df["b"].values.tolist()))
             f.write(str(b_grid)[1:-1] + "\n")
 
             # frequency
-            f_grid = sorted(set(df[0].values.tolist()))
+            f_grid = sorted(set(df["f"].values.tolist()))
             f.write(str(f_grid)[1:-1] + "\n")
 
             # temperature
-            T_grid = sorted(set(df[1].values.tolist()))
+            T_grid = sorted(set(df["T"].values.tolist()))
             f.write(str(T_grid)[1:-1] + "\n")
 
             f.write("%Data\n")
-            mu_real = df[3].values.tolist()
+            mu_real = df["mu_real"].values.tolist()
             f.write(str(mu_real)[1:-1] + "\n")
 
             f.write("%Data\n")
-            mu_imag = df[4].values.tolist()
+            mu_imag = df["mu_imag"].values.tolist()
             f.write(str(mu_imag)[1:-1])
 
     def to_grid(self,
@@ -332,5 +334,5 @@ class ComplexPermeability:
                 for i, b in enumerate(grid_flux_density):
                     records.append([f, T, b, mu_real[i], mu_imag[i]])
 
-        df_grid: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3, 4])
+        df_grid: pd.DataFrame = pd.DataFrame(records, columns=["f", "T", "b", "mu_real", "mu_imag"])
         return df_grid

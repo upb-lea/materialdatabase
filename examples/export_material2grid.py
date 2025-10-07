@@ -15,6 +15,7 @@ def export_material2grid_example():
     # init a material database instance
     mdb_data = mdb.Data()
     path2grid_export = Path(get_user_paths().grid_export_data)
+    path2grid_plot = Path(get_user_paths().graphics)
     print(f"Data exported to {path2grid_export}")
     material_name = mdb.Material.N49
 
@@ -30,7 +31,6 @@ def export_material2grid_example():
                                                 f_min_measurement=1e5, f_max_measurement=None,
                                                 T_min_measurement=28, T_max_measurement=None,
                                                 b_min_measurement=None, b_max_measurement=0.15)
-
     permeability.grid2txt(df_permeability_grid, link2permeability_grid)
 
     # Permittivity
