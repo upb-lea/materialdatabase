@@ -334,4 +334,3 @@ class ComplexPermeability:
 
         df_grid: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3, 4])
         return df_grid
-
