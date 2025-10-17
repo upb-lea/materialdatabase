@@ -1,12 +1,16 @@
 """Class to represent the data structure and load material data."""
 # python libraries
-from typing import List
+from typing import List, Optional
 import os
 
 # 3rd party libraries
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
+from scipy.interpolate import griddata
+from matplotlib import pyplot as plt
+from matplotlib import gridspec
+from matplotlib.ticker import MaxNLocator
 
 # own libraries
 from materialdatabase.meta.data_enums import *
@@ -219,3 +223,112 @@ class ComplexPermittivity:
 
         df_grid: pd.DataFrame = pd.DataFrame(records, columns=["f", "T", "eps_real", "eps_imag"])
         return df_grid
+
+    @staticmethod
+    def plot_grid(df: pd.DataFrame,
+                  save_path: str | Path,
+                  no_levels: int = 100,
+                  f_min: Optional[float] = None, f_max: Optional[float] = None,
+                  T_min: Optional[float] = None, T_max: Optional[float] = None) -> None:
+        """
+        Plot |ε| and phase(ε) as contour maps vs. f (kHz) and T (°C) with shared color scales for magnitude and phase.
+
+        :param df: complex permittivity data as pandas DataFrame
+        :param save_path: path where the plot should be saved
+        :param no_levels: number of levels to show
+        :param f_min: minimum frequency
+        :param f_max: maximum frequency
+        :param T_min: minimum temperature
+        :param T_max: maximum temperature
+        """
+        # -------------------------
+        # Matplotlib settings
+        # -------------------------
+        plt.rcParams.update({
+            "text.usetex": True,
+            "font.family": "serif",
+            "font.size": 10.0,
+            "text.latex.preamble": r"""
+                \usepackage{amsmath}
+                \usepackage{upgreek}
+                \usepackage{bm}
+            """
+        })
+
+        # --- Sanity checks ---
+        required_columns = ['f', 'T', 'eps_real', 'eps_imag']
+        if not all(col in df.columns for col in required_columns):
+            raise ValueError(f"DataFrame must contain columns: {required_columns}")
+
+        # --- Filter by optional limits ---
+        df_plot = df.copy()
+        if f_min is not None:
+            df_plot = df_plot[df_plot['f'] >= f_min]
+        if f_max is not None:
+            df_plot = df_plot[df_plot['f'] <= f_max]
+        if T_min is not None:
+            df_plot = df_plot[df_plot['T'] >= T_min]
+        if T_max is not None:
+            df_plot = df_plot[df_plot['T'] <= T_max]
+        if df_plot.empty:
+            raise ValueError("No data remaining after applying filter limits.")
+
+        # --- Compute magnitude and phase ---
+        eps_abs = np.sqrt(df_plot['eps_real'] ** 2 + df_plot['eps_imag'] ** 2)
+        eps_phi = np.rad2deg(np.arctan2(df_plot['eps_imag'], df_plot['eps_real']))
+
+        # --- Common grid for interpolation ---
+        f_vals = np.linspace(df_plot['f'].min(), df_plot['f'].max(), 200)
+        T_vals = np.linspace(df_plot['T'].min(), df_plot['T'].max(), 200)
+        grid_f, grid_T = np.meshgrid(f_vals, T_vals)
+        grid_f_kHz = grid_f * 1e-3  # Hz → kHz
+
+        # --- Interpolation ---
+        grid_eps_abs = griddata((df_plot['f'], df_plot['T']), eps_abs, (grid_f, grid_T), method='cubic')
+        grid_eps_phi = griddata((df_plot['f'], df_plot['T']), eps_phi, (grid_f, grid_T), method='cubic')
+
+        # --- Shared color scales ---
+        abs_min, abs_max = np.nanmin(grid_eps_abs), np.nanmax(grid_eps_abs)
+        phi_min, phi_max = np.nanmin(grid_eps_phi), np.nanmax(grid_eps_phi)
+        levels_abs = np.linspace(abs_min, abs_max, no_levels)
+        levels_phi = np.linspace(phi_min, phi_max, no_levels)
+
+        # --- Figure setup with GridSpec ---
+        cm = 1 / 2.54
+        fig = plt.figure(figsize=(5 * cm, 9 * cm))
+        gs = gridspec.GridSpec(2, 2, width_ratios=[1, 0.05], wspace=0.15, hspace=0.15)
+        ax_abs = fig.add_subplot(gs[0, 0])
+        ax_phi = fig.add_subplot(gs[1, 0])
+        cax_abs = fig.add_subplot(gs[0, 1])
+        cax_phi = fig.add_subplot(gs[1, 1])
+
+        # --- Contour plots ---
+        cont_abs = ax_abs.contourf(grid_f_kHz, grid_T, grid_eps_abs, levels=levels_abs, cmap='plasma',
+                                   vmin=abs_min, vmax=abs_max)
+        cont_phi = ax_phi.contourf(grid_f_kHz, grid_T, grid_eps_phi, levels=levels_phi, cmap='plasma',
+                                   vmin=phi_min, vmax=phi_max)
+
+        # --- Labels ---
+        ax_abs.set_ylabel(r"$T$ / °C")
+        ax_phi.set_ylabel(r"$T$ / °C")
+        ax_phi.set_xlabel(r"$f$ / kHz")
+
+        # --- Colorbars ---
+        for cont, cax, label in zip([cont_abs, cont_phi],
+                                    [cax_abs, cax_phi],
+                                    [r"$|\tilde{\varepsilon}_r|$", r"$\zeta_{\tilde{\varepsilon}}$ / °"], strict=False):
+            cbar = fig.colorbar(cont, cax=cax)
+            cbar.set_label(label)
+            cbar.locator = MaxNLocator(nbins=5)
+            cbar.update_ticks()
+
+        # --- Simplify ticks ---
+        for a in [ax_abs, ax_phi]:
+            a.xaxis.set_major_locator(MaxNLocator(nbins=4))
+            a.yaxis.set_major_locator(MaxNLocator(nbins=4))
+
+        # --- Remove upper plot x-axis tick labels ---
+        ax_abs.set_xticklabels([])  # <-- hide x-axis tick labels on top plot
+
+        plt.savefig(save_path, bbox_inches='tight', dpi=300)
+        plt.show()

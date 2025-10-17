@@ -1,7 +1,7 @@
 """Class to represent the data structure and load material data."""
 # python libraries
 import os
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List
 
 # 3rd party libraries
 import numpy as np
@@ -9,6 +9,8 @@ import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.interpolate import griddata
 from matplotlib import pyplot as plt
+from matplotlib import gridspec
+from matplotlib.ticker import MaxNLocator
 
 # own libraries
 from materialdatabase.meta.data_enums import *
@@ -336,3 +338,137 @@ class ComplexPermeability:
 
         df_grid: pd.DataFrame = pd.DataFrame(records, columns=["f", "T", "b", "mu_real", "mu_imag"])
         return df_grid
+
+    @staticmethod
+    def plot_grid(df: pd.DataFrame,
+                  save_path: str | Path,
+                  temps: List[float],
+                  no_levels: int = 100,
+                  f_min: Optional[float] = None, f_max: Optional[float] = None,
+                  b_min: Optional[float] = None, b_max: Optional[float] = None) -> None:
+        """
+        Plot |mu| and phase(mu) as contour maps vs. f (kHz) and b (mT) for multiple temperatures. All temperatures share color scales per row.
+
+        :param df: complex permeability data as pandas dataframe
+        :param save_path: path to save plot
+        :param temps: temperatures to plot
+        :param no_levels: number of levels to plot
+        :param f_min: minimum frequency
+        :param f_max: maximum frequency
+        :param b_min: minimum frequency
+        :param b_max: maximum frequency
+        """
+        # -------------------------
+        # Matplotlib settings
+        # -------------------------
+        plt.rcParams.update({
+            "text.usetex": True,
+            "font.family": "serif",
+            "font.size": 10.0,
+            "text.latex.preamble": r"""
+                \usepackage{amsmath}
+                \usepackage{upgreek}
+                \usepackage{bm}
+            """
+        })
+        # --- Sanity checks ---
+        required_columns = ['f', 'T', 'b', 'mu_real', 'mu_imag']
+        if not all(col in df.columns for col in required_columns):
+            raise ValueError(f"DataFrame must contain columns: {required_columns}")
+        if not temps:
+            raise ValueError("At least one temperature must be provided in `temps`.")
+
+        # --- Filter DataFrame by optional limits ---
+        df_plot = df.copy()
+        if f_min is not None:
+            df_plot = df_plot[df_plot['f'] >= f_min]
+        if f_max is not None:
+            df_plot = df_plot[df_plot['f'] <= f_max]
+        if b_min is not None:
+            df_plot = df_plot[df_plot['b'] >= b_min]
+        if b_max is not None:
+            df_plot = df_plot[df_plot['b'] <= b_max]
+
+        # --- Create common interpolation grid ---
+        b_vals = np.linspace(df_plot['b'].min(), df_plot['b'].max(), 200)
+        f_vals = np.linspace(df_plot['f'].min(), df_plot['f'].max(), 200)
+        grid_b, grid_f = np.meshgrid(b_vals, f_vals)
+        grid_f_kHz = grid_f * 1e-3  # convert Hz → kHz
+
+        # --- Helper function to compute |mu| and phase ---
+        def interpolate_mu(dft):
+            mu_abs = np.sqrt(dft['mu_real']**2 + dft['mu_imag']**2)
+            mu_phi = np.rad2deg(np.arctan2(dft['mu_imag'], dft['mu_real']))
+            grid_abs = griddata((dft['b'], dft['f']*1e-3), mu_abs, (grid_b, grid_f_kHz), method='cubic')
+            grid_phi = griddata((dft['b'], dft['f']*1e-3), mu_phi, (grid_b, grid_f_kHz), method='cubic')
+            return grid_abs, grid_phi
+
+        # --- Interpolate all temperatures ---
+        grid_mu_abs_all, grid_mu_phi_all = [], []
+        for T in temps:
+            dft = df_plot[df_plot['T'] == T]
+            if dft.empty:
+                raise ValueError(f"No data found for T = {T} °C.")
+            abs_grid, phi_grid = interpolate_mu(dft)
+            grid_mu_abs_all.append(abs_grid)
+            grid_mu_phi_all.append(phi_grid)
+
+        # --- Shared color scales ---
+        abs_min, abs_max = np.nanmin(grid_mu_abs_all), np.nanmax(grid_mu_abs_all)
+        phi_min, phi_max = np.nanmin(grid_mu_phi_all), np.nanmax(grid_mu_phi_all)
+        levels_abs = np.linspace(abs_min, abs_max, no_levels)
+        levels_phi = np.linspace(phi_min, phi_max, no_levels)
+
+        # --- Figure and GridSpec setup ---
+        n_cols = len(temps)
+        cm = 1 / 2.54
+        fig = plt.figure(figsize=(9 * cm, 9 * cm))
+        gs = gridspec.GridSpec(2, n_cols + 1, width_ratios=[1]*n_cols + [0.05],
+                               wspace=0.15, hspace=0.15)
+
+        # Create axes array
+        ax = np.array([[fig.add_subplot(gs[r, c]) for c in range(n_cols)] for r in range(2)])
+        cax_abs = fig.add_subplot(gs[0, -1])
+        cax_phi = fig.add_subplot(gs[1, -1])
+
+        # --- Plot contours ---
+        for i, T in enumerate(temps):
+            cont_abs = ax[0, i].contourf(grid_b*1000, grid_f_kHz, grid_mu_abs_all[i],
+                                         levels=levels_abs, cmap='plasma',
+                                         vmin=abs_min, vmax=abs_max)
+            cont_phi = ax[1, i].contourf(grid_b*1000, grid_f_kHz, grid_mu_phi_all[i],
+                                         levels=levels_phi, cmap='plasma',
+                                         vmin=phi_min, vmax=phi_max)
+            ax[0, i].set_title(f"{int(T)} °C")
+            ax[1, i].set_xlabel(r"$|\underline{\boldsymbol{B}}|$ / mT")
+
+        # --- Y labels for first column only ---
+        ax[0, 0].set_ylabel(r"$f$ / kHz")
+        ax[1, 0].set_ylabel(r"$f$ / kHz")
+
+        # --- Colorbars ---
+        for cont, cax, label in zip([cont_abs, cont_phi],
+                                    [cax_abs, cax_phi],
+                                    [r'$\mu_\mathrm{r}$', r'$\zeta_\mathrm{\upmu}$ / °'], strict=False):
+            cbar = fig.colorbar(cont, cax=cax)
+            cbar.set_label(label)
+            cbar.locator = MaxNLocator(nbins=5)
+            cbar.update_ticks()
+
+        # --- Simplify inner ticks ---
+        n_rows, n_cols = ax.shape
+        for r in range(n_rows):
+            for c in range(n_cols):
+                if c != 0:
+                    # ax[r, c].tick_params(axis='y', which='both', length=0)
+                    ax[r, c].set_yticklabels([])
+                if r != n_rows - 1:
+                    # ax[r, c].tick_params(axis='x', which='both', length=0)
+                    ax[r, c].set_xticklabels([])
+                # optional: simplify outer ticks
+                ax[r, c].xaxis.set_major_locator(MaxNLocator(nbins=4))
+                ax[r, c].yaxis.set_major_locator(MaxNLocator(nbins=4))
+
+        # --- Save and show ---
+        plt.savefig(save_path, bbox_inches='tight', dpi=300)
+        plt.show()
