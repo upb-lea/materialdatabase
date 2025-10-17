@@ -154,18 +154,6 @@ class ComplexPermeability:
 
         fit_mu_a = self.mu_a_fit_function.get_function()
 
-        logger.info(f"\n"
-                    f"Fitting of the permeability amplitude with the fit function'{self.mu_a_fit_function.value}'.\n"
-                    f" Following limits are applied to the measurement data:\n"
-                    f"  {f_min = }\n"
-                    f"  {f_max = }\n"
-                    f"  {T_min = }\n"
-                    f"  {T_max = }\n"
-                    f"  {b_min = }\n"
-                    f"  {b_max = }\n"
-                    f" Following data is used for the loss fitting:\n "
-                    f"  {fit_data}")
-
         mu_a = np.sqrt(fit_data["mu_real"] ** 2 + fit_data["mu_imag"] ** 2)
         popt_mu_a, pcov_mu_a = curve_fit(fit_mu_a,
                                          (fit_data["f"],
