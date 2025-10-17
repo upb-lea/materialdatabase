@@ -204,13 +204,13 @@ class ComplexPermeability:
         logger.info(f"\n"
                     f"Fitting of the magnetic losses with the fit function'{self.pv_fit_function.value}'.\n"
                     f"Following limits are applied to the measurement data:\n"
-                    f"{f_min = }\n"
-                    f"{f_max = }\n"
-                    f"{T_min = }\n"
-                    f"{T_max = }\n"
-                    f"{b_min = }\n"
-                    f"{b_max = }\n"
-                    f" Following data is used for the loss fitting:\n "
+                    f"{f_min=}\n"
+                    f"{f_max=}\n"
+                    f"{T_min=}\n"
+                    f"{T_max=}\n"
+                    f"{b_min=}\n"
+                    f"{b_max=}\n"
+                    f"Following data is used for the loss fitting:\n"
                     f"{fit_data}")
 
         mu_abs = np.sqrt(fit_data["mu_real"] ** 2 + fit_data["mu_imag"] ** 2)
