@@ -1,7 +1,6 @@
 """Class to represent the data structure and load material data."""
 # python libraries
 import os
-from typing import Tuple, Optional, List
 
 # 3rd party libraries
 import numpy as np
@@ -97,9 +96,9 @@ class ComplexPermeability:
 
     @staticmethod
     def filter_fTb(df: pd.DataFrame,
-                   f_min: Optional[float] = None, f_max: Optional[float] = None,
-                   T_min: Optional[float] = None, T_max: Optional[float] = None,
-                   b_min: Optional[float] = None, b_max: Optional[float] = None) -> pd.DataFrame:
+                   f_min: float | None = None, f_max: float | None = None,
+                   T_min: float | None = None, T_max: float | None = None,
+                   b_min: float | None = None, b_max: float | None = None) -> pd.DataFrame:
         """
         Filter a material dataframe df for min/max frequency, temperature, and flux density.
 
@@ -127,9 +126,9 @@ class ComplexPermeability:
         return df
 
     def fit_permeability_magnitude(self,
-                                   f_min: Optional[float] = None, f_max: Optional[float] = None,
-                                   T_min: Optional[float] = None, T_max: Optional[float] = None,
-                                   b_min: Optional[float] = None, b_max: Optional[float] = None) -> Any:
+                                   f_min: float | None = None, f_max: float | None = None,
+                                   T_min: float | None = None, T_max: float | None = None,
+                                   b_min: float | None = None, b_max: float | None = None) -> Any:
         """
         Fit the permeability magnitude μ_abs as a function of frequency, temperature, and magnetic flux density.
 
@@ -164,9 +163,9 @@ class ComplexPermeability:
         return popt_mu_a
 
     def fit_losses(self,
-                   f_min: Optional[float] = None, f_max: Optional[float] = None,
-                   T_min: Optional[float] = None, T_max: Optional[float] = None,
-                   b_min: Optional[float] = None, b_max: Optional[float] = None) -> Any:
+                   f_min: float | None = None, f_max: float | None = None,
+                   T_min: float | None = None, T_max: float | None = None,
+                   b_min: float | None = None, b_max: float | None = None) -> Any:
         """
         Fit the magnetic power loss density p_v as a function of frequency, temperature, and magnetic flux density.
 
@@ -206,14 +205,14 @@ class ComplexPermeability:
             f_op: float,
             T_op: float,
             b_vals: npt.NDArray
-    ) -> Tuple[npt.NDArray, npt.NDArray]:
+    ) -> tuple[npt.NDArray, npt.NDArray]:
         """
         Fit permeability and losses for a given material and return real/imaginary parts.
 
         :param f_op: Operating frequency in Hz
         :param T_op: Operating temperature in °C
         :param b_vals: 1D np.ndarray of magnetic flux density values in T
-        :return: Tuple (mu_real, mu_imag) of fitted real and imaginary parts of permeability
+        :return: tuple (mu_real, mu_imag) of fitted real and imaginary parts of permeability
         """
         assert isinstance(b_vals, np.ndarray), "b_vals must be a NumPy array"
 
@@ -279,9 +278,9 @@ class ComplexPermeability:
                 grid_frequency: npt.NDArray[Any],
                 grid_temperature: npt.NDArray[Any],
                 grid_flux_density: npt.NDArray[Any],
-                f_min_measurement: Optional[float] = None, f_max_measurement: Optional[float] = None,
-                T_min_measurement: Optional[float] = None, T_max_measurement: Optional[float] = None,
-                b_min_measurement: Optional[float] = None, b_max_measurement: Optional[float] = None
+                f_min_measurement: float | None = None, f_max_measurement: float | None = None,
+                T_min_measurement: float | None = None, T_max_measurement: float | None = None,
+                b_min_measurement: float | None = None, b_max_measurement: float | None = None
                 ) -> pd.DataFrame:
         """
         Export fitted permeability data (real & imaginary parts) to a txt grid file.
@@ -318,10 +317,10 @@ class ComplexPermeability:
     @staticmethod
     def plot_grid(df: pd.DataFrame,
                   save_path: str | Path,
-                  temps: List[float],
+                  temps: list[float],
                   no_levels: int = 100,
-                  f_min: Optional[float] = None, f_max: Optional[float] = None,
-                  b_min: Optional[float] = None, b_max: Optional[float] = None) -> None:
+                  f_min: float | None = None, f_max: float | None = None,
+                  b_min: float | None = None, b_max: float | None = None) -> None:
         """
         Plot |mu| and phase(mu) as contour maps vs. f (kHz) and b (mT) for multiple temperatures. All temperatures share color scales per row.
 
@@ -372,7 +371,13 @@ class ComplexPermeability:
         grid_f_kHz = grid_f * 1e-3  # convert Hz → kHz
 
         # --- Helper function to compute |mu| and phase ---
-        def interpolate_mu(dft):
+        def get_abs_and_phi_of_mu_grid_at_temperature(dft):
+            """
+            Compute the magnitude and phase as grid over b and f.
+
+            :param dft: permeability data at certain temperature
+            :return: magnitude and phase as grid
+            """
             mu_abs = np.sqrt(dft['mu_real']**2 + dft['mu_imag']**2)
             mu_phi = np.rad2deg(np.arctan2(dft['mu_imag'], dft['mu_real']))
             grid_abs = griddata((dft['b'], dft['f']*1e-3), mu_abs, (grid_b, grid_f_kHz), method='cubic')
@@ -385,7 +390,7 @@ class ComplexPermeability:
             dft = df_plot[df_plot['T'] == T]
             if dft.empty:
                 raise ValueError(f"No data found for T = {T} °C.")
-            abs_grid, phi_grid = interpolate_mu(dft)
+            abs_grid, phi_grid = get_abs_and_phi_of_mu_grid_at_temperature(dft)
             grid_mu_abs_all.append(abs_grid)
             grid_mu_phi_all.append(phi_grid)
 

@@ -1,6 +1,5 @@
 """Class to represent the data structure and load material data."""
 # python libraries
-from typing import List, Optional
 import os
 
 # 3rd party libraries
@@ -58,9 +57,9 @@ class ComplexPermittivity:
         df["eps_a"] = eps_a
 
         # Step 2: Interpolate to uniform frequency grid for each T
-        interpolated_f: List[float] = []
-        interpolated_T: List[float] = []
-        interpolated_eps_a: List[float] = []
+        interpolated_f: list[float] = []
+        interpolated_T: list[float] = []
+        interpolated_eps_a: list[float] = []
 
         unique_Ts = np.unique(df["T"])
         for T in unique_Ts:
@@ -109,9 +108,9 @@ class ComplexPermittivity:
         df["eps_angle"] = eps_angle
 
         # Step 2: Interpolate to uniform frequency grid for each T
-        interpolated_f: List[float] = []
-        interpolated_T: List[float] = []
-        interpolated_eps_angle: List[float] = []
+        interpolated_f: list[float] = []
+        interpolated_T: list[float] = []
+        interpolated_eps_angle: list[float] = []
 
         unique_Ts = np.unique(df["T"])
         for T in unique_Ts:
@@ -228,8 +227,8 @@ class ComplexPermittivity:
     def plot_grid(df: pd.DataFrame,
                   save_path: str | Path,
                   no_levels: int = 100,
-                  f_min: Optional[float] = None, f_max: Optional[float] = None,
-                  T_min: Optional[float] = None, T_max: Optional[float] = None) -> None:
+                  f_min: float | None = None, f_max: float | None = None,
+                  T_min: float | None = None, T_max: float | None = None) -> None:
         """
         Plot |ε| and phase(ε) as contour maps vs. f (kHz) and T (°C) with shared color scales for magnitude and phase.
 
