@@ -1,12 +1,15 @@
 """Class to represent the data structure and load material data."""
 # python libraries
-from typing import List
 import os
 
 # 3rd party libraries
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
+from scipy.interpolate import griddata
+from matplotlib import pyplot as plt
+from matplotlib import gridspec
+from matplotlib.ticker import MaxNLocator
 
 # own libraries
 from materialdatabase.meta.data_enums import *
@@ -54,9 +57,9 @@ class ComplexPermittivity:
         df["eps_a"] = eps_a
 
         # Step 2: Interpolate to uniform frequency grid for each T
-        interpolated_f: List[float] = []
-        interpolated_T: List[float] = []
-        interpolated_eps_a: List[float] = []
+        interpolated_f: list[float] = []
+        interpolated_T: list[float] = []
+        interpolated_eps_a: list[float] = []
 
         unique_Ts = np.unique(df["T"])
         for T in unique_Ts:
@@ -105,9 +108,9 @@ class ComplexPermittivity:
         df["eps_angle"] = eps_angle
 
         # Step 2: Interpolate to uniform frequency grid for each T
-        interpolated_f: List[float] = []
-        interpolated_T: List[float] = []
-        interpolated_eps_angle: List[float] = []
+        interpolated_f: list[float] = []
+        interpolated_T: list[float] = []
+        interpolated_eps_angle: list[float] = []
 
         unique_Ts = np.unique(df["T"])
         for T in unique_Ts:
@@ -171,39 +174,40 @@ class ComplexPermittivity:
         return eps_real, eps_imag
 
     @staticmethod
-    def txt2grid2d(df: pd.DataFrame, path: os.PathLike | str) -> None:
+    def grid2txt(df: pd.DataFrame, path: os.PathLike | str) -> None:
         """
         Export 2D permittivity data to grid text file format.
 
-        :param df: Expected DataFrame columns: [frequency, temperature, real part of permeability, imaginary part of permeability]
+        :param df: Expected DataFrame columns: [frequency, temperature, real part of permittivity, imaginary part of permittivity]
         :param path: path where the txt file should be stored
         """
         with open(path, "w+") as f:
             f.write("%Grid\n")
 
             # frequency
-            f_grid = sorted(set(df[0].values.tolist()))
+            f_grid = sorted(set(df["f"].values.tolist()))
             f.write(str(f_grid)[1:-1] + "\n")
 
             # temperature
-            T_grid = sorted(set(df[1].values.tolist()))
+            T_grid = sorted(set(df["T"].values.tolist()))
             f.write(str(T_grid)[1:-1] + "\n")
 
             f.write("%Data\n")
-            eps_real = df[2].values.tolist()
+            eps_real = df["eps_real"].values.tolist()
             f.write(str(eps_real)[1:-1] + "\n")
 
             f.write("%Data\n")
-            eps_imag = df[3].values.tolist()
+            eps_imag = df["eps_imag"].values.tolist()
             f.write(str(eps_imag)[1:-1])
 
-    def export_to_txt(self, path: str | os.PathLike, frequencies: npt.NDArray[Any], temperatures: npt.NDArray[Any]) -> None:
+    def to_grid(self,
+                grid_frequency: npt.NDArray[Any],
+                grid_temperature: npt.NDArray[Any]) -> pd.DataFrame:
         """
         Export fitted permittivity data (real & imaginary parts) to a txt grid file.
 
-        :param path: path to exported txt-file
-        :param frequencies: frequencies for the interpolation grid
-        :param temperatures: temperatures for the interpolation grid
+        :param grid_frequency: frequencies for the interpolation grid
+        :param grid_temperature: temperatures for the interpolation grid
         """
         if self.params_eps_a is None:
             self.fit_permittivity_magnitude()
@@ -211,10 +215,119 @@ class ComplexPermittivity:
             self.fit_loss_angle()
 
         records: list[list[float]] = []
-        for T in temperatures:
-            for f in frequencies:
+        for T in grid_temperature:
+            for f in grid_frequency:
                 eps_real, eps_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T)
                 records.append([f, T, eps_real, eps_imag])
 
-        df_export: pd.DataFrame = pd.DataFrame(records, columns=[0, 1, 2, 3])
-        self.txt2grid2d(df_export, path)
+        df_grid: pd.DataFrame = pd.DataFrame(records, columns=["f", "T", "eps_real", "eps_imag"])
+        return df_grid
+
+    @staticmethod
+    def plot_grid(df: pd.DataFrame,
+                  save_path: str | Path,
+                  no_levels: int = 100,
+                  f_min: float | None = None, f_max: float | None = None,
+                  T_min: float | None = None, T_max: float | None = None) -> None:
+        """
+        Plot |ε| and phase(ε) as contour maps vs. f (kHz) and T (°C) with shared color scales for magnitude and phase.
+
+        :param df: complex permittivity data as pandas DataFrame
+        :param save_path: path where the plot should be saved
+        :param no_levels: number of levels to show
+        :param f_min: minimum frequency
+        :param f_max: maximum frequency
+        :param T_min: minimum temperature
+        :param T_max: maximum temperature
+        """
+        # -------------------------
+        # Matplotlib settings
+        # -------------------------
+        plt.rcParams.update({
+            "text.usetex": True,
+            "font.family": "serif",
+            "font.size": 10.0,
+            "text.latex.preamble": r"""
+                \usepackage{amsmath}
+                \usepackage{upgreek}
+                \usepackage{bm}
+            """
+        })
+
+        # --- Sanity checks ---
+        required_columns = ['f', 'T', 'eps_real', 'eps_imag']
+        if not all(col in df.columns for col in required_columns):
+            raise ValueError(f"DataFrame must contain columns: {required_columns}")
+
+        # --- Filter by optional limits ---
+        df_plot = df.copy()
+        if f_min is not None:
+            df_plot = df_plot[df_plot['f'] >= f_min]
+        if f_max is not None:
+            df_plot = df_plot[df_plot['f'] <= f_max]
+        if T_min is not None:
+            df_plot = df_plot[df_plot['T'] >= T_min]
+        if T_max is not None:
+            df_plot = df_plot[df_plot['T'] <= T_max]
+        if df_plot.empty:
+            raise ValueError("No data remaining after applying filter limits.")
+
+        # --- Compute magnitude and phase ---
+        eps_abs = np.sqrt(df_plot['eps_real'] ** 2 + df_plot['eps_imag'] ** 2)
+        eps_phi = np.rad2deg(np.arctan2(df_plot['eps_imag'], df_plot['eps_real']))
+
+        # --- Common grid for interpolation ---
+        f_vals = np.linspace(df_plot['f'].min(), df_plot['f'].max(), 200)
+        T_vals = np.linspace(df_plot['T'].min(), df_plot['T'].max(), 200)
+        grid_f, grid_T = np.meshgrid(f_vals, T_vals)
+        grid_f_kHz = grid_f * 1e-3  # Hz → kHz
+
+        # --- Interpolation ---
+        grid_eps_abs = griddata((df_plot['f'], df_plot['T']), eps_abs, (grid_f, grid_T), method='cubic')
+        grid_eps_phi = griddata((df_plot['f'], df_plot['T']), eps_phi, (grid_f, grid_T), method='cubic')
+
+        # --- Shared color scales ---
+        abs_min, abs_max = np.nanmin(grid_eps_abs), np.nanmax(grid_eps_abs)
+        phi_min, phi_max = np.nanmin(grid_eps_phi), np.nanmax(grid_eps_phi)
+        levels_abs = np.linspace(abs_min, abs_max, no_levels)
+        levels_phi = np.linspace(phi_min, phi_max, no_levels)
+
+        # --- Figure setup with GridSpec ---
+        cm = 1 / 2.54
+        fig = plt.figure(figsize=(5 * cm, 9 * cm))
+        gs = gridspec.GridSpec(2, 2, width_ratios=[1, 0.05], wspace=0.15, hspace=0.15)
+        ax_abs = fig.add_subplot(gs[0, 0])
+        ax_phi = fig.add_subplot(gs[1, 0])
+        cax_abs = fig.add_subplot(gs[0, 1])
+        cax_phi = fig.add_subplot(gs[1, 1])
+
+        # --- Contour plots ---
+        cont_abs = ax_abs.contourf(grid_f_kHz, grid_T, grid_eps_abs, levels=levels_abs, cmap='plasma',
+                                   vmin=abs_min, vmax=abs_max)
+        cont_phi = ax_phi.contourf(grid_f_kHz, grid_T, grid_eps_phi, levels=levels_phi, cmap='plasma',
+                                   vmin=phi_min, vmax=phi_max)
+
+        # --- Labels ---
+        ax_abs.set_ylabel(r"$T$ / °C")
+        ax_phi.set_ylabel(r"$T$ / °C")
+        ax_phi.set_xlabel(r"$f$ / kHz")
+
+        # --- Colorbars ---
+        for cont, cax, label in zip([cont_abs, cont_phi],
+                                    [cax_abs, cax_phi],
+                                    [r"$|\tilde{\varepsilon}_r|$", r"$\zeta_{\tilde{\varepsilon}}$ / °"], strict=False):
+            cbar = fig.colorbar(cont, cax=cax)
+            cbar.set_label(label)
+            cbar.locator = MaxNLocator(nbins=5)
+            cbar.update_ticks()
+
+        # --- Simplify ticks ---
+        for a in [ax_abs, ax_phi]:
+            a.xaxis.set_major_locator(MaxNLocator(nbins=4))
+            a.yaxis.set_major_locator(MaxNLocator(nbins=4))
+
+        # --- Remove upper plot x-axis tick labels ---
+        ax_abs.set_xticklabels([])  # <-- hide x-axis tick labels on top plot
+
+        plt.savefig(save_path, bbox_inches='tight', dpi=300)
+        plt.show()

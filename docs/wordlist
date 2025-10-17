@@ -103,3 +103,8 @@ bool
 customizable
 atan
 iterable
+Colorbars
+usetex
+GridSpec
+pdf
+dft
