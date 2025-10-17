@@ -371,7 +371,7 @@ class ComplexPermeability:
         grid_f_kHz = grid_f * 1e-3  # convert Hz → kHz
 
         # --- Helper function to compute |mu| and phase ---
-        def get_abs_and_phi_of_mu_grid_at_temperature(dft):
+        def get_abs_and_phi_of_mu_grid_at_temperature(dft: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
             """
             Compute the magnitude and phase as grid over b and f.
 
