@@ -147,7 +147,7 @@ class Data:
             columns="column",
             values="value",
             fill_value=False,
-            aggfunc="any"
+            aggfunc="mean"
         )
 
         return pivot
