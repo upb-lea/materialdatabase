@@ -19,7 +19,8 @@ Usable features
     * The database currently contains 19 different ferrite materials as shown in the following table
         * Datasheet: Digitized plots of the manufacturer datasheet (only for plotting)
         * FEM-Datasheet: Data for FEM-simulation based on the manufacturer datasheet
-        * LEA_LK & LEA_MTB: Data for FEM-simulation measured by the department of Power Electronics and Electrical Drives at Paderborn University
+        * TDK_MDT: Data for FEM-simulation based on the magnetic design tool by Epcos TDK
+        * LEA_MTB: Data for FEM-simulation measured by the department of Power Electronics and Electrical Drives at Paderborn University
         * MagNet: Data for FEM-simulation from the `MagNet <https://mag-net.princeton.edu/>`__ project
 
 |material_overview|
