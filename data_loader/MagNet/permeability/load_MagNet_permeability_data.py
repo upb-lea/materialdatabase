@@ -1,12 +1,16 @@
 """Script to write MagNet-Data into the database and on local drive."""
-import mat73
-import numpy as np
-from materialdatabase.meta.data_enums import Material, MagNetFileNames
-import pandas as pd
+
+# python packages
 import logging
-import materialdatabase as mdb
 from pathlib import Path
+# 3rd party libraries
+import mat73  # Load MATLAB 7.3 .mat files into python (needs to be installed separately)
 from scipy.constants import mu_0
+import pandas as pd
+import numpy as np
+# own libraries
+import materialdatabase as mdb
+from materialdatabase.meta.data_enums import Material, MagNetFileNames
 
 logger = logging.getLogger(__name__)
 
