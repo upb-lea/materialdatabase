@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 from matplotlib.axes import Axes
 import pandas as pd
-from typing import Dict, List, Union, TypedDict, Tuple
+from typing import Dict, List, Union, TypedDict, Tuple, cast
 
 
 class StyleDict(TypedDict, total=False):
@@ -52,7 +52,9 @@ def plot_loss_vs_temperature(ax: Axes, df: pd.DataFrame,
                     label=style["label"])
 
         # Plot lines for each (b, f) group
-        for (b, f), group in df.groupby(["b", "f"]):
+        for key, group in df.groupby(["b", "f"]):
+            b, f = cast(Tuple[float, float], key)
+
             sorted_group = group.sort_values("T")
             T_vals = sorted_group["T"]
             y_vals = sorted_group[y_col] / 1000
@@ -109,7 +111,8 @@ def plot_loss_vs_frequency(ax: Axes, df: pd.DataFrame,
                   label=style["label"])
 
         # Plot lines for each (b, T) group
-        for (b, T), group in df.groupby(["b", "T"]):
+        for key, group in df.groupby(["b", "T"]):
+            b, T = cast(Tuple[float, float], key)
             sorted_group = group.sort_values("f")
             f_vals = sorted_group["f"] / 1000
             y_vals = sorted_group[y_col] / 1000
@@ -163,7 +166,8 @@ def plot_loss_vs_flux_density(ax: Axes, df: pd.DataFrame,
                   label=style["label"])
 
         # Plot lines for each (T, f) group
-        for (T, f), group in df.groupby(["T", "f"]):
+        for key, group in df.groupby(["T", "f"]):
+            T, f = cast(Tuple[float, float], key)
             sorted_group = group.sort_values("b")
             b_vals = sorted_group["b"] * 1000
             y_vals = sorted_group[y_col] / 1000
@@ -234,7 +238,8 @@ def plot_mu_vs_frequency(ax: Axes,
                 color=style["color"],
                 label=style["label"])
 
-        for (b, T), group in df.groupby(["b", "T"]):
+        for key, group in df.groupby(["b", "T"]):
+            b, T = cast(Tuple[float, float], key)
             sorted_group = group.sort_values("f")
             f_vals = sorted_group["f"]
             y_vals = sorted_group[y_col]
@@ -276,7 +281,8 @@ def plot_mu_vs_flux_density(ax: Axes,
                 color=style["color"],
                 label=style["label"])
 
-        for (T, f), group in df.groupby(["T", "f"]):
+        for key, group in df.groupby(["T", "f"]):
+            T, f = cast(Tuple[float, float], key)
             sorted_group = group.sort_values("b")
             b_vals = sorted_group["b"]
             y_vals = sorted_group[y_col]
@@ -318,7 +324,8 @@ def plot_mu_vs_temperature(ax: Axes,
                 color=style["color"],
                 label=style["label"])
 
-        for (b, f), group in df.groupby(["b", "f"]):
+        for key, group in df.groupby(["b", "f"]):
+            b, f = cast(Tuple[float, float], key)
             sorted_group = group.sort_values("T")
             T_vals = sorted_group["T"]
             y_vals = sorted_group[y_col]
