@@ -193,7 +193,6 @@ class Data:
         """Plot the existing data of the materialdatabase.
 
         :param exclude_dc_bias: exclude DC-bias data to prevent an overcrowded plot
-        :return:
         """
         available_data = self.build_overview_table()
 
