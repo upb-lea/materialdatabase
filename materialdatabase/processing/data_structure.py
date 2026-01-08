@@ -189,10 +189,18 @@ class Data:
         plt.tight_layout()
         plt.show()
 
-    def plot_available_data(self) -> None:
-        """Plot the existing data of the materialdatabase."""
-        logger.info(self.build_overview_table())
-        self.plot_boolean_dataframe(self.build_overview_table())
+    def plot_available_data(self, exclude_dc_bias: bool = True) -> None:
+        """Plot the existing data of the materialdatabase.
+
+        :param exclude_dc_bias: exclude DC-bias data to prevent an overcrowded plot
+        """
+        available_data = self.build_overview_table()
+
+        if exclude_dc_bias:
+            available_data = available_data[~available_data.index.str.contains("_")]
+
+        logger.info(available_data)
+        self.plot_boolean_dataframe(available_data)
 
     def get_complex_data_set(self, material: Material, data_source: DataSource, data_type: ComplexDataType) -> pd.DataFrame:
         """
