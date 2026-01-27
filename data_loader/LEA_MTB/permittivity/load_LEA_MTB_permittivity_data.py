@@ -5,9 +5,7 @@ import numpy as np
 import pandas as pd
 
 import materialdatabase as mdb
-from functions_LEA_MTB_permittivity import collect_probes_and_temperatures
-# from functions_permittivity import collect_probes_and_temperatures, enrich_with_probe_dimensions, process_permittivity
-
+from magneticstestbench.measurement_setups.small_signal_permittivity.functions_permittivity import collect_probes_and_temperatures
 
 # get paths from config.toml
 path2processed_data = Path(mdb.get_user_paths().external_material_data).joinpath("LEA_MTB").joinpath("permittivity").joinpath("processed")
