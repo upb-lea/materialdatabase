@@ -73,7 +73,7 @@ def plot_permittivity_vs_frequency(complex_perm):
         fitted_vals = eps_a_fitted[mask]
 
         ax.plot(f_vals, measured_vals, 'o', label="Measured")
-        ax.plot(f_vals, fitted_vals, '-', label="Fitted")
+        ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
         ax.set_title(f"Temperature = {temp} °C")
         ax.set_ylabel("ε_abs")
         ax.grid(True)
@@ -150,7 +150,7 @@ def plot_permittivity_loss_angle_vs_frequency(complex_perm):
         fitted_vals = delta_fitted[mask]
 
         ax.plot(f_vals, measured_vals, 'o', label="Measured")
-        ax.plot(f_vals, fitted_vals, '-', label="Fitted")
+        ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
         ax.set_title(f"Temperature = {temp} °C")
         ax.set_ylabel("Loss Angle δ (°)")
         ax.grid(True)
@@ -172,7 +172,7 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
 
     # Load permittivity data for a specific material and setup
     permittivity = mdb_data.get_complex_permittivity(
-        material=mdb.Material.N49,
+        material=mdb.Material._3F46,
         data_source=mdb.DataSource.LEA_MTB
     )
 

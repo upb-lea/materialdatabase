@@ -44,8 +44,8 @@ class ComplexPermittivity:
 
         This method:
           1. Computes ε_abs = sqrt(ε_real² + ε_imag²).
-          2. Interpolates the magnitude to a uniform frequency grid at each temperature.
-          3. Fits the interpolated data.
+          2. For each probe: Interpolates the magnitude to a uniform frequency grid at each temperature.
+          3. Fits the assembled interpolated data.
 
         :return: Fitted parameters (popt_eps_a) of the ε_abs model.
         :rtype: np.ndarray
@@ -61,22 +61,26 @@ class ComplexPermittivity:
         interpolated_T: list[float] = []
         interpolated_eps_a: list[float] = []
 
-        unique_Ts = np.unique(df["T"])
-        for T in unique_Ts:
-            df_T = df[df["T"] == T].sort_values("f")
-            f_min, f_max = df_T["f"].min(), df_T["f"].max()
+        unique_probes = np.unique(df["probe"])
+        for probe in unique_probes:
+            df_probe = df[df["probe"] == probe]
 
-            # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
-            # f_uniform = np.linspace(f_min, f_max, len(df_T))
-            f_uniform = np.linspace(f_min, f_max, 20)
+            unique_Ts = np.unique(df_probe["T"])
+            for T in unique_Ts:
+                df_T = df_probe[df_probe["T"] == T].sort_values("f")
+                f_min, f_max = df_T["f"].min(), df_T["f"].max()
 
-            # Interpolate magnitude over uniform grid
-            interp_func = interp1d(df_T["f"], df_T["eps_a"], kind="linear", fill_value="extrapolate")
-            eps_a_uniform = interp_func(f_uniform)
+                # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
+                # f_uniform = np.linspace(f_min, f_max, len(df_T))
+                f_uniform = np.linspace(f_min, f_max, 20)
 
-            interpolated_f.extend(f_uniform)
-            interpolated_T.extend([T] * len(f_uniform))
-            interpolated_eps_a.extend(eps_a_uniform)
+                # Interpolate magnitude over uniform grid
+                interp_func = interp1d(df_T["f"], df_T["eps_a"], kind="linear", fill_value="extrapolate")
+                eps_a_uniform = interp_func(f_uniform)
+
+                interpolated_f.extend(f_uniform)
+                interpolated_T.extend([T] * len(f_uniform))
+                interpolated_eps_a.extend(eps_a_uniform)
 
         # Step 3: Fit to interpolated dataset
         params_eps_a, pcov_eps_a = curve_fit(
@@ -95,8 +99,8 @@ class ComplexPermittivity:
 
         This method:
           1. Computes loss density p_el.
-          2. Interpolates p_el to a uniform frequency grid at each temperature.
-          3. Fits the interpolated.
+          2. For each probe: Interpolates p_el to a uniform frequency grid at each temperature.
+          3. Fits the assembled interpolated data.
 
         :return: Fitted parameters (popt_eps_pv) of the ε_abs model.
         :rtype: np.ndarray
@@ -112,21 +116,25 @@ class ComplexPermittivity:
         interpolated_T: list[float] = []
         interpolated_eps_angle: list[float] = []
 
-        unique_Ts = np.unique(df["T"])
-        for T in unique_Ts:
-            df_T = df[df["T"] == T].sort_values("f")
-            f_min, f_max = df_T["f"].min(), df_T["f"].max()
+        unique_probes = np.unique(df["probe"])
+        for probe in unique_probes:
+            df_probe = df[df["probe"] == probe]
 
-            # Create evenly spaced frequency grid (e.g., same number as original points)
-            f_uniform = np.linspace(f_min, f_max, len(df_T))
+            unique_Ts = np.unique(df_probe["T"])
+            for T in unique_Ts:
+                df_T = df_probe[df_probe["T"] == T].sort_values("f")
+                f_min, f_max = df_T["f"].min(), df_T["f"].max()
 
-            # Interpolate magnitude over uniform grid
-            interp_func = interp1d(df_T["f"], df_T["eps_angle"], kind="linear", fill_value="extrapolate")
-            eps_angle_uniform = interp_func(f_uniform)
+                # Create evenly spaced frequency grid (e.g., same number as original points)
+                f_uniform = np.linspace(f_min, f_max, len(df_T))
 
-            interpolated_f.extend(f_uniform)
-            interpolated_T.extend([T] * len(f_uniform))
-            interpolated_eps_angle.extend(eps_angle_uniform)
+                # Interpolate magnitude over uniform grid
+                interp_func = interp1d(df_T["f"], df_T["eps_angle"], kind="linear", fill_value="extrapolate")
+                eps_angle_uniform = interp_func(f_uniform)
+
+                interpolated_f.extend(f_uniform)
+                interpolated_T.extend([T] * len(f_uniform))
+                interpolated_eps_angle.extend(eps_angle_uniform)
 
         # Step 3: Fit to interpolated dataset
         params_eps_pv, pcov_eps_pv = curve_fit(
