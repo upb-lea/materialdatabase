@@ -180,7 +180,21 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
     print(permittivity.measurement_data, "\n")
 
     # Fit permittivity magnitude ε_abs
+    f_min_measurement = 3e5
+    f_max_measurement = 1.5e6
+    T_min_measurement = 25
+    T_max_measurement = 120
+
+    permittivity.measurement_data = permittivity.filter_fT(permittivity.measurement_data,
+                                                           f_min_measurement,
+                                                           f_max_measurement,
+                                                           T_min_measurement,
+                                                           T_max_measurement)
+
+    # Fit permittivity magnitude
     permittivity.fit_permittivity_magnitude()
+
+    # Fit dielectric loss angle
     permittivity.fit_loss_angle()
 
     if is_plot:
