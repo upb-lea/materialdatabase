@@ -1,6 +1,5 @@
 """Class to represent the data structure and load material data."""
 import logging
-import os.path
 # python libraries
 from pathlib import Path, PurePath
 from typing import Any
@@ -10,7 +9,6 @@ import toml
 import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
-from numpy.lib.recfunctions import assign_fields_by_name
 
 # own libraries
 from materialdatabase.meta.data_enums import ComplexDataType, Material, DataSource, FitFunction, \
@@ -200,41 +198,14 @@ class Data:
         # self.plot_boolean_dataframe(self.build_overview_table())
         available_data = self.build_overview_table()
 
-        if False: #exclude_dc_bias:
+        # exclude_dc_bias:
+        if False:
             available_data = available_data[~available_data.index.str.contains("_")]
 
         logger.info(available_data)
         self.plot_boolean_dataframe(available_data)
 
-    @staticmethod
-    def get_datasets(act_data_set: pd.DataFrame, h_offset: float) -> pd.DataFrame:
-
-        # Search for h-offset area
-        h_offset_list = sorted(act_data_set['h_offset'].unique())
-        h_offset_high: float = 0
-        h_offset_low: float = 0
-
-        # Find the 2 offsets below and above requested offset
-        for h_offset_value in h_offset_list:
-            h_offset_high = h_offset_value
-            if h_offset_value <= h_offset:
-                h_offset_low = h_offset_value
-            else:
-                break
-
-        # Check if h_offset is higher than maximal offset value
-        if h_offset_high < h_offset:
-            raise ValueError(f"H-Offset value {h_offset} is higher than maximum measured H-Offset value of {h_offset_high}")
-
-        # Assemble result datasets
-        result_low = act_data_set[act_data_set['h_offset'] == h_offset_low]
-        result_high = act_data_set[act_data_set['h_offset'] == h_offset_high]
-        result_datasets = pd.concat([result_low, result_high], axis = 0)
-        result_datasets.reset_index()
-
-        return result_datasets
-
-    def get_available_h_offset(self, material: Material, data_source: DataSource, h_offset: float = 0) -> list[float]:
+    def get_available_h_offset(self, material: Material, data_source: DataSource) -> list[float]:
         """
         Get the list of available h-offsets of the certain material.
 
@@ -245,7 +216,6 @@ class Data:
         :return: List of material data
         :rtype:  float
         """
-
         # Check if requested data is without h-offset
         path2file = Path(f"{self.root_dir}/complex_permeability/{data_source.value}/{material.value}.csv")
 
@@ -255,7 +225,7 @@ class Data:
             logger.info(f"h-offset read from {path2file}.")
             data_set = pd.read_csv(path2file, sep=",")
 
-            if not "h_offset" in data_set.columns:
+            if "h_offset" not in data_set.columns:
                 # Create combined dataset
                 self.combine_material_permeability_data(material, data_source)
                 # Read updated CSV-File again
@@ -268,10 +238,10 @@ class Data:
 
         return h_offset_list
 
-
-    def get_complex_data_set(self, material: Material, data_source: DataSource, data_type: ComplexDataType, h_offset: float = 0)  -> pd.DataFrame:
+    def get_complex_data_set(self, material: Material, data_source: DataSource, data_type: ComplexDataType, h_offset: float = 0) -> pd.DataFrame:
         """
         Get a complex data set of a certain material, data type and measurement.
+
         If the h_offset = 0 (Default parameter) and the data set has no h-offset-value (older format),
         the h-offset will be added to the data. A copy of the old data will be provided.
 
@@ -286,7 +256,7 @@ class Data:
         :return: Requested data within a data frame
         :rtype:  pd.DataFrame
         """
-
+        # Check data type
         if data_type not in {item.value for item in ComplexDataType}:
             raise ValueError(f"{data_type} is no valid complex data type.\n"
                              f"Valid complex data types are: {[item.value for item in ComplexDataType]}")
@@ -301,7 +271,7 @@ class Data:
                 data_set = pd.read_csv(path2file, sep=",")
 
                 if data_type == ComplexDataType.complex_permeability:
-                    if not "h_offset" in data_set.columns:
+                    if "h_offset" not in data_set.columns:
                         # Create combined dataset
                         self.combine_material_permeability_data(material, data_source)
                         # Read updated CSV-File again
@@ -325,10 +295,16 @@ class Data:
         """
         Get a complex permeability data set of a certain material and measurement type.
 
-        :param material: e.g. mdb.Material.N95
-        :param data_source: e.g. mdb.MeasurementSetup.TDK_MDT
-        :param pv_fit_function:
-        :return:
+        :param material: Material from material database, e.g. mdb.Material.N95
+        :type  material: Material
+        :param data_source: Source folder of the material database, e.g. mdb.MeasurementSetup.TDK_MDT
+        :type  data_source: DataSource
+        :param pv_fit_function: Algorithm to fit data point by given measurments
+        :type  pv_fit_function: FitFunction
+        :param h_offset: H-Offset of the requested data
+        :type  h_offset: float
+        :return: Requested data within a data frame
+        :rtype:  pd.DataFrame
         """
         dataset = self.get_complex_data_set(
             material=material,
@@ -340,10 +316,8 @@ class Data:
 
     def combine_material_permeability_data(self, material: Material, data_source: DataSource) -> bool:
         """
-        Combines all files with different h-offset of one material.
+        Combine all files with different h-offset of one material.
 
-        :param act_root_dir: root directory of material database
-        :type  act_root_dir: str
         :param material: Material from material database, e.g. mdb.Material.N95
         :type  material: Material
         :param data_source: Source folder of the material database, e.g. mdb.MeasurementSetup.TDK_MDT
@@ -351,11 +325,8 @@ class Data:
         :return: List of material data
         :rtype:  float
         """
-
-        # Number of files in this folder
-        number_of_files = 0
         # Return value
-        is_done_successfull=False
+        is_done_successfull = False
 
         result_list: list[tuple[float, str]]
         df_list: list[pd.DataFrame] = []
@@ -384,7 +355,7 @@ class Data:
                 # Check if h-offset data frames are found
                 if len(df_list):
                     # Check if h_offset is still part of the file
-                    if not "h_offset" in df_base.columns:
+                    if "h_offset" not in df_base.columns:
                         df_base['h_offset'] = 0
                     df_list.append(df_base)
                     # Combine all data frames
@@ -406,7 +377,7 @@ class Data:
                     # Notify, that no h-offset file is found
                     logger.info(f"No offset file correspondent to file {data_base_file.name} is found.")
                     # Check if h_offset is still part of the file
-                    if not "h_offset" in df_base.columns:
+                    if "h_offset" not in df_base.columns:
                         # Notify, that actual file has no H-offset column, which is now added
                         logger.info(f"H-offset column is added to file {data_base_file.name}.")
                         df_base['h_offset'] = 0
@@ -425,7 +396,7 @@ class Data:
     @staticmethod
     def _get_next_backup_filename(pathname: str, base_name: str, extension: str = '.csv') -> Path:
         """
-        Provides a 'free' file name with a suitable number.
+        Provide a 'free' file name with a suitable number.
 
         :param pathname: root directory of material database
         :type  pathname: str
@@ -436,7 +407,7 @@ class Data:
         :return: Path-object with file name, which still not exists in path
         :rtype:  Path
         """
-        base_path = pathname+ "/" + base_name
+        base_path = pathname + "/" + base_name
 
         orig_file_path = Path(base_path + extension)
         # Check, if name does not exists
@@ -464,7 +435,6 @@ class Data:
         :return: List of tuple: ( h offset, path file name)
         :rtype:  list[tuple[float, str]]
         """
-
         # Variable declaration
         # Number of files in this folder
         number_of_files = 0
@@ -480,7 +450,7 @@ class Data:
                 # Get the dc-parameter from file name
                 h_offset_parameter = Data._get_h_offset_parameter(file_name)
                 # Check for valid parameter (h-offset>0)
-                if h_offset_parameter !=0 :
+                if h_offset_parameter != 0:
                     list_item = (h_offset_parameter, str(file))
                     result_list.append(list_item)
 
@@ -499,12 +469,11 @@ class Data:
         :return: h dc offset parameter
         :rtype:  float
         """
-
         # Variable declaration
         parameter_value: float = 0
 
         # Check if prefix is part of the string (if first letter is a '_' this is to ignore
-        start_pos = file_name.find("_",1)
+        start_pos = file_name.find("_", 1)
         if start_pos == -1:
             # No h-dc offset identified
             return parameter_value
