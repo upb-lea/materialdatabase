@@ -299,7 +299,7 @@ class Data:
         :type  material: Material
         :param data_source: Source folder of the material database, e.g. mdb.MeasurementSetup.TDK_MDT
         :type  data_source: DataSource
-        :param pv_fit_function: Algorithm to fit data point by given measurments
+        :param pv_fit_function: Algorithm to fit data point by given measurements
         :type  pv_fit_function: FitFunction
         :param h_offset: H-Offset of the requested data
         :type  h_offset: float
@@ -428,7 +428,7 @@ class Data:
         """
         Get a list of all files with h-dc-offset.
 
-        :param material: Mateerial from material database, e.g. mdb.Material.N95
+        :param material: Material from material database, e.g. mdb.Material.N95
         :type  material: Material
         :param data_source: Source folder of the material database, e.g. mdb.MeasurementSetup.TDK_MDT
         :type  data_source: DataSource
