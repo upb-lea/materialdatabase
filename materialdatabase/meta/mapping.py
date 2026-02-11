@@ -6,6 +6,7 @@ MEASUREMENT_TO_FITFUNCTION: Dict[DataSource, FitFunction] = {
     DataSource.TDK_MDT: FitFunction.mu_abs_TDK_MDT,
     DataSource.Datasheet: FitFunction.mu_abs_TDK_MDT,
     DataSource.LEA_MTB: FitFunction.mu_abs_LEA_MTB,
+    DataSource.MagNet: FitFunction.mu_abs_MagNet
 }
 
 def get_fit_function_from_setup(setup: DataSource) -> Any:
