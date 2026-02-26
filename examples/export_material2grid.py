@@ -44,7 +44,9 @@ def export_material2grid_example(plot: bool, save_to_txt: bool) -> None:
     permittivity = mdb_data.get_complex_permittivity(material=material_name,
                                                      data_source=permittivity_data_source)
     df_permittivity_grid = permittivity.to_grid(grid_frequency=np.linspace(1e5, 1.5e6, 50),
-                                                grid_temperature=np.linspace(25, 70, 20))
+                                                grid_temperature=np.linspace(25, 70, 20),
+                                                f_min_measurement=None, f_max_measurement=None,
+                                                T_min_measurement=None, T_max_measurement=None,)
 
     if plot:
         permeability.plot_grid(df_permeability_grid,
