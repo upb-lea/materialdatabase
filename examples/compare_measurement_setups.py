@@ -29,7 +29,7 @@ PLOT_PV = True
 
 # Operating points of interest
 FREQS = np.linspace(1e5, 1e6, 5)  # Frequency in Hz
-TEMPS = [50, 60, 70]  # Temperature in °C
+TEMPS = [60]  # Temperature in °C
 FLUX_DENSITIES = np.linspace(0.025, 0.15, 5)  # Flux density in T
 
 # Materials to compare
@@ -45,16 +45,29 @@ materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
         color=colors().gtruth,
         marker="x"
     ),
-    "N49_LEA": ComplexPermeabilityPlotConfig(
+    "N49_LEA_probe_1": ComplexPermeabilityPlotConfig(
         mat_cfg=ComplexPermeabilityConfig(
             material=mdb.Material.N49,
             setup=mdb.DataSource.LEA_MTB,
-            pv_fit_function=mdb.FitFunction.enhancedSteinmetz
+            pv_fit_function=mdb.FitFunction.enhancedSteinmetz,
+            probe_codes=["65Y"]
         ),
         enabled=True,
-        label="N49 (LEA-MTB)",
+        label="N49 (LEA-MTB) (65Y)",
         color=colors().compare1,
         marker="*"
+    ),
+    "N49_LEA_probe_2": ComplexPermeabilityPlotConfig(
+        mat_cfg=ComplexPermeabilityConfig(
+            material=mdb.Material.N49,
+            setup=mdb.DataSource.LEA_MTB,
+            pv_fit_function=mdb.FitFunction.enhancedSteinmetz,
+            probe_codes=["R16x9.6x6.3"]
+        ),
+        enabled=True,
+        label="N49 (LEA-MTB) (R16x9.6x6.3)",
+        color=colors().compare2,
+        marker="x"
     )
 }
 
@@ -83,7 +96,8 @@ if PLOT_MU_ABS:
         logging.info(f"Fitting permeability |μ| for: {cfg.label} ({cfg.mat_cfg.setup.name})")
         material = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
                                                      data_source=cfg.mat_cfg.setup,
-                                                     pv_fit_function=cfg.mat_cfg.pv_fit_function)
+                                                     pv_fit_function=cfg.mat_cfg.pv_fit_function,
+                                                     probe_codes=cfg.mat_cfg.probe_codes)
         material.fit_permeability_magnitude()
 
         col_name = f"mu_abs_{key}"
@@ -114,7 +128,8 @@ if PLOT_PV:
         logging.info(f"Fitting power loss for: {cfg.label} ({cfg.mat_cfg.setup.name})")
         material = mdb_data.get_complex_permeability(material=cfg.mat_cfg.material,
                                                      data_source=cfg.mat_cfg.setup,
-                                                     pv_fit_function=cfg.mat_cfg.pv_fit_function)
+                                                     pv_fit_function=cfg.mat_cfg.pv_fit_function,
+                                                     probe_codes=cfg.mat_cfg.probe_codes)
         material.fit_losses()
 
         col_name = f"pv_{key}"

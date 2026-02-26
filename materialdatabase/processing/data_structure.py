@@ -202,14 +202,19 @@ class Data:
         logger.info(available_data)
         self.plot_boolean_dataframe(available_data)
 
-    def get_complex_data_set(self, material: Material, data_source: DataSource, data_type: ComplexDataType) -> pd.DataFrame:
+    def get_complex_data_set(self,
+                             material: Material,
+                             data_source: DataSource,
+                             data_type: ComplexDataType,
+                             probe_codes: list[str] | None = None) -> pd.DataFrame:
         """
         Get a complex data set of a certain material, data type and measurement.
 
         :param material: e.g. mdb.Material.N95
         :param data_source: e.g. mdb.MeasurementSetup.TDK_MDT
         :param data_type: e.g. mdb.ComplexDataType.complex_permeability
-        :return:
+        :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
+        :return: pd.DataFrame with complex data set
         """
         if data_type not in {item.value for item in ComplexDataType}:
             raise ValueError(f"{data_type} is no valid complex data type.\n"
@@ -219,40 +224,54 @@ class Data:
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
-                logger.info(f"Complex data read from {path2file}.")
-                return pd.read_csv(path2file, sep=",")
+                df_available = pd.read_csv(path2file, sep=",")
+                if probe_codes is None:
+                    logger.info(f"Complex data read from {path2file}.")
+                    return df_available
+                else:
+                    logger.info(f"Complex data read from {path2file}"
+                                f"for the probe codes {probe_codes}.")
+                    return df_available.loc[df_available["probe"].isin(probe_codes)]
 
     def get_complex_permeability(self,
                                  material: Material,
                                  data_source: DataSource,
-                                 pv_fit_function: FitFunction) -> ComplexPermeability:
+                                 pv_fit_function: FitFunction,
+                                 probe_codes: list[str] | None = None) -> ComplexPermeability:
         """
         Get a complex permeability data set of a certain material and measurement type.
 
         :param material: e.g. mdb.Material.N95
         :param data_source: e.g. mdb.MeasurementSetup.TDK_MDT
         :param pv_fit_function:
+        :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
         :return:
         """
         dataset = self.get_complex_data_set(
             material=material,
             data_source=data_source,
-            data_type=ComplexDataType.complex_permeability
+            data_type=ComplexDataType.complex_permeability,
+            probe_codes=probe_codes
         )
         return ComplexPermeability(dataset, material, data_source, pv_fit_function)
 
-    def get_complex_permittivity(self, material: Material, data_source: DataSource) -> ComplexPermittivity:
+    def get_complex_permittivity(self,
+                                 material: Material,
+                                 data_source: DataSource,
+                                 probe_codes: list[str] | None = None) -> ComplexPermittivity:
         """
         Get a complex permittivity data set of a certain material and measurement type.
 
         :param material: e.g. mdb.Material.N95
         :param data_source: e.g. mdb.MeasurementSetup.LEA_MTB
+        :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
         :return:
         """
         dataset = self.get_complex_data_set(
             material=material,
             data_source=data_source,
-            data_type=ComplexDataType.complex_permittivity
+            data_type=ComplexDataType.complex_permittivity,
+            probe_codes=probe_codes
         )
         return ComplexPermittivity(dataset, material, data_source)
 
