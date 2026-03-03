@@ -38,45 +38,81 @@ class ComplexPermittivity:
         self.params_eps_pv = None
         self.eps_pv_fit_function = FitFunction.eps_abs
 
-    def fit_permittivity_magnitude(self) -> Any:
+    @staticmethod
+    def filter_fT(df: pd.DataFrame,
+                  f_min: float | None = None, f_max: float | None = None,
+                  T_min: float | None = None, T_max: float | None = None) -> pd.DataFrame:
+        """
+        Filter a material dataframe df for min/max frequency, temperature, and flux density.
+
+        :param df: original material dataframe
+        :param f_min: minimum frequency (default: None)
+        :param f_max: maximum frequency (default: None)
+        :param T_min: minimum temperature (default: None)
+        :param T_max: maximum temperature (default: None)
+        :return: filtered material dataframe
+        """
+        if f_min is not None:
+            df = df[df['f'] >= f_min]
+        if f_max is not None:
+            df = df[df['f'] <= f_max]
+        if T_min is not None:
+            df = df[df['T'] >= T_min]
+        if T_max is not None:
+            df = df[df['T'] <= T_max]
+        return df
+
+    def fit_permittivity_magnitude(self,
+                                   f_min: float | None = None, f_max: float | None = None,
+                                   T_min: float | None = None, T_max: float | None = None
+                                   ) -> Any:
         """
         Fit the permittivity magnitude ε_abs as a function of frequency and temperature.
 
         This method:
           1. Computes ε_abs = sqrt(ε_real² + ε_imag²).
-          2. Interpolates the magnitude to a uniform frequency grid at each temperature.
-          3. Fits the interpolated data.
+          2. For each probe: Interpolates the magnitude to a uniform frequency grid at each temperature.
+          3. Fits the assembled interpolated data.
 
+        :param f_min: measurements for lower frequencies will be excluded from fitting
+        :param f_max: measurements for higher frequencies will be excluded from fitting
+        :param T_min: measurements for lower temperatures will be excluded from fitting
+        :param T_max: measurements for higher temperatures will be excluded from fitting
         :return: Fitted parameters (popt_eps_a) of the ε_abs model.
         :rtype: np.ndarray
         """
-        # Step 1: Compute magnitude
-        eps_a = np.sqrt(self.measurement_data["eps_real"] ** 2 + self.measurement_data["eps_imag"] ** 2)
+        fit_data = self.filter_fT(self.measurement_data,
+                                  f_min=f_min, f_max=f_max,
+                                  T_min=T_min, T_max=T_max)
 
-        df = self.measurement_data.copy()
-        df["eps_a"] = eps_a
+        # Step 1: Compute magnitude
+        eps_a = np.sqrt(fit_data["eps_real"] ** 2 + fit_data["eps_imag"] ** 2)
+
+        fit_data["eps_a"] = eps_a
 
         # Step 2: Interpolate to uniform frequency grid for each T
         interpolated_f: list[float] = []
         interpolated_T: list[float] = []
         interpolated_eps_a: list[float] = []
 
-        unique_Ts = np.unique(df["T"])
-        for T in unique_Ts:
-            df_T = df[df["T"] == T].sort_values("f")
-            f_min, f_max = df_T["f"].min(), df_T["f"].max()
+        unique_probes = np.unique(fit_data["probe"])
+        for probe in unique_probes:
+            df_probe = fit_data[fit_data["probe"] == probe]
 
-            # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
-            # f_uniform = np.linspace(f_min, f_max, len(df_T))
-            f_uniform = np.linspace(f_min, f_max, 20)
+            unique_Ts = np.unique(df_probe["T"])
+            for T in unique_Ts:
+                df_T = df_probe[df_probe["T"] == T].sort_values("f")
 
-            # Interpolate magnitude over uniform grid
-            interp_func = interp1d(df_T["f"], df_T["eps_a"], kind="linear", fill_value="extrapolate")
-            eps_a_uniform = interp_func(f_uniform)
+                # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
+                f_uniform = np.linspace(df_T["f"].min(), df_T["f"].max(), 20)
 
-            interpolated_f.extend(f_uniform)
-            interpolated_T.extend([T] * len(f_uniform))
-            interpolated_eps_a.extend(eps_a_uniform)
+                # Interpolate magnitude over uniform grid
+                interp_func = interp1d(df_T["f"], df_T["eps_a"], kind="linear", fill_value="extrapolate")
+                eps_a_uniform = interp_func(f_uniform)
+
+                interpolated_f.extend(f_uniform)
+                interpolated_T.extend([T] * len(f_uniform))
+                interpolated_eps_a.extend(eps_a_uniform)
 
         # Step 3: Fit to interpolated dataset
         params_eps_a, pcov_eps_a = curve_fit(
@@ -89,44 +125,57 @@ class ComplexPermittivity:
         self.params_eps_a = params_eps_a
         return params_eps_a
 
-    def fit_loss_angle(self) -> Any:
+    def fit_loss_angle(self,
+                       f_min: float | None = None, f_max: float | None = None,
+                       T_min: float | None = None, T_max: float | None = None
+                       ) -> Any:
         """
         Fit the dielectric losses as a function of frequency and temperature.
 
         This method:
           1. Computes loss density p_el.
-          2. Interpolates p_el to a uniform frequency grid at each temperature.
-          3. Fits the interpolated.
+          2. For each probe: Interpolates p_el to a uniform frequency grid at each temperature.
+          3. Fits the assembled interpolated data.
 
+        :param f_min: measurements for lower frequencies will be excluded from fitting
+        :param f_max: measurements for higher frequencies will be excluded from fitting
+        :param T_min: measurements for lower temperatures will be excluded from fitting
+        :param T_max: measurements for higher temperatures will be excluded from fitting
         :return: Fitted parameters (popt_eps_pv) of the ε_abs model.
         :rtype: np.ndarray
         """
-        # Step 1: Compute magnitude
-        eps_angle = np.arctan(self.measurement_data["eps_imag"] / self.measurement_data["eps_real"])
+        fit_data = self.filter_fT(self.measurement_data,
+                                  f_min=f_min, f_max=f_max,
+                                  T_min=T_min, T_max=T_max)
 
-        df = self.measurement_data.copy()
-        df["eps_angle"] = eps_angle
+        # Step 1: Compute magnitude
+        eps_angle = np.arctan(fit_data["eps_imag"] / fit_data["eps_real"])
+
+        fit_data["eps_angle"] = eps_angle
 
         # Step 2: Interpolate to uniform frequency grid for each T
         interpolated_f: list[float] = []
         interpolated_T: list[float] = []
         interpolated_eps_angle: list[float] = []
 
-        unique_Ts = np.unique(df["T"])
-        for T in unique_Ts:
-            df_T = df[df["T"] == T].sort_values("f")
-            f_min, f_max = df_T["f"].min(), df_T["f"].max()
+        unique_probes = np.unique(fit_data["probe"])
+        for probe in unique_probes:
+            df_probe = fit_data[fit_data["probe"] == probe]
 
-            # Create evenly spaced frequency grid (e.g., same number as original points)
-            f_uniform = np.linspace(f_min, f_max, len(df_T))
+            unique_Ts = np.unique(df_probe["T"])
+            for T in unique_Ts:
+                df_T = df_probe[df_probe["T"] == T].sort_values("f")
 
-            # Interpolate magnitude over uniform grid
-            interp_func = interp1d(df_T["f"], df_T["eps_angle"], kind="linear", fill_value="extrapolate")
-            eps_angle_uniform = interp_func(f_uniform)
+                # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
+                f_uniform = np.linspace(df_T["f"].min(), df_T["f"].max(), 20)
 
-            interpolated_f.extend(f_uniform)
-            interpolated_T.extend([T] * len(f_uniform))
-            interpolated_eps_angle.extend(eps_angle_uniform)
+                # Interpolate magnitude over uniform grid
+                interp_func = interp1d(df_T["f"], df_T["eps_angle"], kind="linear", fill_value="extrapolate")
+                eps_angle_uniform = interp_func(f_uniform)
+
+                interpolated_f.extend(f_uniform)
+                interpolated_T.extend([T] * len(f_uniform))
+                interpolated_eps_angle.extend(eps_angle_uniform)
 
         # Step 3: Fit to interpolated dataset
         params_eps_pv, pcov_eps_pv = curve_fit(
@@ -202,17 +251,26 @@ class ComplexPermittivity:
 
     def to_grid(self,
                 grid_frequency: npt.NDArray[Any],
-                grid_temperature: npt.NDArray[Any]) -> pd.DataFrame:
+                grid_temperature: npt.NDArray[Any],
+                f_min_measurement: float | None = None, f_max_measurement: float | None = None,
+                T_min_measurement: float | None = None, T_max_measurement: float | None = None
+                ) -> pd.DataFrame:
         """
         Export fitted permittivity data (real & imaginary parts) to a txt grid file.
 
+        :param f_min_measurement: measurements for lower frequencies will be excluded from fitting
+        :param f_max_measurement: measurements for higher frequencies will be excluded from fitting
+        :param T_min_measurement: measurements for lower temperatures will be excluded from fitting
+        :param T_max_measurement: measurements for higher temperatures will be excluded from fitting
         :param grid_frequency: frequencies for the interpolation grid
         :param grid_temperature: temperatures for the interpolation grid
         """
         if self.params_eps_a is None:
-            self.fit_permittivity_magnitude()
+            self.fit_permittivity_magnitude(f_min_measurement, f_max_measurement,
+                                            T_min_measurement, T_max_measurement)
         if self.params_eps_pv is None:
-            self.fit_loss_angle()
+            self.fit_loss_angle(f_min_measurement, f_max_measurement,
+                                T_min_measurement, T_max_measurement)
 
         records: list[list[float]] = []
         for T in grid_temperature:

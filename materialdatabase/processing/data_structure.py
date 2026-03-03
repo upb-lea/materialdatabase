@@ -495,12 +495,14 @@ class Data:
 
         :param material: e.g. mdb.Material.N95
         :param data_source: e.g. mdb.MeasurementSetup.LEA_MTB
+        :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
         :return:
         """
         dataset = self.get_complex_data_set(
             material=material,
             data_source=data_source,
-            data_type=ComplexDataType.complex_permittivity
+            data_type=ComplexDataType.complex_permittivity,
+            probe_codes=probe_codes
         )
         return ComplexPermittivity(dataset, material, data_source)
 

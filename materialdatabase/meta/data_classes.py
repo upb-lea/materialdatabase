@@ -11,6 +11,7 @@ class ComplexPermeabilityConfig:
     material: Material
     setup: DataSource
     pv_fit_function: FitFunction
+    probe_codes: None | list[str] = None
 
 
 @dataclass
