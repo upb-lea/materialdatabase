@@ -7,7 +7,7 @@ from enum import Enum
 from typing import Any
 from materialdatabase.processing.utils.empirical import steinmetz_qT, enhanced_steinmetz_qT, \
     log_enhanced_steinmetz_qT, log_steinmetz_qT, \
-    fit_mu_abs_TDK_MDT, fit_mu_abs_LEA_MTB, \
+    fit_mu_abs_TDK_MDT, fit_mu_abs_LEA_MTB_MagNet, \
     fit_eps_qT
 
 
@@ -17,7 +17,8 @@ class FitFunction(str, Enum):
     Steinmetz = "steinmetz"
     enhancedSteinmetz = "enhanced_steinmetz"
     mu_abs_TDK_MDT = "mu_abs_TDK_MDT"
-    mu_abs_LEA_MTB = "mu_abs_LEA_MTB"
+    mu_abs_LEA_MTB = "mu_abs_LEA_MTB_MagNet"
+    mu_abs_MagNet = "mu_abs_LEA_MTB_MagNet"
     eps_abs = "fit_eps_qT"
 
     def get_log_function(self) -> Any:
@@ -41,7 +42,8 @@ class FitFunction(str, Enum):
             FitFunction.Steinmetz: steinmetz_qT,
             FitFunction.enhancedSteinmetz: enhanced_steinmetz_qT,
             FitFunction.mu_abs_TDK_MDT: fit_mu_abs_TDK_MDT,
-            FitFunction.mu_abs_LEA_MTB: fit_mu_abs_LEA_MTB,
+            FitFunction.mu_abs_LEA_MTB: fit_mu_abs_LEA_MTB_MagNet,
+            FitFunction.mu_abs_MagNet: fit_mu_abs_LEA_MTB_MagNet,
             FitFunction.eps_abs: fit_eps_qT
         }[self]
 

@@ -167,7 +167,7 @@ def fit_mu_abs_TDK_MDT(
     return mur_0 * k_0 + k_1 * (mur_1 * b + mur_2 * b ** 2 + mur_3 * b ** 3 + mur_4 * b ** 4)
 
 
-def fit_mu_abs_LEA_MTB(
+def fit_mu_abs_LEA_MTB_MagNet(
         fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
         mur_0: float,
         mur_1: float,

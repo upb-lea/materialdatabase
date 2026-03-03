@@ -26,8 +26,8 @@ PLOT_MU_ABS = True
 PLOT_PV = True
 
 # Operating points of interest
-FREQS = np.linspace(2e5, 4e5, 5)  # Frequency range in Hertz
-FLUX_DENSITIES = np.linspace(0.14, 0.07, 5)  # Flux densities in Tesla
+FREQS = np.linspace(2e5, 4e5, 16)  # Frequency range in Hertz
+FLUX_DENSITIES = np.linspace(0.14, 0.07, 16)  # Flux densities in Tesla
 TEMPS = np.ones_like(FREQS) * 100  # Temperatures in Celsius
 
 # Materials to evaluate
@@ -83,6 +83,7 @@ materials_config: dict[str, ComplexPermeabilityPlotConfig] = {
 # ---------------------------------------------
 
 mdb_data = mdb.Data()
+
 
 # Create sweep grid
 df_common = pd.DataFrame(

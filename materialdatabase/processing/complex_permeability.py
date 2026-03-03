@@ -190,7 +190,7 @@ class ComplexPermeability:
 
         mu_abs = np.sqrt(fit_data["mu_real"] ** 2 + fit_data["mu_imag"] ** 2)
         pv = pv_mag(fit_data["f"].to_numpy(),
-                    -fit_data["mu_imag"].to_numpy() * mu_0,  # type: ignore
+                    - (fit_data["mu_imag"].to_numpy() * mu_0),
                     fit_data["b"].to_numpy() / mu_abs / mu_0)
         popt_pv, pcov_pv = curve_fit(log_pv_fit_function,
                                      (fit_data["f"],
