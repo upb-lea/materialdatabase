@@ -167,7 +167,7 @@ def fit_mu_abs_TDK_MDT(
     return mur_0 * k_0 + k_1 * (mur_1 * b + mur_2 * b ** 2 + mur_3 * b ** 3 + mur_4 * b ** 4)
 
 
-def fit_mu_abs_LEA_MTB(
+def fit_mu_abs_LEA_MTB_MagNet(
         fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
         mur_0: float,
         mur_1: float,
@@ -204,39 +204,6 @@ def fit_mu_abs_LEA_MTB(
     k_f = 1 + c_f * f
 
     return (mur_0 * k_0 + k_1 * (mur_1 * B + mur_2 * B ** 2)) * k_f
-
-# Added by ASA only guess
-def fit_mu_abs_MagNet(
-        _Tb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
-        mur_0: float,
-        mur_1: float,
-        mur_2: float,
-        mur_3: float,
-        mur_4: float,
-        c_0: float,
-        c_1: float
-) -> float | npt.NDArray[np.float64]:
-    """
-    Fit function for amplitude permeability μₐ(B, T) based on polynomial B-dependence and linear temperature scaling.
-
-    Typically accurate for b < 0.3 T.
-
-    :param _Tb:
-    :param mur_0: Base relative permeability (T-independent offset)
-    :param mur_1: Polynomial coefficients B^1
-    :param mur_2: Polynomial coefficients B^2
-    :param mur_3: Polynomial coefficients B^3
-    :param mur_4: Polynomial coefficients B^4
-    :param c_0: Temperature scaling coefficient for constant offset term
-    :param c_1: Temperature scaling coefficient for B-dependent terms
-    :return: Amplitude permeability μₐ
-    """
-    _, T, b = _Tb
-
-    k_0 = 1 + T * c_0  # Temperature scaling for base permeability
-    k_1 = 1 + T * c_1  # Temperature scaling for B-dependent polynomial
-
-    return mur_0 * k_0 + k_1 * (mur_1 * b + mur_2 * b ** 2 + mur_3 * b ** 3 + mur_4 * b ** 4)
 
 # ----------------
 # Permittivity Fits

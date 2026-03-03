@@ -1,6 +1,6 @@
 """Example to combine material data.
 
-This script enables users to combine material data, if this is still no done.
+This script enables users to combine material data, if this is still not done.
 """
 
 import logging

@@ -198,8 +198,7 @@ class Data:
         # self.plot_boolean_dataframe(self.build_overview_table())
         available_data = self.build_overview_table()
 
-        # exclude_dc_bias:
-        if False:
+        if exclude_dc_bias:
             available_data = available_data[~available_data.index.str.contains("_")]
 
         logger.info(available_data)
@@ -238,7 +237,12 @@ class Data:
 
         return h_offset_list
 
-    def get_complex_data_set(self, material: Material, data_source: DataSource, data_type: ComplexDataType, h_offset: float = 0) -> pd.DataFrame:
+    def get_complex_data_set(self,
+                             material: Material,
+                             data_source: DataSource,
+                             data_type: ComplexDataType,
+                             h_offset: float = 0,
+                             probe_codes: list[str] | None = None) -> pd.DataFrame:
         """
         Get a complex data set of a certain material, data type and measurement.
 
@@ -252,7 +256,9 @@ class Data:
         :param data_type: Type of requested data e.g. mdb.ComplexDataType.complex_permeability
         :type  data_type: ComplexDataType
         :param h_offset: H-Offset of the requested data
-        :type  h_offset: float
+        :type  h_offset: float,
+        :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
+        :type  probe_codes: list[str] | None
         :return: Requested data within a data frame
         :rtype:  pd.DataFrame
         """
@@ -267,7 +273,6 @@ class Data:
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
-                logger.info(f"Complex data read from {path2file}.")
                 data_set = pd.read_csv(path2file, sep=",")
 
                 if data_type == ComplexDataType.complex_permeability:
@@ -285,13 +290,23 @@ class Data:
                 else:
                     result_data_set = data_set
 
+                # Check if probes are requested
+                if probe_codes is None:
+                    logger.info(f"Complex data read from {path2file}.")
+                    return result_data_set
+                else:
+                    logger.info(f"Complex data read from {path2file}"
+                                f"for the probe codes {probe_codes}.")
+                    result_data_set = result_data_set.loc[result_data_set["probe"].isin(probe_codes)]
+
                 return result_data_set
 
     def get_complex_permeability(self,
                                  material: Material,
                                  data_source: DataSource,
                                  pv_fit_function: FitFunction,
-                                 h_offset: float = 0) -> ComplexPermeability:
+                                 h_offset: float = 0,
+                                 probe_codes: list[str] | None = None) -> ComplexPermeability:
         """
         Get a complex permeability data set of a certain material and measurement type.
 
@@ -303,6 +318,8 @@ class Data:
         :type  pv_fit_function: FitFunction
         :param h_offset: H-Offset of the requested data
         :type  h_offset: float
+        :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
+        :type  probe_codes: list[str]
         :return: Requested data within a data frame
         :rtype:  pd.DataFrame
         """
@@ -310,7 +327,8 @@ class Data:
             material=material,
             data_source=data_source,
             data_type=ComplexDataType.complex_permeability,
-            h_offset=h_offset
+            h_offset=h_offset,
+            probe_codes=probe_codes
         )
         return ComplexPermeability(dataset, material, data_source, pv_fit_function)
 
@@ -489,7 +507,10 @@ class Data:
 
         return parameter_value
 
-    def get_complex_permittivity(self, material: Material, data_source: DataSource) -> ComplexPermittivity:
+    def get_complex_permittivity(self,
+                                 material: Material,
+                                 data_source: DataSource,
+                                 probe_codes: list[str] | None = None) -> ComplexPermittivity:
         """
         Get a complex permittivity data set of a certain material and measurement type.
 
