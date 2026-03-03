@@ -241,7 +241,6 @@ class Data:
                              material: Material,
                              data_source: DataSource,
                              data_type: ComplexDataType,
-                             h_offset: float = 0,
                              probe_codes: list[str] | None = None) -> pd.DataFrame:
         """
         Get a complex data set of a certain material, data type and measurement.
@@ -255,8 +254,6 @@ class Data:
         :type  data_source: DataSource
         :param data_type: Type of requested data e.g. mdb.ComplexDataType.complex_permeability
         :type  data_type: ComplexDataType
-        :param h_offset: H-Offset of the requested data
-        :type  h_offset: float,
         :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
         :type  probe_codes: list[str] | None
         :return: Requested data within a data frame
@@ -267,39 +264,22 @@ class Data:
             raise ValueError(f"{data_type} is no valid complex data type.\n"
                              f"Valid complex data types are: {[item.value for item in ComplexDataType]}")
         else:
-            # Check if requested data is without h-offset
             path2file = Path(f"{self.root_dir}/{data_type.value}/{data_source.value}/{material.value}.csv")
 
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
                 data_set = pd.read_csv(path2file, sep=",")
-
-                if data_type == ComplexDataType.complex_permeability:
-                    if "h_offset" not in data_set.columns:
-                        # Create combined dataset
-                        self.combine_material_permeability_data(material, data_source)
-                        # Read updated CSV-File again
-                        data_set = pd.read_csv(path2file, sep=",")
-                    # Filter requested H-offset data
-                    result_data_set = data_set[data_set['h_offset'] == h_offset]
-                    # Check if H-offset dataset is not found
-                    if result_data_set.empty:
-                        raise ValueError(f"A dataset with h_offset={h_offset} is not available.\n"
-                                         f"Please use the 'get_available_h_offset' method to retrieve the list of available h-offsets.")
-                else:
-                    result_data_set = data_set
-
                 # Check if probes are requested
                 if probe_codes is None:
                     logger.info(f"Complex data read from {path2file}.")
-                    return result_data_set
+                    return data_set
                 else:
                     logger.info(f"Complex data read from {path2file}"
                                 f"for the probe codes {probe_codes}.")
-                    result_data_set = result_data_set.loc[result_data_set["probe"].isin(probe_codes)]
+                    data_set = data_set.loc[data_set["probe"].isin(probe_codes)]
 
-                return result_data_set
+                return data_set
 
     def get_complex_permeability(self,
                                  material: Material,
@@ -323,14 +303,32 @@ class Data:
         :return: Requested data within a data frame
         :rtype:  pd.DataFrame
         """
-        dataset = self.get_complex_data_set(
+        # Read data set
+        data_set = self.get_complex_data_set(
             material=material,
             data_source=data_source,
             data_type=ComplexDataType.complex_permeability,
-            h_offset=h_offset,
             probe_codes=probe_codes
         )
-        return ComplexPermeability(dataset, material, data_source, pv_fit_function)
+
+        if "h_offset" not in data_set.columns:
+            # Create combined dataset
+            self.combine_material_permeability_data(material, data_source)
+            # Read updated CSV-File again
+            data_set = self.get_complex_data_set(
+                material=material,
+                data_source=data_source,
+                data_type=ComplexDataType.complex_permeability,
+                probe_codes=probe_codes
+            )
+        # Filter requested H-offset data
+        result_data_set = data_set[data_set['h_offset'] == h_offset]
+        # Check if H-offset dataset is not found
+        if result_data_set.empty:
+            raise ValueError(f"A dataset with h_offset={h_offset} is not available.\n"
+                             f"Please use the 'get_available_h_offset' method to retrieve the list of available h-offsets.")
+
+        return ComplexPermeability(result_data_set, material, data_source, pv_fit_function)
 
     def combine_material_permeability_data(self, material: Material, data_source: DataSource) -> bool:
         """
