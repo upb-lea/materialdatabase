@@ -9,6 +9,8 @@ import toml
 import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
+from scipy.interpolate import interp1d
+from scipy.signal import savgol_filter
 
 # own libraries
 from materialdatabase.meta.data_enums import ComplexDataType, Material, DataSource, FitFunction, \
@@ -592,6 +594,208 @@ class Data:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
                 return pd.read_csv(path2file, sep=",")
+
+    def get_initial_magnetization_curve(self, material: Material, number_of_values: int, act_T: float,
+                                        act_f: float = 10000) -> pd.DataFrame:
+        """
+        Get the initial magnetization curve.
+
+        :param material: Material from material database, e.g. mdb.Material.N95
+        :type  material: Material
+        :param number_of_values: Number of values within the initial magnetization curve
+        :type  number_of_values: int
+        :param act_T: Temperature parameter of the initial magnetization curve
+        :type  act_T: float
+        :param act_f: Selected frequency of the initial magnetization curve (default value)
+        :type  act_f: float
+        :return: initial magnetization curve as data frame
+        :rtype:  pd.DataFrame
+        """
+        # Variable declaration
+        # Interpolation flag
+        i_flag: bool = False
+        # Temperature values used in case of interpolation
+        t1: float = 0
+        t2: float = 0
+
+        act_b_over_h_at_f_T = self.get_datasheet_curve(material, DatasheetCurveType.b_over_h_at_f_T)
+
+        # Check, if actual requested frequency is matches one measurement
+        if not act_b_over_h_at_f_T['f'].isin([act_f]).any():
+            available_f_list = act_b_over_h_at_f_T['f'].unique().tolist()
+            available_f_list.sort()
+            raise ValueError("The requested frequency is not available.\n"
+                             f"The available frequencies are {available_f_list}!")
+
+        # Evaluate requested parameter
+        t_min = act_b_over_h_at_f_T["T"].min()
+        t_max = act_b_over_h_at_f_T["T"].max()
+
+        # Get available temperatures
+        available_T_list = act_b_over_h_at_f_T['T'].unique().tolist()
+        available_T_list.sort()
+
+        # Check, if actual requested temperature is outside the range
+        if act_T > t_max or act_T < t_min:
+            t_range = t_max - t_min
+            if act_T > t_max + (t_range * 0.33) or act_T < t_min - (t_range * 0.33):
+                raise ValueError("The requested temperature is outside of the available range.\n"
+                                 f"The available range is {t_min - (t_range * 0.33)} to {t_max + (t_range * 0.33)}!")
+            elif act_T < t_min:
+                if len(available_T_list) < 2:
+                    raise ValueError(
+                        "Serious bug in method 'get_initial_magnetization_curve' in 'act_T < t_min'. Please write an issue!")
+                t1 = available_T_list[0]
+                t2 = available_T_list[1]
+            elif act_T > t_max:
+                if len(available_T_list) < 2:
+                    raise ValueError(
+                        "Serious bug in method 'get_initial_magnetization_curve' in 'act_T > t_max'. Please write an issue!")
+                t1 = available_T_list[-2]
+                t2 = available_T_list[-1]
+            # Set interpolation flag
+            i_flag = True
+        else:
+            # Check, if the requested temperature is not identical with measurement
+            if not act_b_over_h_at_f_T['T'].isin([act_T]).any():
+                t1 = available_T_list[0]
+                for t_av in available_T_list:
+                    t2 = t_av
+                    if act_T < t_av:
+                        break
+                    # Overtake the value as low limit
+                    t1 = t_av
+                i_flag = True
+
+        if i_flag:
+            init_mag_curve_df_low = self._calculate_initial_magnetization_curve(act_b_over_h_at_f_T, number_of_values, t1, act_f)
+            init_mag_curve_df_high = self._calculate_initial_magnetization_curve(act_b_over_h_at_f_T, number_of_values, t2, act_f)
+
+            h_low = init_mag_curve_df_low["h"].to_numpy()
+            b_low = init_mag_curve_df_low["b"].to_numpy()
+            h_high = init_mag_curve_df_high["h"].to_numpy()
+            b_high = init_mag_curve_df_high["b"].to_numpy()
+            # Calculate the available h-range
+            h_upper_limit = min(h_low.max(), h_high.max())
+            h_lower_limit = max(h_low.min(), h_high.min())
+
+            h_init_mag = np.linspace(h_lower_limit, h_upper_limit, num=number_of_values)
+            b_interpl_low = interp1d(h_low, b_low, kind='quadratic')
+            b_interpl_high = interp1d(h_high, b_high, kind='quadratic')
+            b_low_uniform = b_interpl_low(h_init_mag)
+            b_high_uniform = b_interpl_high(h_init_mag)
+            b_init_mag = b_low_uniform + (b_high_uniform - b_low_uniform) * (act_T - t1) / (t2 - t1)
+
+            # Transfer result to dataframe
+            init_mag_curve_df = pd.DataFrame({"h": h_init_mag, "b": b_init_mag})
+
+        else:
+            # Provide the initial magnetization curve
+            init_mag_curve_df = self._calculate_initial_magnetization_curve(act_b_over_h_at_f_T, number_of_values, act_T, act_f)
+
+        init_mag_curve_df['T'] = act_T
+        init_mag_curve_df['f'] = act_f
+
+        return init_mag_curve_df
+
+    def _calculate_initial_magnetization_curve(self, act_b_over_h_at_f_T: pd.DataFrame, number_of_values: int,
+                                               act_T: float, act_f: float) -> pd.DataFrame:
+        """Calculate initial magnetization curve.
+
+        :param act_b_over_h_at_f_T: curve data of the hysteresis curve
+        :type  act_b_over_h_at_f_T: pd.DataFrame
+        :param number_of_values: Number of values within the initial magnetization curve
+        :type  number_of_values: int
+        :param act_T: Temperature parameter of the initial magnetization curve
+        :type  act_T: float
+        :param act_f: Selected frequency of the initial magnetization curve
+        :type  act_f: float
+        :return: initial magnetization curve as data frame
+        :rtype:  pd.DataFrame
+        """
+        # Filter frequency and temperature
+        curve_data: pd.DataFrame = act_b_over_h_at_f_T[act_b_over_h_at_f_T["T"] == act_T]
+        # Check if data are available
+        if not len(curve_data):
+            return curve_data
+        curve_data = curve_data[curve_data["f"] == act_f]
+        # Check if data are available
+        if not len(curve_data):
+            return curve_data
+        curve_data_raising: pd.DataFrame = curve_data[curve_data["branch"] == "r"]
+        curve_data_raising = curve_data_raising.sort_values(by='h', ascending=True)
+        curve_data_raising = curve_data_raising.reset_index(drop=True)
+        curve_data_falling: pd.DataFrame = curve_data[curve_data["branch"] == "f"]
+        curve_data_falling = curve_data_falling.sort_values(by='h', ascending=True)
+        curve_data_falling = curve_data_falling.reset_index(drop=True)
+
+        # Check if data are available
+        if not len(curve_data_raising) or not len(curve_data_falling):
+            return curve_data
+        # calculate same data points
+
+        # Extent hysteresis curve for negative b-values for interpolation purpose by mirror curve
+        # Get mirror range in h-axes
+        h_min_raising = curve_data_raising["h"].min()
+        h_min_falling = curve_data_falling["h"].min()
+
+        # Interpolate to intersection with y-axes
+        h1, b1 = curve_data_raising.iloc[0]['h'], curve_data_raising.iloc[0]['b']
+        h2, b2 = curve_data_raising.iloc[1]['h'], curve_data_raising.iloc[1]['b']
+        m = (b2 - b1) / (h2 - h1)
+        h0 = h1 - b1 / m
+        # Extended part by mirror curve data
+        curve_data_extension = curve_data_raising.copy()
+        curve_data_extension['h'] = 2 * h0 - curve_data_extension['h']
+        curve_data_extension['b'] = -curve_data_extension['b']
+
+        # Reduce extended part to h-shift
+        curve_data_extension = curve_data_extension[curve_data_extension['h'] >= h_min_falling]
+        curve_data_raising = pd.concat([curve_data_extension, curve_data_raising])
+
+        # Get b and h-values
+        h_raising = curve_data_raising["h"].to_numpy()
+        b_raising = curve_data_raising["b"].to_numpy()
+
+        h_falling = curve_data_falling["h"].to_numpy()
+        b_falling = curve_data_falling["b"].to_numpy()
+
+        # Provide data for raising and falling interpolation object
+        interp_raising = interp1d(h_raising, b_raising, kind='quadratic', fill_value="extrapolate")
+        interp_falling = interp1d(h_falling, b_falling, kind='quadratic', fill_value="extrapolate")
+        # Get interpolated values for both curves
+        b_raising_add = interp_raising(h_falling)
+        b_falling_add = interp_falling(h_raising)
+
+        # Generate initial_magnetization_curve
+        h_init_mag_curve = np.concatenate([h_raising, h_falling])
+        b_init_mag_curve_r = (b_raising + b_falling_add) / 2
+        b_init_mag_curve_f = (b_falling + b_raising_add) / 2
+        b_init_mag_curve = np.concatenate([b_init_mag_curve_r, b_init_mag_curve_f])
+        # Get sort index according h and sort entries
+        sort_idx = np.argsort(h_init_mag_curve)
+        h_init_mag_curve = h_init_mag_curve[sort_idx]
+        b_init_mag_curve = b_init_mag_curve[sort_idx]
+        # Remove negative b-entries and add start point Pt (0,0), if not existing
+        b_positiv_mask = (b_init_mag_curve >= 0)
+        h_init_mag_curve = h_init_mag_curve[b_positiv_mask]
+        b_init_mag_curve = b_init_mag_curve[b_positiv_mask]
+        if 0 not in h_init_mag_curve:
+            h_init_mag_curve = np.insert(h_init_mag_curve, 0, 0)
+            b_init_mag_curve = np.insert(b_init_mag_curve, 0, 0)
+
+        h_init_mag_filter = np.linspace(h_init_mag_curve.min(), h_init_mag_curve.max(), num=number_of_values)
+        b_interpl = interp1d(h_init_mag_curve, b_init_mag_curve, kind='quadratic')
+        b_init_mag_uniform = b_interpl(h_init_mag_filter)
+
+        # Filter with window of 11 and second order
+        b_init_mag_curve_filter = savgol_filter(b_init_mag_uniform, window_length=11,
+                                                polyorder=2)
+
+        # Transfer result to pd-DataFrame
+        init_mag_curve_df = pd.DataFrame({"h": h_init_mag_filter, "b": b_init_mag_curve_filter})
+
+        return init_mag_curve_df
 
     def get_datasheet_information(self, material: Material, attribute: DatasheetAttribute) -> Any:
         """
