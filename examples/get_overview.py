@@ -1,4 +1,4 @@
-"""Example file to show how to plot a overview of the existing material data."""
+"""Example file to show how to plot an overview of the existing material data."""
 import materialdatabase as mdb
 import logging
 
