@@ -19,21 +19,21 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
     mdb_data = mdb.Data()
 
     # Load permittivity data for a specific material and setup
-    # permittivity = mdb_data.get_complex_permittivity(
-    #     material=mdb.Material.N95,
-    #     data_source=mdb.DataSource.LEA_MTB,
-    #     probe_codes=["LE2"]
-    # )
+    permittivity = mdb_data.get_complex_permittivity(
+        material=mdb.Material.N95,
+        data_source=mdb.DataSource.LEA_MTB,
+        probe_codes=["LE2"]
+    )
     # permittivity = mdb_data.get_complex_permittivity(
     #     material=mdb.Material.N49,
     #     data_source=mdb.DataSource.LEA_MTB,
     #     probe_codes=["U3G"]
     # )
-    permittivity = mdb_data.get_complex_permittivity(
-        material=mdb.Material._3F46,
-        data_source=mdb.DataSource.LEA_MTB,
-        probe_codes=["L95"]
-    )
+    # permittivity = mdb_data.get_complex_permittivity(
+    #     material=mdb.Material._3F46,
+    #     data_source=mdb.DataSource.LEA_MTB,
+    #     probe_codes=["L95"]
+    # )
 
     print("Exemplary complex permittivity data:")
     print(permittivity.measurement_data, "\n")
@@ -65,7 +65,7 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
     eps_real_fit, eps_imag_fit = permittivity.fit_real_and_imaginary_part_at_f_and_T(f, T)
 
     # Compute fitted amplitudes and loss angles
-    eps_r_fit = eps_real_fit + 1j * eps_imag_fit
+    eps_r_fit = eps_real_fit - 1j * eps_imag_fit
     delta_fit = np.degrees(np.arctan2(eps_r_fit.imag, eps_r_fit.real))
 
     def mre(x, x_est):
@@ -90,7 +90,7 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
         plt.tight_layout()
 
         # Loss angle
-        print(f"MRE (angle): {np.round(100 * mre(abs(delta_meas), abs(delta_fit)), decimals=2)} %")
+        print(f"MRE (angle): {np.round(100 * mre(delta_meas, delta_fit), decimals=2)} %")
         plt.figure(figsize=(8, 6))
         plt.scatter(delta_meas, delta_fit, alpha=0.7, label="Fitted vs Measured")
         plt.plot([delta_meas.min(), delta_meas.max()],
