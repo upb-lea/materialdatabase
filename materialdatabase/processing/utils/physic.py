@@ -37,7 +37,7 @@ def mu_imag_from_pv(f: float | np.ndarray, h_abs: float | np.ndarray, p_hyst: fl
     """
     return p_hyst / (-0.5 * 2 * np.pi * f * h_abs ** 2)
 
-def eps_r_from_sigma(f, sigma):
+def eps_r_from_sigma(f: float | np.ndarray, sigma: float | np.ndarray) -> complex | np.ndarray:
     """
     Calculate the (complex) relative permittivity from a (complex) conductivity.
 
@@ -47,7 +47,7 @@ def eps_r_from_sigma(f, sigma):
     """
     return sigma / (1j * 2 * np.pi * f * epsilon_0)
 
-def sigma_from_eps_r(f, eps_r):
+def sigma_from_eps_r(f: float | np.ndarray, eps_r: float | np.ndarray) -> complex | np.ndarray:
     """
     Calculate the (complex) conductivity from a (complex) relative permittivity.
 

@@ -218,7 +218,7 @@ def fit_sigma_fT(fT: tuple[float | np.ndarray, float | np.ndarray],
                  c_mix11: float, c_mix21: float, c_mix12: float, c_mix31: float,
                  ) -> float | np.ndarray:
     """
-    Temperature-dependent polynomial fit suitable for conductivity fit. (-> used as permittivity fit)
+    Temperature-dependent polynomial fit suitable for conductivity fit (-> used as permittivity fit).
 
     :param fT: tuple of frequency and temperature
     :param c_0: constant coefficient
@@ -234,7 +234,14 @@ def fit_sigma_fT(fT: tuple[float | np.ndarray, float | np.ndarray],
     :return: fitted permittivity (real, imaginary, amplitude or loss angle)
     """
     f, T = fT
-    return (c_0 +  # bulk conductivity
-            c_T1 * T + c_T2 * T ** 2 +  # temperature coefficients -> modify bulk conductivity
-            c_f1 * f + c_f2 * f ** 2 + c_f3 * f ** 3 +  # frequency coefficients -> modify ac conductivity
-            c_mix11 * f * T + c_mix21 * f ** 2 * T + c_mix12 * f * T ** 2 + c_mix31 * f ** 3 * T)  # mix terms
+
+    # temperature coefficients -> modify bulk conductivity
+    c_T = c_T1 * T + c_T2 * T ** 2
+
+    # frequency coefficients -> modify ac conductivity
+    c_f = c_f1 * f + c_f2 * f ** 2 + c_f3 * f ** 3
+
+    # mix terms
+    c_mix = c_mix11 * f * T + c_mix21 * f ** 2 * T + c_mix12 * f * T ** 2 + c_mix31 * f ** 3 * T
+
+    return c_0 + c_T + c_f + c_mix

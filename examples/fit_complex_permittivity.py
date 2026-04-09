@@ -54,8 +54,8 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
     permittivity.fit_sigma()
 
     # Frequency and temperatures at which measurement data is available
-    f = permittivity.measurement_data["f"]
-    T = permittivity.measurement_data["T"]
+    f = permittivity.measurement_data["f"].to_numpy()
+    T = permittivity.measurement_data["T"].to_numpy()
 
     # Compute measured amplitudes and loss angles
     eps_r_meas = (permittivity.measurement_data["eps_real"] - 1j * permittivity.measurement_data["eps_imag"]).to_numpy()
@@ -71,89 +71,90 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
     def mre(x, x_est):
         return np.mean(abs((x - x_est) / x))
 
-    # ---------------
-    # Parity Plots
-    # ---------------
-    # Amplitude
-    print(f"MRE (amplitude): {np.round(100 * mre(abs(eps_r_meas), abs(eps_r_fit)), decimals=2)} %")
-    plt.figure(figsize=(8, 6))
-    plt.scatter(abs(eps_r_meas), abs(eps_r_fit), alpha=0.7, label="Fitted vs Measured")
-    plt.plot([abs(eps_r_meas).min(), abs(eps_r_meas).max()],
-             [abs(eps_r_meas).min(), abs(eps_r_meas).max()],
-             'r--', label="Ideal Fit (y = x)")
-    plt.xlabel("Measured ε_abs")
-    plt.ylabel("Fitted ε_abs")
-    plt.title("Permittivity Magnitude: Measured vs. Fitted")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
+    if is_plot:
+        # ---------------
+        # Parity Plots
+        # ---------------
+        # Amplitude
+        print(f"MRE (amplitude): {np.round(100 * mre(abs(eps_r_meas), abs(eps_r_fit)), decimals=2)} %")
+        plt.figure(figsize=(8, 6))
+        plt.scatter(abs(eps_r_meas), np.abs(eps_r_fit), alpha=0.7, label="Fitted vs Measured")
+        plt.plot([abs(eps_r_meas).min(), abs(eps_r_meas).max()],
+                 [abs(eps_r_meas).min(), abs(eps_r_meas).max()],
+                 'r--', label="Ideal Fit (y = x)")
+        plt.xlabel("Measured ε_abs")
+        plt.ylabel("Fitted ε_abs")
+        plt.title("Permittivity Magnitude: Measured vs. Fitted")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
 
-    # Loss angle
-    print(f"MRE (angle): {np.round(100 * mre(abs(delta_meas), abs(delta_fit)), decimals=2)} %")
-    plt.figure(figsize=(8, 6))
-    plt.scatter(delta_meas, delta_fit, alpha=0.7, label="Fitted vs Measured")
-    plt.plot([delta_meas.min(), delta_meas.max()],
-             [delta_meas.min(), delta_meas.max()],
-             'r--', label="Ideal Fit (y = x)")
-    plt.xlabel("Measured Loss Angle δ (°)")
-    plt.ylabel("Fitted Loss Angle δ (°)")
-    plt.title("Loss Angle: Measured vs. Fitted")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
+        # Loss angle
+        print(f"MRE (angle): {np.round(100 * mre(abs(delta_meas), abs(delta_fit)), decimals=2)} %")
+        plt.figure(figsize=(8, 6))
+        plt.scatter(delta_meas, delta_fit, alpha=0.7, label="Fitted vs Measured")
+        plt.plot([delta_meas.min(), delta_meas.max()],
+                 [delta_meas.min(), delta_meas.max()],
+                 'r--', label="Ideal Fit (y = x)")
+        plt.xlabel("Measured Loss Angle δ (°)")
+        plt.ylabel("Fitted Loss Angle δ (°)")
+        plt.title("Loss Angle: Measured vs. Fitted")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
 
-    # ---------------
-    # over frequency (at temperature levels)
-    # ---------------
-    unique_temps = np.unique(T)
-    n_temps = len(unique_temps)
+        # ---------------
+        # over frequency (at temperature levels)
+        # ---------------
+        unique_temps = np.unique(T)
+        n_temps = len(unique_temps)
 
-    # Amplitude
-    fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
+        # Amplitude
+        fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
 
-    if n_temps == 1:
-        axes = [axes]  # ensure iterable
+        if n_temps == 1:
+            axes = [axes]  # ensure iterable
 
-    for ax, temp in zip(axes, unique_temps, strict=False):
-        mask = T == temp
-        f_vals = f[mask]
-        measured_vals = abs(eps_r_meas)[mask]
-        fitted_vals = abs(eps_r_fit)[mask]
+        for ax, temp in zip(axes, unique_temps, strict=False):
+            mask = T == temp
+            f_vals = f[mask]
+            measured_vals = abs(eps_r_meas)[mask]
+            fitted_vals = np.abs(eps_r_fit)[mask]
 
-        ax.plot(f_vals, measured_vals, 'o', label="Measured")
-        ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
-        ax.set_title(f"Temperature = {temp} °C")
-        ax.set_ylabel("Fitted ε_abs")
-        ax.grid(True)
-        ax.legend()
+            ax.plot(f_vals, measured_vals, 'o', label="Measured")
+            ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
+            ax.set_title(f"Temperature = {temp} °C")
+            ax.set_ylabel("Fitted ε_abs")
+            ax.grid(True)
+            ax.legend()
 
-    axes[-1].set_xlabel("Frequency (Hz)")
-    plt.tight_layout()
+        axes[-1].set_xlabel("Frequency (Hz)")
+        plt.tight_layout()
 
-    # Loss angle
-    fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
+        # Loss angle
+        fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
 
-    if n_temps == 1:
-        axes = [axes]  # ensure iterable
+        if n_temps == 1:
+            axes = [axes]  # ensure iterable
 
-    for ax, temp in zip(axes, unique_temps, strict=False):
-        mask = T == temp
-        f_vals = f[mask]
-        measured_vals = delta_meas[mask]
-        fitted_vals = delta_fit[mask]
+        for ax, temp in zip(axes, unique_temps, strict=False):
+            mask = T == temp
+            f_vals = f[mask]
+            measured_vals = delta_meas[mask]
+            fitted_vals = delta_fit[mask]
 
-        ax.plot(f_vals, measured_vals, 'o', label="Measured")
-        ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
-        ax.set_title(f"Temperature = {temp} °C")
-        ax.set_ylabel("Loss Angle δ (°)")
-        ax.grid(True)
-        ax.legend()
+            ax.plot(f_vals, measured_vals, 'o', label="Measured")
+            ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
+            ax.set_title(f"Temperature = {temp} °C")
+            ax.set_ylabel("Loss Angle δ (°)")
+            ax.grid(True)
+            ax.legend()
 
-    axes[-1].set_xlabel("Frequency (Hz)")
-    plt.tight_layout()
+        axes[-1].set_xlabel("Frequency (Hz)")
+        plt.tight_layout()
 
-    # show all plots
-    plt.show()
+        # show all plots
+        plt.show()
 
 
 if __name__ == "__main__":

@@ -90,7 +90,7 @@ class ComplexPermittivity:
         f = fit_data["f"].to_numpy()
 
         # assemble complex permittivity from the measurement data using the negative sign convention
-        eps_complex = fit_data["eps_real"].to_numpy() - 1j * fit_data["eps_imag"].to_numpy()
+        eps_complex = fit_data["eps_real"].to_numpy(dtype=float) - 1j * fit_data["eps_imag"].to_numpy(dtype=float)
 
         # compute the complex conductivity sigma, representing the measurement data
         sigma_complex = sigma_from_eps_r(f, eps_complex)
@@ -148,8 +148,7 @@ class ComplexPermittivity:
 
         return params_sigma_real, params_sigma_imag
 
-
-    def fit_real_and_imaginary_part_at_f_and_T(self, f: float, T: float) -> tuple[float, float]:
+    def fit_real_and_imaginary_part_at_f_and_T(self, f: float | np.ndarray, T: float | np.ndarray) -> tuple[float | np.ndarray, float | np.ndarray]:
         """
         Compute fitted real and imaginary parts of permittivity at given frequency and temperature.
 
@@ -176,7 +175,7 @@ class ComplexPermittivity:
         sigma_complex = sigma_real + 1j * sigma_imag
 
         # Convert complex conductivity to permittivity
-        eps_complex = eps_r_from_sigma(f, sigma_complex).to_numpy()
+        eps_complex = eps_r_from_sigma(f, sigma_complex)
 
         return eps_complex.real, eps_complex.imag
 
@@ -227,13 +226,17 @@ class ComplexPermittivity:
             self.fit_sigma(f_min_measurement, f_max_measurement,
                            T_min_measurement, T_max_measurement)
 
-        records: list[list[float]] = []
-        for T in grid_temperature:
-            for f in grid_frequency:
-                eps_real, eps_imag = self.fit_real_and_imaginary_part_at_f_and_T(f, T)
-                records.append([f, T, eps_real, eps_imag])
+        f_grid, T_grid = np.meshgrid(grid_frequency, grid_temperature)
+        eps_real, eps_imag = self.fit_real_and_imaginary_part_at_f_and_T(f_grid, T_grid)
 
-        df_grid: pd.DataFrame = pd.DataFrame(records, columns=["f", "T", "eps_real", "eps_imag"])
+        df_grid = pd.DataFrame(
+            {
+                "f": f_grid.ravel(),
+                "T": T_grid.ravel(),
+                "eps_real": np.ravel(eps_real),
+                "eps_imag": np.ravel(eps_imag),
+            }
+        )
         return df_grid
 
     @staticmethod
