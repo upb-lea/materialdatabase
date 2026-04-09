@@ -12,11 +12,10 @@ from matplotlib import gridspec
 from matplotlib.ticker import MaxNLocator
 
 # own libraries
-from materialdatabase.processing.utils.physic import eps_r_from_sigma
+from materialdatabase.processing.utils.physic import eps_r_from_sigma, sigma_from_eps_r
 from materialdatabase.meta.data_enums import *
 from materialdatabase.meta.config import *
 from materialdatabase.processing.utils.empirical import *
-from materialdatabase.processing.utils.constants import epsilon_0
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +93,7 @@ class ComplexPermittivity:
         eps_complex = fit_data["eps_real"].to_numpy() - 1j * fit_data["eps_imag"].to_numpy()
 
         # compute the complex conductivity sigma, representing the measurement data
-        sigma_complex = 1j * 2 * np.pi * f * eps_complex * epsilon_0
+        sigma_complex = sigma_from_eps_r(f, eps_complex)
 
         # split real and imaginary parts for simplified fitting
         fit_data["sigma_real"] = np.real(sigma_complex)
