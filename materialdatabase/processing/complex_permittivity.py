@@ -12,9 +12,11 @@ from matplotlib import gridspec
 from matplotlib.ticker import MaxNLocator
 
 # own libraries
+from materialdatabase.processing.utils.physic import eps_r_from_sigma
 from materialdatabase.meta.data_enums import *
 from materialdatabase.meta.config import *
 from materialdatabase.processing.utils.empirical import *
+from materialdatabase.processing.utils.constants import epsilon_0
 
 logger = logging.getLogger(__name__)
 
@@ -33,10 +35,10 @@ class ComplexPermittivity:
         self.measurement_data = df_complex_permittivity
         self.material = material
         self.data_source = data_source
-        self.params_eps_a = None
-        self.eps_a_fit_function = FitFunction.eps_abs
-        self.params_eps_pv = None
-        self.eps_pv_fit_function = FitFunction.eps_abs
+        self.params_sigma_real = None
+        self.sigma_real_fit_function = FitFunction.sigma
+        self.params_sigma_imag = None
+        self.sigma_imag_fit_function = FitFunction.sigma
 
     @staticmethod
     def filter_fT(df: pd.DataFrame,
@@ -62,38 +64,47 @@ class ComplexPermittivity:
             df = df[df['T'] <= T_max]
         return df
 
-    def fit_permittivity_magnitude(self,
-                                   f_min: float | None = None, f_max: float | None = None,
-                                   T_min: float | None = None, T_max: float | None = None
-                                   ) -> Any:
+    def fit_sigma(self,
+                  f_min: float | None = None, f_max: float | None = None,
+                  T_min: float | None = None, T_max: float | None = None
+                  ) -> Any:
         """
-        Fit the permittivity magnitude ε_abs as a function of frequency and temperature.
+        Fit the complex conductivity sigma as a function of frequency and temperature.
 
         This method:
-          1. Computes ε_abs = sqrt(ε_real² + ε_imag²).
-          2. For each probe: Interpolates the magnitude to a uniform frequency grid at each temperature.
-          3. Fits the assembled interpolated data.
+          1. Computes conductivity sigma from permittivity eps.
+          2. For each probe: Interpolates the real/imaginary parts to a uniform frequency grid at each temperature.
+          3. Fits the assembled interpolated data for real/imaginary parts.
 
         :param f_min: measurements for lower frequencies will be excluded from fitting
         :param f_max: measurements for higher frequencies will be excluded from fitting
         :param T_min: measurements for lower temperatures will be excluded from fitting
         :param T_max: measurements for higher temperatures will be excluded from fitting
-        :return: Fitted parameters (popt_eps_a) of the ε_abs model.
+        :return: Fitted parameters of the conductivity real and imaginary parts.
         :rtype: np.ndarray
         """
         fit_data = self.filter_fT(self.measurement_data,
                                   f_min=f_min, f_max=f_max,
                                   T_min=T_min, T_max=T_max)
 
-        # Step 1: Compute magnitude
-        eps_a = np.sqrt(fit_data["eps_real"] ** 2 + fit_data["eps_imag"] ** 2)
+        # Step 1: Compute conductivity sigma
+        f = fit_data["f"].to_numpy()
 
-        fit_data["eps_a"] = eps_a
+        # assemble complex permittivity from the measurement data using the negative sign convention
+        eps_complex = fit_data["eps_real"].to_numpy() - 1j * fit_data["eps_imag"].to_numpy()
+
+        # compute the complex conductivity sigma, representing the measurement data
+        sigma_complex = 1j * 2 * np.pi * f * eps_complex * epsilon_0
+
+        # split real and imaginary parts for simplified fitting
+        fit_data["sigma_real"] = np.real(sigma_complex)
+        fit_data["sigma_imag"] = np.imag(sigma_complex)
 
         # Step 2: Interpolate to uniform frequency grid for each T
         interpolated_f: list[float] = []
         interpolated_T: list[float] = []
-        interpolated_eps_a: list[float] = []
+        interpolated_sigma_real: list[float] = []
+        interpolated_sigma_imag: list[float] = []
 
         unique_probes = np.unique(fit_data["probe"])
         for probe in unique_probes:
@@ -106,87 +117,38 @@ class ComplexPermittivity:
                 # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
                 f_uniform = np.linspace(df_T["f"].min(), df_T["f"].max(), 20)
 
-                # Interpolate magnitude over uniform grid
-                interp_func = interp1d(df_T["f"], df_T["eps_a"], kind="linear", fill_value="extrapolate")
-                eps_a_uniform = interp_func(f_uniform)
+                # Interpolate sigma over uniform grid
+                interp_sigma_real_func = interp1d(df_T["f"], df_T["sigma_real"], kind="linear", fill_value="extrapolate")
+                interp_sigma_imag_func = interp1d(df_T["f"], df_T["sigma_imag"], kind="linear", fill_value="extrapolate")
+                sigma_real_uniform = interp_sigma_real_func(f_uniform)
+                sigma_imag_uniform = interp_sigma_imag_func(f_uniform)
 
                 interpolated_f.extend(f_uniform)
                 interpolated_T.extend([T] * len(f_uniform))
-                interpolated_eps_a.extend(eps_a_uniform)
+                interpolated_sigma_real.extend(sigma_real_uniform)
+                interpolated_sigma_imag.extend(sigma_imag_uniform)
 
         # Step 3: Fit to interpolated dataset
-        params_eps_a, pcov_eps_a = curve_fit(
-            self.eps_a_fit_function.get_function(),
+        params_sigma_real, pcov_sigma_real = curve_fit(
+            self.sigma_real_fit_function.get_function(),
             (np.array(interpolated_f), np.array(interpolated_T)),
-            np.array(interpolated_eps_a),
+            np.array(interpolated_sigma_real),
             maxfev=int(1e6)
         )
 
-        self.params_eps_a = params_eps_a
-        return params_eps_a
-
-    def fit_loss_angle(self,
-                       f_min: float | None = None, f_max: float | None = None,
-                       T_min: float | None = None, T_max: float | None = None
-                       ) -> Any:
-        """
-        Fit the dielectric losses as a function of frequency and temperature.
-
-        This method:
-          1. Computes loss density p_el.
-          2. For each probe: Interpolates p_el to a uniform frequency grid at each temperature.
-          3. Fits the assembled interpolated data.
-
-        :param f_min: measurements for lower frequencies will be excluded from fitting
-        :param f_max: measurements for higher frequencies will be excluded from fitting
-        :param T_min: measurements for lower temperatures will be excluded from fitting
-        :param T_max: measurements for higher temperatures will be excluded from fitting
-        :return: Fitted parameters (popt_eps_pv) of the ε_abs model.
-        :rtype: np.ndarray
-        """
-        fit_data = self.filter_fT(self.measurement_data,
-                                  f_min=f_min, f_max=f_max,
-                                  T_min=T_min, T_max=T_max)
-
-        # Step 1: Compute magnitude
-        eps_angle = np.arctan(fit_data["eps_imag"] / fit_data["eps_real"])
-
-        fit_data["eps_angle"] = eps_angle
-
-        # Step 2: Interpolate to uniform frequency grid for each T
-        interpolated_f: list[float] = []
-        interpolated_T: list[float] = []
-        interpolated_eps_angle: list[float] = []
-
-        unique_probes = np.unique(fit_data["probe"])
-        for probe in unique_probes:
-            df_probe = fit_data[fit_data["probe"] == probe]
-
-            unique_Ts = np.unique(df_probe["T"])
-            for T in unique_Ts:
-                df_T = df_probe[df_probe["T"] == T].sort_values("f")
-
-                # Create evenly spaced frequency grid (e.g., same number as original points or a fixed number like 20)
-                f_uniform = np.linspace(df_T["f"].min(), df_T["f"].max(), 20)
-
-                # Interpolate magnitude over uniform grid
-                interp_func = interp1d(df_T["f"], df_T["eps_angle"], kind="linear", fill_value="extrapolate")
-                eps_angle_uniform = interp_func(f_uniform)
-
-                interpolated_f.extend(f_uniform)
-                interpolated_T.extend([T] * len(f_uniform))
-                interpolated_eps_angle.extend(eps_angle_uniform)
-
-        # Step 3: Fit to interpolated dataset
-        params_eps_pv, pcov_eps_pv = curve_fit(
-            self.eps_pv_fit_function.get_function(),
+        params_sigma_imag, pcov_sigma_imag = curve_fit(
+            self.sigma_imag_fit_function.get_function(),
             (np.array(interpolated_f), np.array(interpolated_T)),
-            np.array(interpolated_eps_angle),
+            np.array(interpolated_sigma_imag),
             maxfev=int(1e6)
         )
 
-        self.params_eps_pv = params_eps_pv
-        return params_eps_pv
+        # store fit parameters internally
+        self.params_sigma_real = params_sigma_real
+        self.params_sigma_imag = params_sigma_imag
+
+        return params_sigma_real, params_sigma_imag
+
 
     def fit_real_and_imaginary_part_at_f_and_T(self, f: float, T: float) -> tuple[float, float]:
         """
@@ -199,28 +161,25 @@ class ComplexPermittivity:
         :return: (eps_real, eps_imag)
         """
         # Auto-generate magnitude fit if missing
-        if self.params_eps_a is None:
+        if self.params_sigma_real is None or self.params_sigma_imag is None:
             logger.info("params_eps_a missing, running fit_permittivity_magnitude()...")
-            self.fit_permittivity_magnitude()
+            self.fit_sigma()
 
-        # Auto-generate loss angle fit if missing
-        if self.params_eps_pv is None:
-            logger.info("params_eps_pv missing, running fit_loss_angle()...")
-            self.fit_loss_angle()
+        # Predict conductivity real part the fitted model
+        sigma_real_model = self.sigma_real_fit_function.get_function()
+        sigma_real = sigma_real_model((np.array([f]), np.array([T])), *self.params_sigma_real)[0]
 
-        # Predict magnitude ε_abs from the fitted model
-        eps_a_model = self.eps_a_fit_function.get_function()
-        eps_a = eps_a_model((np.array([f]), np.array([T])), *self.params_eps_a)[0]
+        # Predict conductivity imaginary part from the fitted model
+        sigma_imag_model = self.sigma_imag_fit_function.get_function()
+        sigma_imag = sigma_imag_model((np.array([f]), np.array([T])), *self.params_sigma_imag)[0]
 
-        # Predict loss angle φ from the fitted model
-        eps_pv_model = self.eps_pv_fit_function.get_function()
-        phi = eps_pv_model((np.array([f]), np.array([T])), *self.params_eps_pv)[0]
+        # assemble complex conductivity
+        sigma_complex = sigma_real + 1j * sigma_imag
 
-        # Convert magnitude + angle → real & imaginary
-        eps_real = eps_a * np.cos(phi)
-        eps_imag = eps_a * np.sin(phi)
+        # Convert complex conductivity to permittivity
+        eps_complex = eps_r_from_sigma(f, sigma_complex).to_numpy()
 
-        return eps_real, eps_imag
+        return eps_complex.real, eps_complex.imag
 
     @staticmethod
     def grid2txt(df: pd.DataFrame, path: os.PathLike | str) -> None:
@@ -265,12 +224,9 @@ class ComplexPermittivity:
         :param grid_frequency: frequencies for the interpolation grid
         :param grid_temperature: temperatures for the interpolation grid
         """
-        if self.params_eps_a is None:
-            self.fit_permittivity_magnitude(f_min_measurement, f_max_measurement,
-                                            T_min_measurement, T_max_measurement)
-        if self.params_eps_pv is None:
-            self.fit_loss_angle(f_min_measurement, f_max_measurement,
-                                T_min_measurement, T_max_measurement)
+        if self.params_sigma_real is None or self.params_sigma_imag is None:
+            self.fit_sigma(f_min_measurement, f_max_measurement,
+                           T_min_measurement, T_max_measurement)
 
         records: list[list[float]] = []
         for T in grid_temperature:
@@ -288,7 +244,7 @@ class ComplexPermittivity:
                   f_min: float | None = None, f_max: float | None = None,
                   T_min: float | None = None, T_max: float | None = None) -> None:
         """
-        Plot |ε| and phase(ε) as contour maps vs. f (kHz) and T (°C) with shared color scales for magnitude and phase.
+        Plot |eps| and phase(eps) as contour maps vs. f (kHz) and T (°C) with shared color scales for magnitude and phase.
 
         :param df: complex permittivity data as pandas DataFrame
         :param save_path: path where the plot should be saved

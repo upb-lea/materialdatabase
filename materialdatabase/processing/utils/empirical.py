@@ -2,6 +2,7 @@
 import numpy as np
 import numpy.typing as npt
 
+
 # ----------------
 # Temperature Fits
 # ----------------
@@ -17,6 +18,7 @@ def quadratic_temperature(T: float | np.ndarray, c_0: float, c_1: float, c_2: fl
     :return: Temperature-dependent scaling factor
     """
     return c_0 - c_1 * T + c_2 * T ** 2
+
 
 # ----------------
 # Permeability Fits
@@ -205,40 +207,34 @@ def fit_mu_abs_LEA_MTB_MagNet(
 
     return (mur_0 * k_0 + k_1 * (mur_1 * B + mur_2 * B ** 2)) * k_f
 
+
 # ----------------
-# Permittivity Fits
+# Permittivity (Conductivity) Fits
 # ----------------
-
-def fit_eps(f: float | np.ndarray,
-            e_0: float, e_1: float, e_2: float, e_3: float) -> float | np.ndarray:
+def fit_sigma_fT(fT: tuple[float | np.ndarray, float | np.ndarray],
+                 c_0: float,
+                 c_T1: float, c_T2: float,
+                 c_f1: float, c_f2: float, c_f3: float,
+                 c_mix11: float, c_mix21: float, c_mix12: float, c_mix31: float,
+                 ) -> float | np.ndarray:
     """
-    Polynomial fit suitable for permittivity fit.
-
-    :param f:
-    :param e_0: constant frequency coefficient
-    :param e_1: linear frequency coefficient
-    :param e_2: quadratic frequency coefficient
-    :param e_3: cubic frequency coefficient
-    :return:
-    """
-    return e_0 + e_1 * f + e_2 * f ** 2 + e_3 * f ** 3
-
-
-def fit_eps_qT(fT: tuple[float | np.ndarray, float | np.ndarray],
-               e_1: float, e_2: float, e_3: float,
-               c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
-    """
-    Temperature-dependent polynomial fit suitable for permittivity fit.
+    Temperature-dependent polynomial fit suitable for conductivity fit. (-> used as permittivity fit)
 
     :param fT: tuple of frequency and temperature
-    :param e_1: linear frequency coefficient
-    :param e_2: quadratic frequency coefficient
-    :param e_3: cubic frequency coefficient
     :param c_0: constant coefficient
-    :param c_1: linear temperature coefficient
-    :param c_2: quadratic temperature coefficient
+    :param c_T1: linear temperature coefficient
+    :param c_T2: quadratic temperature coefficient
+    :param c_f1: linear frequency coefficient
+    :param c_f2: quadratic frequency coefficient
+    :param c_f3: cubic frequency coefficient
+    :param c_mix11: deg(f)=1, deg(T)=1
+    :param c_mix21: deg(f)=2, deg(T)=1
+    :param c_mix12: deg(f)=1, deg(T)=2
+    :param c_mix31: deg(f)=3, deg(T)=1
     :return: fitted permittivity (real, imaginary, amplitude or loss angle)
     """
     f, T = fT
-    k = quadratic_temperature(T, c_0, c_1, c_2)
-    return k / (1.0 + e_1 * f**(e_2+e_3/T))
+    return (c_0 +  # bulk conductivity
+            c_T1 * T + c_T2 * T ** 2 +  # temperature coefficients -> modify bulk conductivity
+            c_f1 * f + c_f2 * f ** 2 + c_f3 * f ** 3 +  # frequency coefficients -> modify ac conductivity
+            c_mix11 * f * T + c_mix21 * f ** 2 * T + c_mix12 * f * T ** 2 + c_mix31 * f ** 3 * T)  # mix terms
