@@ -4,6 +4,7 @@ import logging
 import numpy as np
 from matplotlib import pyplot as plt
 import materialdatabase as mdb
+from materialdatabase.processing.utils.math import mre
 
 # Configure logging to show info level messages
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
@@ -68,8 +69,6 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
     eps_r_fit = eps_real_fit - 1j * eps_imag_fit
     delta_fit = np.degrees(np.arctan2(eps_r_fit.imag, eps_r_fit.real))
 
-    def mre(x, x_est):
-        return np.mean(abs((x - x_est) / x))
 
     if is_plot:
         # ---------------
