@@ -709,7 +709,7 @@ class Data:
         :return: Approximated initial_mag_curve
         :rtype: pd.DataFrame
         """
-        # Remove less equal 0 and add 0 and create symetric branch
+        # Remove less equal 0 and add 0 and create symetrical branch
         raw_initial_mag_curve_pos = raw_initial_mag_curve[(raw_initial_mag_curve['h'] > 0) & (raw_initial_mag_curve['b'] > 0)]
         raw_initial_mag_curve_neg = raw_initial_mag_curve_pos.copy()
         raw_initial_mag_curve_neg['h'] = -raw_initial_mag_curve_neg['h']
@@ -724,12 +724,11 @@ class Data:
         def jiles_atherton_model(h, params):
             # params: z.B. [Ms, a, k, c, alpha]
             Ms, a, k, c, alpha = params
-            # Berechne B(h) nach Jiles-Atherton
-            # (Hier solltest du deine Implementierung einfügen)
-            B = Ms * np.tanh((h + alpha * Ms) / a)  # stark vereinfacht
+            # Calculate B(h) by Jiles-Atherton model
+            B = Ms * np.tanh((h + alpha * Ms) / a)
             return B
 
-        # Residuenfunktion für Optimierung
+        # Residual function for optimization
         def residuals(params, h, b_measured):
             b_model = jiles_atherton_model(h, params)
             return b_model - b_measured
