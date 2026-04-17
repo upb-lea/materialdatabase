@@ -130,6 +130,8 @@ if PLOT_PV:
                                                      data_source=cfg.mat_cfg.setup,
                                                      pv_fit_function=cfg.mat_cfg.pv_fit_function,
                                                      probe_codes=cfg.mat_cfg.probe_codes)
+
+        # Calculate material.params_pv
         material.fit_losses()
 
         col_name = f"pv_{key}"
