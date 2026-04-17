@@ -1,4 +1,5 @@
 """Class to represent the data structure and load material data."""
+import logging
 # python libraries
 import os
 
@@ -198,6 +199,16 @@ class ComplexPermeability:
                                       fit_data["b"]),
                                      np.log(pv), maxfev=100000)
         self.params_pv = popt_pv
+
+        # print optimal parameters
+        logging.info(popt_pv)
+
+        # Check fit quality
+        fit_function = self.pv_fit_function.get_function()
+        pv_pred = fit_function((fit_data["f"].to_numpy(), fit_data["T"].to_numpy(), fit_data["b"].to_numpy()), *popt_pv)
+        rel_error = abs(pv_pred - pv) / pv
+        logging.info(f"MRE = {np.mean(rel_error)}")
+
         return popt_pv
 
     def fit_real_and_imaginary_part_at_f_and_T(
