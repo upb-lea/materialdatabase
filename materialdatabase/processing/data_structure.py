@@ -709,7 +709,7 @@ class Data:
         :return: Approximated initial_mag_curve
         :rtype: pd.DataFrame
         """
-        # Remove less equal 0 and add 0 and create symetrical branch
+        # Remove less equal 0 and add 0 and create symmetrical branch
         raw_initial_mag_curve_pos = raw_initial_mag_curve[(raw_initial_mag_curve['h'] > 0) & (raw_initial_mag_curve['b'] > 0)]
         raw_initial_mag_curve_neg = raw_initial_mag_curve_pos.copy()
         raw_initial_mag_curve_neg['h'] = -raw_initial_mag_curve_neg['h']
