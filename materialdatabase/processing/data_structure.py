@@ -590,7 +590,7 @@ class Data:
             raise ValueError(f"{curve_type} is no valid datasheet curve type.\n"
                              f"Valid curve types are: {[item.value for item in DatasheetCurveType]}")
         else:
-            path2file = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.value}/{material.name}/{curve_type.name}.csv")
+            path2file = Path(f"{self.root_dir}/{DatasheetCurvesFolder.name.value}/{material.value}/{curve_type.name}.csv")
             if path2file not in self.all_paths:
                 raise ValueError(f"The specified data file with path {path2file} does not exist.")
             else:
