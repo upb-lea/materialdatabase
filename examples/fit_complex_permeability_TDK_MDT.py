@@ -44,7 +44,8 @@ def fit_complex_permeability_tdk_mdt_example(mu_abs_flag: bool, pv_flag: bool,
                           (-1) * df_mat["mu_imag"].to_numpy(dtype=float) * mu_0,
                           df_mat["b"] / df_mat["mu_abs"].to_numpy(dtype=float) / mu_0)
 
-    if mu_abs_flag:
+    # Satisfy mypy by checking permeability.params_mu_a against not None
+    if mu_abs_flag and permeability.params_mu_a is not None:
         df_mat["mu_abs_fitted"] = permeability.mu_a_fit_function.get_function()((df_mat["f"].to_numpy(),
                                                                                  df_mat["T"].to_numpy(),
                                                                                  df_mat["b"].to_numpy()),

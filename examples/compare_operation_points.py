@@ -98,7 +98,7 @@ df_common["b"] = FLUX_DENSITIES
 # ---------------------------------------------
 
 if PLOT_MU_ABS:
-    styles_mu = {}
+    styles_mu: dict[str, StyleDict] = {}
     for key, cfg in materials_config.items():
         if not cfg.enabled:
             continue
@@ -109,12 +109,16 @@ if PLOT_MU_ABS:
                                                      pv_fit_function=cfg.mat_cfg.pv_fit_function)
         material.fit_permeability_magnitude()
         col = f"mu_abs_{key}"
-        df_common[col] = material.mu_a_fit_function.get_function()(
-            (df_common["f"].to_numpy(),
-             df_common["T"].to_numpy(),
-             df_common["b"].to_numpy()),
-            *material.params_mu_a
-        )
+        # Satisfy mypy by checking material.params_mu_a against not None
+        if material.params_mu_a is not None:
+            df_common[col] = material.mu_a_fit_function.get_function()(
+                (df_common["f"].to_numpy(),
+                 df_common["T"].to_numpy(),
+                 df_common["b"].to_numpy()),
+                *material.params_mu_a
+            )
+        else:
+            raise ValueError("Program error caused by corrupt method material.fit_permeability_magnitude()!")
         styles_mu[col] = cast(StyleDict, {
             "marker": cfg.marker,
             "color": cfg.color,
@@ -128,7 +132,7 @@ if PLOT_MU_ABS:
 # ---------------------------------------------
 
 if PLOT_PV:
-    styles_pv = {}
+    styles_pv: dict[str, StyleDict] = {}
     for key, cfg in materials_config.items():
         if not cfg.enabled:
             continue
@@ -139,12 +143,16 @@ if PLOT_PV:
                                                      pv_fit_function=cfg.mat_cfg.pv_fit_function)
         material.fit_losses()
         col = f"pv_{key}"
-        df_common[col] = material.pv_fit_function.get_function()(
-            (df_common["f"].to_numpy(),
-             df_common["T"].to_numpy(),
-             df_common["b"].to_numpy()),
-            *material.params_pv
-        )
+        # Satisfy mypy by checking material.params_pv against not None
+        if material.params_pv is not None:
+            df_common[col] = material.pv_fit_function.get_function()(
+                (df_common["f"].to_numpy(),
+                 df_common["T"].to_numpy(),
+                 df_common["b"].to_numpy()),
+                *material.params_pv
+            )
+        else:
+            raise ValueError("Program error caused by corrupt method material.fit_losses!")
         styles_pv[col] = cast(StyleDict, {
             "marker": cfg.marker,
             "color": cfg.color,
