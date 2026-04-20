@@ -226,20 +226,23 @@ class ComplexPermeability:
             b_vals = b_vals.copy()
             b_vals[0] = 1e-6
 
-        # Fit permeability magnitude μₐ(f, T, B)
-        mu_a = self.mu_a_fit_function.get_function()((f_op, T_op, b_vals), *self.params_mu_a)
+        if self.params_pv is not None and self.params_mu_a is not None:
+            # Fit permeability magnitude μₐ(f, T, B)
+            mu_a = self.mu_a_fit_function.get_function()((f_op, T_op, b_vals), *self.params_mu_a)
 
-        # Fit specific power loss using provided model
-        pv_vals = self.pv_fit_function.get_function()((f_op, T_op, b_vals), *self.params_pv)
+            # Fit specific power loss using provided model
+            pv_vals = self.pv_fit_function.get_function()((f_op, T_op, b_vals), *self.params_pv)
 
-        # Compute excitation field strength H = B / (μₐ * μ₀)
-        h_vals = b_vals / mu_a / mu_0
+            # Compute excitation field strength H = B / (μₐ * μ₀)
+            h_vals = b_vals / mu_a / mu_0
 
-        # Compute imaginary part of permeability from losses
-        mu_imag = -mu_imag_from_pv(f_op, h_vals, pv_vals) / mu_0
+            # Compute imaginary part of permeability from losses
+            mu_imag = -mu_imag_from_pv(f_op, h_vals, pv_vals) / mu_0
 
-        # Compute real part using magnitude and imaginary part
-        mu_real = np.sqrt(np.maximum(mu_a ** 2 - mu_imag ** 2, 0))
+            # Compute real part using magnitude and imaginary part
+            mu_real = np.sqrt(np.maximum(mu_a ** 2 - mu_imag ** 2, 0))
+        else:
+            raise ValueError("Program error caused by wrong return of self.params_mu_a  and self.params_pv!")
 
         return np.array(mu_real), np.array(mu_imag)
 

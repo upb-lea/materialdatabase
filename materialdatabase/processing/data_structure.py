@@ -9,6 +9,7 @@ import toml
 import pandas as pd
 from matplotlib import pyplot as plt
 import numpy as np
+from scipy import optimize
 from scipy.interpolate import interp1d
 from scipy.signal import savgol_filter
 
@@ -233,9 +234,11 @@ class Data:
                 data_set = pd.read_csv(path2file, sep=",")
             # Get column with H-offset data
             h_offset_series = data_set['h_offset']
-            h_array = h_offset_series.unique()
+            # Get index list with number of occurrence
+            h_offset_counts = h_offset_series.value_counts()
+            h_offset_filtered_values = h_offset_counts[h_offset_counts >= 8].index
             # Assemble the result list
-            h_offset_list = h_array.tolist()
+            h_offset_list = h_offset_filtered_values.tolist()
 
         return h_offset_list
 
@@ -696,7 +699,62 @@ class Data:
         init_mag_curve_df['T'] = act_T
         init_mag_curve_df['f'] = act_f
 
+        init_mag_curve_df = self._approximate_jiles_atherton(init_mag_curve_df)
+
         return init_mag_curve_df
+
+    def _approximate_jiles_atherton(self, raw_initial_mag_curve: pd.DataFrame) -> pd.DataFrame:
+        """Approximate the measurements of initial magnetization curve based on Jiles-Atherton model.
+
+        :param raw_initial_mag_curve: Interpolated measurement data of the initial magnetization curve
+        :type raw_initial_mag_curve: pd.DataFrame
+        :return: Approximated initial_mag_curve
+        :rtype: pd.DataFrame
+        """
+        # Remove less equal 0 and add 0 and create symmetrical branch
+        raw_initial_mag_curve_pos = raw_initial_mag_curve[(raw_initial_mag_curve['h'] > 0) & (raw_initial_mag_curve['b'] > 0)]
+        raw_initial_mag_curve_neg = raw_initial_mag_curve_pos.copy()
+        raw_initial_mag_curve_neg['h'] = -raw_initial_mag_curve_neg['h']
+        raw_initial_mag_curve_neg['b'] = -raw_initial_mag_curve_neg['b']
+        raw_initial_mag_curve_pos = pd.concat([raw_initial_mag_curve_pos.iloc[[0]].copy(), raw_initial_mag_curve_pos, ], ignore_index=True)
+        raw_initial_mag_curve_pos.at[0, "b"] = 0
+        raw_initial_mag_curve_pos.at[0, "h"] = 0
+        # Assemble curve and sort for h
+        raw_initial_mag_curve = pd.concat([raw_initial_mag_curve_pos, raw_initial_mag_curve_neg, ], ignore_index=True)
+        raw_initial_mag_curve = raw_initial_mag_curve.sort_values(by='h').reset_index(drop=True)
+
+        def jiles_atherton_model(h, params):
+            # params: z.B. [Ms, a, k, c, alpha]
+            Ms, a, k, c, alpha = params
+            # Calculate B(h) by Jiles-Atherton model
+            B = Ms * np.tanh((h + alpha * Ms) / a)
+            return B
+
+        # Residual function for optimization
+        def residuals(params, h, b_measured):
+            b_model = jiles_atherton_model(h, params)
+            return b_model - b_measured
+
+        # Get h and b measurement values
+        h = raw_initial_mag_curve['h'].values
+        b = raw_initial_mag_curve['b'].values
+
+        # Start parameter values
+        params0 = [1.0, 1.0, 1.0, 0.1, 0.01]
+
+        # Optimization
+        result = optimize.least_squares(residuals, params0, args=(h, b))
+
+        # Optimal parameter set
+        params_opt = result.x
+
+        # Fit model curve with parameter
+        b_fit = jiles_atherton_model(h, params_opt)
+
+        # Create result DataFrame
+        initial_mag_curve = pd.DataFrame({"b": jiles_atherton_model(h, params_opt), "h": h})
+
+        return initial_mag_curve
 
     def _calculate_initial_magnetization_curve(self, act_b_over_h_at_f_T: pd.DataFrame, number_of_values: int,
                                                act_T: float, act_f: float) -> pd.DataFrame:

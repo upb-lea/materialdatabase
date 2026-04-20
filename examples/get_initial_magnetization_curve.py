@@ -1,10 +1,6 @@
-
 """Example to get the initialization magnetization curve from data, if data are available."""
 
 import logging
-
-
-# Debug
 import matplotlib.pyplot as plt
 
 # own libraries

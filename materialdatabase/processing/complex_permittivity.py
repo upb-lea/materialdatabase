@@ -210,15 +210,18 @@ class ComplexPermittivity:
 
         # Predict magnitude ε_abs from the fitted model
         eps_a_model = self.eps_a_fit_function.get_function()
-        eps_a = eps_a_model((np.array([f]), np.array([T])), *self.params_eps_a)[0]
-
         # Predict loss angle φ from the fitted model
         eps_pv_model = self.eps_pv_fit_function.get_function()
-        phi = eps_pv_model((np.array([f]), np.array([T])), *self.params_eps_pv)[0]
+        # Satisfy mypy by check self.params_eps_a against not None
+        if self.params_eps_a is not None and self.params_eps_pv is not None:
+            eps_a = eps_a_model((np.array([f]), np.array([T])), *self.params_eps_a)[0]
+            phi = eps_pv_model((np.array([f]), np.array([T])), *self.params_eps_pv)[0]
 
-        # Convert magnitude + angle → real & imaginary
-        eps_real = eps_a * np.cos(phi)
-        eps_imag = eps_a * np.sin(phi)
+            # Convert magnitude + angle → real & imaginary
+            eps_real = eps_a * np.cos(phi)
+            eps_imag = eps_a * np.sin(phi)
+        else:
+            raise ValueError("Program error caused by wrong return of self.params_eps_a  and self.params_eps_pv!")
 
         return eps_real, eps_imag
 
