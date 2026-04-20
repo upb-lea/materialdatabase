@@ -234,9 +234,11 @@ class Data:
                 data_set = pd.read_csv(path2file, sep=",")
             # Get column with H-offset data
             h_offset_series = data_set['h_offset']
-            h_array = h_offset_series.unique()
+            # Get index list with number of occurrence
+            h_offset_counts = h_offset_series.value_counts()
+            h_offset_filtered_values = h_offset_counts[h_offset_counts >= 8].index
             # Assemble the result list
-            h_offset_list = h_array.tolist()
+            h_offset_list = h_offset_filtered_values.tolist()
 
         return h_offset_list
 
@@ -697,11 +699,11 @@ class Data:
         init_mag_curve_df['T'] = act_T
         init_mag_curve_df['f'] = act_f
 
-        init_mag_curve_df = self._approximate_jilles_atherton(init_mag_curve_df)
+        init_mag_curve_df = self._approximate_jiles_atherton(init_mag_curve_df)
 
         return init_mag_curve_df
 
-    def _approximate_jilles_atherton(self, raw_initial_mag_curve: pd.DataFrame) -> pd.DataFrame:
+    def _approximate_jiles_atherton(self, raw_initial_mag_curve: pd.DataFrame) -> pd.DataFrame:
         """Approximate the measurements of initial magnetization curve based on Jiles-Atherton model.
 
         :param raw_initial_mag_curve: Interpolated measurement data of the initial magnetization curve
