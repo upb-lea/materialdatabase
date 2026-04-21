@@ -69,7 +69,6 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
     eps_r_fit = eps_real_fit - 1j * eps_imag_fit
     delta_fit = np.degrees(np.arctan2(eps_r_fit.imag, eps_r_fit.real))
 
-
     if is_plot:
         # ---------------
         # Parity Plots

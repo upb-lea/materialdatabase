@@ -12,10 +12,10 @@ from matplotlib import gridspec
 from matplotlib.ticker import MaxNLocator
 
 # own libraries
-from materialdatabase.processing.utils.physic import eps_r_from_sigma, sigma_from_eps_r
 from materialdatabase.meta.data_enums import *
 from materialdatabase.meta.config import *
 from materialdatabase.processing.utils.empirical import *
+from materialdatabase.processing.utils.physic import *
 
 logger = logging.getLogger(__name__)
 

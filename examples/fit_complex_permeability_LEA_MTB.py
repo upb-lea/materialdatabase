@@ -42,7 +42,8 @@ def fit_complex_permeability_lea_mtb_example(mu_abs_flag: bool, pv_flag: bool,
                           (-1) * df_mat["mu_imag"].to_numpy(dtype=float) * mu_0,
                           df_mat["b"] / df_mat["mu_abs"].to_numpy(dtype=float) / mu_0)
 
-    if mu_abs_flag:
+    # Satisfy mypy by checking mu_mat.params_mu_a against not None
+    if mu_abs_flag and mu_mat.params_mu_a is not None:
         # Fitting of the permeability magnitude mu_abs
         mu_mat.fit_permeability_magnitude()
         df_mat["mu_abs_fitted"] = mu_mat.mu_a_fit_function.get_function()((df_mat["f"].to_numpy(),
