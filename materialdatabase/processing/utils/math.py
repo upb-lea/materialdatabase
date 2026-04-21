@@ -1,9 +1,8 @@
 """Mathmatical functions."""
 import numpy as np
-from typing import Any
 
 
-def mre(x: float | np.ndarray, x_est: float | np.ndarray) -> Any:
+def mre(x: float | np.ndarray, x_est: float | np.ndarray) -> float:
     """
     Calculate mean relative absolute error.
 
@@ -11,4 +10,4 @@ def mre(x: float | np.ndarray, x_est: float | np.ndarray) -> Any:
     :param x_est: estimated value
     :return: mean relative absolute error
     """
-    return np.mean(abs((x - x_est) / x))
+    return float(np.mean(abs((x - x_est) / x)))

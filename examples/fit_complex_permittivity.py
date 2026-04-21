@@ -74,7 +74,7 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
         # Parity Plots
         # ---------------
         # Amplitude
-        print(f"MRE (amplitude): {np.round(100 * mre(abs(eps_r_meas), abs(eps_r_fit)), decimals=2)} %")
+        print(f"MRE (amplitude): {np.round(100 * mre(np.abs(eps_r_meas), np.abs(eps_r_fit)), decimals=2)} %")
         plt.figure(figsize=(8, 6))
         plt.scatter(abs(eps_r_meas), np.abs(eps_r_fit), alpha=0.7, label="Fitted vs Measured")
         plt.plot([abs(eps_r_meas).min(), abs(eps_r_meas).max()],
