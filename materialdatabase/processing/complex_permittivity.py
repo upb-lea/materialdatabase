@@ -158,6 +158,12 @@ class ComplexPermittivity:
         :param T: Temperature in °C
         :return: (eps_real, -eps_imag) (negative sign convention of the imaginary part)
         """
+        # Check for extrapolation of frequency
+        if np.any((f < self.measurement_data["f"].min()) | (f > self.measurement_data["f"].max())):
+            logger.warning(f"To fit frequency {f} extrapolation is required. \n"
+                           f"f_min: {self.measurement_data['f'].min()}\n"
+                           f"f_max: {self.measurement_data['f'].max()}\n")
+
         # Auto-generate magnitude fit if missing
         if self.params_sigma_real is None or self.params_sigma_imag is None:
             logger.info("params_eps_a missing, running fit_permittivity_magnitude()...")
