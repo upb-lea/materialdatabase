@@ -165,11 +165,11 @@ class ComplexPermittivity:
 
         # Predict conductivity real part the fitted model
         sigma_real_model = self.sigma_real_fit_function.get_function()
-        sigma_real = sigma_real_model((np.array([f]), np.array([T])), *self.params_sigma_real)[0]
+        sigma_real = sigma_real_model((np.array([f]), np.array([T])), *self.params_sigma_real)[0]  # type: ignore
 
         # Predict conductivity imaginary part from the fitted model
         sigma_imag_model = self.sigma_imag_fit_function.get_function()
-        sigma_imag = sigma_imag_model((np.array([f]), np.array([T])), *self.params_sigma_imag)[0]
+        sigma_imag = sigma_imag_model((np.array([f]), np.array([T])), *self.params_sigma_imag)[0]  # type: ignore
 
         # assemble complex conductivity
         sigma_complex = sigma_real + 1j * sigma_imag
