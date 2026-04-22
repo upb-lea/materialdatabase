@@ -1,4 +1,5 @@
 """Class to represent the data structure and load material data."""
+import logging
 # python libraries
 import os
 
@@ -190,14 +191,22 @@ class ComplexPermeability:
 
         mu_abs = np.sqrt(fit_data["mu_real"] ** 2 + fit_data["mu_imag"] ** 2)
         pv = pv_mag(fit_data["f"].to_numpy(),
-                    - (fit_data["mu_imag"].to_numpy() * mu_0),
+                    - (fit_data["mu_imag"].to_numpy() * mu_0),  # type: ignore
                     fit_data["b"].to_numpy() / mu_abs / mu_0)
         popt_pv, pcov_pv = curve_fit(log_pv_fit_function,
-                                     (fit_data["f"],
-                                      fit_data["T"],
-                                      fit_data["b"]),
+                                     (fit_data["f"], fit_data["T"], fit_data["b"]),
                                      np.log(pv), maxfev=100000)
         self.params_pv = popt_pv
+
+        # print optimal parameters
+        logging.info(popt_pv)
+
+        # Check fit quality
+        fit_function = self.pv_fit_function.get_function()
+        pv_pred = fit_function((fit_data["f"].to_numpy(), fit_data["T"].to_numpy(), fit_data["b"].to_numpy()), *popt_pv)
+        rel_error = abs(pv_pred - pv) / pv
+        logging.info(f"MRE = {np.mean(rel_error)}")
+
         return popt_pv
 
     def fit_real_and_imaginary_part_at_f_and_T(
@@ -381,10 +390,10 @@ class ComplexPermeability:
             :param dft: permeability data at certain temperature
             :return: magnitude and phase as grid
             """
-            mu_abs = np.sqrt(dft['mu_real']**2 + dft['mu_imag']**2)
+            mu_abs = np.sqrt(dft['mu_real'] ** 2 + dft['mu_imag'] ** 2)
             mu_phi = np.rad2deg(np.arctan2(dft['mu_imag'], dft['mu_real']))
-            grid_abs = griddata((dft['b'], dft['f']*1e-3), mu_abs, (grid_b, grid_f_kHz), method='cubic')
-            grid_phi = griddata((dft['b'], dft['f']*1e-3), mu_phi, (grid_b, grid_f_kHz), method='cubic')
+            grid_abs = griddata((dft['b'], dft['f'] * 1e-3), mu_abs, (grid_b, grid_f_kHz), method='cubic')
+            grid_phi = griddata((dft['b'], dft['f'] * 1e-3), mu_phi, (grid_b, grid_f_kHz), method='cubic')
             return grid_abs, grid_phi
 
         # --- Interpolate all temperatures ---
@@ -407,7 +416,7 @@ class ComplexPermeability:
         n_cols = len(temps)
         cm = 1 / 2.54
         fig = plt.figure(figsize=(9 * cm, 9 * cm))
-        gs = gridspec.GridSpec(2, n_cols + 1, width_ratios=[1]*n_cols + [0.05],
+        gs = gridspec.GridSpec(2, n_cols + 1, width_ratios=[1] * n_cols + [0.05],
                                wspace=0.15, hspace=0.15)
 
         # Create axes array
@@ -417,10 +426,10 @@ class ComplexPermeability:
 
         # --- Plot contours ---
         for i, T in enumerate(temps):
-            cont_abs = ax[0, i].contourf(grid_b*1000, grid_f_kHz, grid_mu_abs_all[i],
+            cont_abs = ax[0, i].contourf(grid_b * 1000, grid_f_kHz, grid_mu_abs_all[i],
                                          levels=levels_abs, cmap='plasma',
                                          vmin=abs_min, vmax=abs_max)
-            cont_phi = ax[1, i].contourf(grid_b*1000, grid_f_kHz, grid_mu_phi_all[i],
+            cont_phi = ax[1, i].contourf(grid_b * 1000, grid_f_kHz, grid_mu_phi_all[i],
                                          levels=levels_phi, cmap='plasma',
                                          vmin=phi_min, vmax=phi_max)
             ax[0, i].set_title(f"{int(T)} °C")

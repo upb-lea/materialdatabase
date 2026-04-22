@@ -743,7 +743,7 @@ class Data:
         params0 = [1.0, 1.0, 1.0, 0.1, 0.01]
 
         # Optimization
-        result = optimize.least_squares(residuals, params0, args=(h, b))
+        result = optimize.least_squares(residuals, params0, args=(h, b))  # type: ignore
 
         # Optimal parameter set
         params_opt = result.x

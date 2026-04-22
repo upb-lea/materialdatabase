@@ -4,161 +4,10 @@ import logging
 import numpy as np
 from matplotlib import pyplot as plt
 import materialdatabase as mdb
+from materialdatabase.processing.utils.math import mean_relative_absolute_error
 
 # Configure logging to show info level messages
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
-
-
-def plot_permittivity_magnitude_fit(complex_perm):
-    """
-    Plot measured vs fitted permittivity magnitude (ε_abs) for all (f, T) combinations.
-
-    Parameters
-    ----------
-    complex_perm : ComplexPermittivity
-        Instance containing measurement data and fitted parameters.
-    """
-    eps_a_measured = np.sqrt(complex_perm.measurement_data["eps_real"] ** 2 + complex_perm.measurement_data["eps_imag"] ** 2)
-
-    fit_func = complex_perm.eps_a_fit_function.get_function()
-    eps_a_fitted = fit_func(
-        (complex_perm.measurement_data["f"], complex_perm.measurement_data["T"]),
-        *complex_perm.params_eps_a
-    )
-
-    plt.figure(figsize=(8, 6))
-    plt.scatter(eps_a_measured, eps_a_fitted, alpha=0.7, label="Fitted vs Measured")
-    plt.plot([eps_a_measured.min(), eps_a_measured.max()],
-             [eps_a_measured.min(), eps_a_measured.max()],
-             'r--', label="Ideal Fit (y = x)")
-    plt.xlabel("Measured ε_abs")
-    plt.ylabel("Fitted ε_abs")
-    plt.title("Permittivity Magnitude: Measured vs. Fitted")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_permittivity_vs_frequency(complex_perm):
-    """
-    Plot measured and fitted permittivity magnitude (ε_abs) vs frequency for each temperature.
-
-    Each temperature is displayed in its own subplot.
-    Parameters
-    ----------
-    complex_perm : ComplexPermittivity
-        Instance containing measurement data and fitted parameters.
-    """
-    unique_temps = np.unique(complex_perm.measurement_data["T"])
-
-    eps_a_measured = np.sqrt(complex_perm.measurement_data["eps_real"] ** 2 + complex_perm.measurement_data["eps_imag"] ** 2)
-
-    fit_func = complex_perm.eps_a_fit_function.get_function()
-    eps_a_fitted = fit_func(
-        (complex_perm.measurement_data["f"], complex_perm.measurement_data["T"]),
-        *complex_perm.params_eps_a
-    )
-
-    n_temps = len(unique_temps)
-    fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
-
-    if n_temps == 1:
-        axes = [axes]  # ensure iterable
-
-    for ax, temp in zip(axes, unique_temps, strict=False):
-        mask = complex_perm.measurement_data["T"] == temp
-        f_vals = complex_perm.measurement_data["f"][mask]
-        measured_vals = eps_a_measured[mask]
-        fitted_vals = eps_a_fitted[mask]
-
-        ax.plot(f_vals, measured_vals, 'o', label="Measured")
-        ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
-        ax.set_title(f"Temperature = {temp} °C")
-        ax.set_ylabel("ε_abs")
-        ax.grid(True)
-        ax.legend()
-
-    axes[-1].set_xlabel("Frequency (Hz)")
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_permittivity_loss_angle_fit(complex_perm):
-    """
-    Plot measured vs fitted loss angle (δ) for all (f, T) combinations.
-
-    Parameters
-    ----------
-    complex_perm : ComplexPermittivity
-        Instance containing measurement data and fitted parameters.
-    """
-    # Compute measured loss angle δ = atan(ε_imag / ε_real), convert to degrees
-    delta_measured = np.degrees(np.arctan2(complex_perm.measurement_data["eps_imag"], complex_perm.measurement_data["eps_real"]))
-
-    fit_func = complex_perm.eps_pv_fit_function.get_function()
-    delta_fitted = np.degrees(fit_func(
-        (complex_perm.measurement_data["f"], complex_perm.measurement_data["T"]),
-        *complex_perm.params_eps_pv
-    ))
-
-    plt.figure(figsize=(8, 6))
-    plt.scatter(delta_measured, delta_fitted, alpha=0.7, label="Fitted vs Measured")
-    plt.plot([delta_measured.min(), delta_measured.max()],
-             [delta_measured.min(), delta_measured.max()],
-             'r--', label="Ideal Fit (y = x)")
-    plt.xlabel("Measured Loss Angle δ (°)")
-    plt.ylabel("Fitted Loss Angle δ (°)")
-    plt.title("Loss Angle: Measured vs. Fitted")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
-
-def plot_permittivity_loss_angle_vs_frequency(complex_perm):
-    """
-    Plot measured and fitted loss angle (δ) vs frequency for each temperature.
-
-    Each temperature is displayed in its own subplot.
-
-    Parameters
-    ----------
-    complex_perm : ComplexPermittivity
-        Instance containing measurement data and fitted parameters.
-    """
-    unique_temps = np.unique(complex_perm.measurement_data["T"])
-
-    delta_measured = np.degrees(np.arctan2(complex_perm.measurement_data["eps_imag"], complex_perm.measurement_data["eps_real"]))
-
-    fit_func = complex_perm.eps_pv_fit_function.get_function()
-    delta_fitted = np.degrees(fit_func(
-        (complex_perm.measurement_data["f"], complex_perm.measurement_data["T"]),
-        *complex_perm.params_eps_pv
-    ))
-
-    n_temps = len(unique_temps)
-    fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
-
-    if n_temps == 1:
-        axes = [axes]  # ensure iterable
-
-    for ax, temp in zip(axes, unique_temps, strict=False):
-        mask = complex_perm.measurement_data["T"] == temp
-        f_vals = complex_perm.measurement_data["f"][mask]
-        measured_vals = delta_measured[mask]
-        fitted_vals = delta_fitted[mask]
-
-        ax.plot(f_vals, measured_vals, 'o', label="Measured")
-        ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
-        ax.set_title(f"Temperature = {temp} °C")
-        ax.set_ylabel("Loss Angle δ (°)")
-        ax.grid(True)
-        ax.legend()
-
-    axes[-1].set_xlabel("Frequency (Hz)")
-    plt.tight_layout()
-    plt.show()
 
 
 def fit_complex_permittivity_example(is_plot: bool = True) -> None:
@@ -172,18 +21,29 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
 
     # Load permittivity data for a specific material and setup
     permittivity = mdb_data.get_complex_permittivity(
-        material=mdb.Material._3F46,
-        data_source=mdb.DataSource.LEA_MTB
+        material=mdb.Material.N95,
+        data_source=mdb.DataSource.LEA_MTB,
+        probe_codes=["LE2"]
     )
+    # permittivity = mdb_data.get_complex_permittivity(
+    #     material=mdb.Material.N49,
+    #     data_source=mdb.DataSource.LEA_MTB,
+    #     probe_codes=["U3G"]
+    # )
+    # permittivity = mdb_data.get_complex_permittivity(
+    #     material=mdb.Material._3F46,
+    #     data_source=mdb.DataSource.LEA_MTB,
+    #     probe_codes=["L95"]
+    # )
 
     print("Exemplary complex permittivity data:")
     print(permittivity.measurement_data, "\n")
 
     # Fit permittivity magnitude ε_abs
-    f_min_measurement = 3e5
+    f_min_measurement = 1e5
     f_max_measurement = 1.5e6
     T_min_measurement = 25
-    T_max_measurement = 120
+    T_max_measurement = 130
 
     permittivity.measurement_data = permittivity.filter_fT(permittivity.measurement_data,
                                                            f_min_measurement,
@@ -192,19 +52,107 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
                                                            T_max_measurement)
 
     # Fit permittivity magnitude
-    permittivity.fit_permittivity_magnitude()
+    permittivity.fit_sigma()
 
-    # Fit dielectric loss angle
-    permittivity.fit_loss_angle()
+    # Frequency and temperatures at which measurement data is available
+    f = permittivity.measurement_data["f"].to_numpy()
+    T = permittivity.measurement_data["T"].to_numpy()
+
+    # Compute measured amplitudes and loss angles
+    eps_r_meas = (permittivity.measurement_data["eps_real"] - 1j * permittivity.measurement_data["eps_imag"]).to_numpy()
+    delta_meas = np.degrees(np.arctan2(eps_r_meas.imag, eps_r_meas.real))
+
+    # Fit data
+    eps_real_fit, eps_imag_fit = permittivity.fit_real_and_imaginary_part_at_f_and_T(f, T)
+
+    # Compute fitted amplitudes and loss angles
+    eps_r_fit = eps_real_fit - 1j * eps_imag_fit
+    delta_fit = np.degrees(np.arctan2(eps_r_fit.imag, eps_r_fit.real))
 
     if is_plot:
-        # Plot measured vs fitted magnitude
-        plot_permittivity_magnitude_fit(permittivity)
-        plot_permittivity_loss_angle_fit(permittivity)
+        # ---------------
+        # Parity Plots
+        # ---------------
+        # Amplitude
+        print(f"MRE (amplitude): {np.round(100 * mean_relative_absolute_error(np.abs(eps_r_meas), np.abs(eps_r_fit)), decimals=2)} %")
+        plt.figure(figsize=(8, 6))
+        plt.scatter(abs(eps_r_meas), np.abs(eps_r_fit), alpha=0.7, label="Fitted vs Measured")
+        plt.plot([abs(eps_r_meas).min(), abs(eps_r_meas).max()],
+                 [abs(eps_r_meas).min(), abs(eps_r_meas).max()],
+                 'r--', label="Ideal Fit (y = x)")
+        plt.xlabel("Measured ε_abs")
+        plt.ylabel("Fitted ε_abs")
+        plt.title("Permittivity Magnitude: Measured vs. Fitted")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
 
-        # Plot measured and fitted ε_abs vs frequency for each temperature
-        plot_permittivity_vs_frequency(permittivity)
-        plot_permittivity_loss_angle_vs_frequency(permittivity)
+        # Loss angle
+        print(f"MRE (angle): {np.round(100 * mean_relative_absolute_error(delta_meas, delta_fit), decimals=2)} %")
+        plt.figure(figsize=(8, 6))
+        plt.scatter(delta_meas, delta_fit, alpha=0.7, label="Fitted vs Measured")
+        plt.plot([delta_meas.min(), delta_meas.max()],
+                 [delta_meas.min(), delta_meas.max()],
+                 'r--', label="Ideal Fit (y = x)")
+        plt.xlabel("Measured Loss Angle δ (°)")
+        plt.ylabel("Fitted Loss Angle δ (°)")
+        plt.title("Loss Angle: Measured vs. Fitted")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+
+        # ---------------
+        # over frequency (at temperature levels)
+        # ---------------
+        unique_temps = np.unique(T)
+        n_temps = len(unique_temps)
+
+        # Amplitude
+        fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
+
+        if n_temps == 1:
+            axes = [axes]  # ensure iterable
+
+        for ax, temp in zip(axes, unique_temps, strict=False):
+            mask = T == temp
+            f_vals = f[mask]
+            measured_vals = abs(eps_r_meas)[mask]
+            fitted_vals = np.abs(eps_r_fit)[mask]
+
+            ax.plot(f_vals, measured_vals, 'o', label="Measured")
+            ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
+            ax.set_title(f"Temperature = {temp} °C")
+            ax.set_ylabel("Fitted ε_abs")
+            ax.grid(True)
+            ax.legend()
+
+        axes[-1].set_xlabel("Frequency (Hz)")
+        plt.tight_layout()
+
+        # Loss angle
+        fig, axes = plt.subplots(n_temps, 1, figsize=(8, 3 * n_temps), sharex=True)
+
+        if n_temps == 1:
+            axes = [axes]  # ensure iterable
+
+        for ax, temp in zip(axes, unique_temps, strict=False):
+            mask = T == temp
+            f_vals = f[mask]
+            measured_vals = delta_meas[mask]
+            fitted_vals = delta_fit[mask]
+
+            ax.plot(f_vals, measured_vals, 'o', label="Measured")
+            ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
+            ax.set_title(f"Temperature = {temp} °C")
+            ax.set_ylabel("Loss Angle δ (°)")
+            ax.grid(True)
+            ax.legend()
+
+        axes[-1].set_xlabel("Frequency (Hz)")
+        plt.tight_layout()
+
+        # show all plots
+        plt.show()
 
 
 if __name__ == "__main__":
