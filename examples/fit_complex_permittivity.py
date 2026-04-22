@@ -79,7 +79,7 @@ def plot_over_frequency_amplitude(T: np.ndarray, f: np.ndarray, eps_r_meas: np.n
         fitted_vals = np.abs(eps_r_fit)[mask]
         ax.plot(f_vals, measured_vals, 'o', label="Measured")
         ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
-        ax.set_title(f"Temperature = {temp} degC")
+        ax.set_title(f"Temperature = {temp} °C")
         ax.set_ylabel("Absolute permittivity")
         ax.grid(True)
         ax.legend()
@@ -109,7 +109,7 @@ def plot_over_frequency_angle(T: np.ndarray, f: np.ndarray, delta_meas: np.ndarr
         fitted_vals = delta_fit[mask]
         ax.plot(f_vals, measured_vals, 'o', label="Measured")
         ax.plot(f_vals, fitted_vals, 'x', label="Fitted")
-        ax.set_title(f"Temperature = {temp} degC")
+        ax.set_title(f"Temperature = {temp} °C")
         ax.set_ylabel("Loss Angle (deg)")
         ax.grid(True)
         ax.legend()
