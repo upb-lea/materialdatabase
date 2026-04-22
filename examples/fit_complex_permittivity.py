@@ -4,7 +4,7 @@ import logging
 import numpy as np
 from matplotlib import pyplot as plt
 import materialdatabase as mdb
-from materialdatabase.processing.utils.math import mre
+from materialdatabase.processing.utils.math import mean_relative_absolute_error
 
 # Configure logging to show info level messages
 logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
@@ -74,7 +74,7 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
         # Parity Plots
         # ---------------
         # Amplitude
-        print(f"MRE (amplitude): {np.round(100 * mre(np.abs(eps_r_meas), np.abs(eps_r_fit)), decimals=2)} %")
+        print(f"MRE (amplitude): {np.round(100 * mean_relative_absolute_error(np.abs(eps_r_meas), np.abs(eps_r_fit)), decimals=2)} %")
         plt.figure(figsize=(8, 6))
         plt.scatter(abs(eps_r_meas), np.abs(eps_r_fit), alpha=0.7, label="Fitted vs Measured")
         plt.plot([abs(eps_r_meas).min(), abs(eps_r_meas).max()],
@@ -88,7 +88,7 @@ def fit_complex_permittivity_example(is_plot: bool = True) -> None:
         plt.tight_layout()
 
         # Loss angle
-        print(f"MRE (angle): {np.round(100 * mre(delta_meas, delta_fit), decimals=2)} %")
+        print(f"MRE (angle): {np.round(100 * mean_relative_absolute_error(delta_meas, delta_fit), decimals=2)} %")
         plt.figure(figsize=(8, 6))
         plt.scatter(delta_meas, delta_fit, alpha=0.7, label="Fitted vs Measured")
         plt.plot([delta_meas.min(), delta_meas.max()],

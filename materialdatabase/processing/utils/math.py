@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def mre(x: float | np.ndarray, x_est: float | np.ndarray) -> float:
+def mean_relative_absolute_error(x: float | np.ndarray, x_est: float | np.ndarray) -> float:
     """
     Calculate mean relative absolute error.
 
