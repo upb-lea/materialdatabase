@@ -1,8 +1,13 @@
 """Class to represent the data structure and load material data."""
 # python libraries
+from pathlib import Path
+import logging
 import os
+from typing import Any
 
 # 3rd party libraries
+import numpy as np
+import numpy.typing as npt
 import pandas as pd
 from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
@@ -12,10 +17,8 @@ from matplotlib import gridspec
 from matplotlib.ticker import MaxNLocator
 
 # own libraries
-from materialdatabase.meta.data_enums import *
-from materialdatabase.meta.config import *
-from materialdatabase.processing.utils.empirical import *
-from materialdatabase.processing.utils.physic import *
+from materialdatabase.meta.data_enums import Material, DataSource, FitFunction
+from materialdatabase.processing.utils.physic import sigma_from_eps_r, eps_r_from_sigma
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +169,7 @@ class ComplexPermittivity:
 
         # Auto-generate magnitude fit if missing
         if self.params_sigma_real is None or self.params_sigma_imag is None:
-            logger.info("params_eps_a missing, running fit_permittivity_magnitude()...")
+            logger.info("fit parameters for permittivity are missing, running fit_sigma()...")
             self.fit_sigma()
 
         # Predict conductivity real part the fitted model
