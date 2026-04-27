@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [0.4.0] - 2026-04-27
+### Changed
+- full update of the material database. Changed API behavior. 
+
 ## [0.3.0] - 2024-07-01
 ### Added
 - [Documentation page](https://upb-lea.github.io/materialdatabase/)
