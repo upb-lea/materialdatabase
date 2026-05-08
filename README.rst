@@ -109,10 +109,8 @@ Interpolated permeability and permittivity data of a Material:
 
 These function return complex permittivity and permeability for a certain operation point defined by temperature and frequency.
 
-GUI (FEMMT)
+External Usage (FEMMT)
 -------------------
-
-The materials in database can be compared with help GUI in FEM magnetics toolbox. In database tab of GUI, the loss graphs and B-H curves from the datasheets of up to 5 materials can be compared.
 
 FEMMT can be installed using the python pip package manager.
 
@@ -120,12 +118,8 @@ FEMMT can be installed using the python pip package manager.
 
     pip install femmt
 
-
 For working with the latest version, refer to the `documentation <https://upb-lea.github.io/FEM_Magnetics_Toolbox/intro.html>`__
 
-|gui_database|
-
-|gui_database_loss|
 
 Bug Reports
 --------------
@@ -138,6 +132,4 @@ Changelog
 
 Find the changelog `here <CHANGELOG.md>`__.
 
-.. |gui_database| image:: /docs/source/figures/gui_database.png
-.. |gui_database_loss| image:: /docs/source/figures/gui_database_loss.png
 .. |material_overview| image:: /docs/source/figures/Material_Database_Overview.png
