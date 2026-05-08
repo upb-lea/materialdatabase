@@ -22,64 +22,10 @@ Overview
             Data from measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The measurements are taken with a setup employing the `capacitive compensated two-winding method <https://ieeexplore.ieee.org/document/6648460>`__.
     * Complex Permittivity:
         * LEA MTB (LEA Material Test Bench):
-            Measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The dielectric measurements are taken with thin silver-plated cuboidal cores.
+            Measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The dielectric measurements are taken with a Wayne Kerr 6500b impedance analyzer on thin silver-plated cuboidal cores.
 * The database currently contains the ferrite materials listed in the following table:
 
 |material_overview|
-
-..
-    * Input features:
-        * Write magnetic parameters into the database
-            * Amplitude of permeability
-            * Angle of permeability
-            * Power loss density (hysteresis losses)
-            * Magnetic flux density
-            * Magnetic field strength
-
-        * Write electric parameters into the database
-            * Amplitude of permittivity
-            * Angle of permittivity
-            * Power loss density (eddy current losses)
-            * Electric flux density
-            * Electric field strength
-
-        * Write datasheet data into the database
-
-    * Output features:
-        * Get the magnetic parameters from the database
-        * Providing permeability and permittivity data for `FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__
-
-    * Interpolation of material data (both electric and magnetic parameters)
-
-    * GUI features (included in `FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__):
-        * Compare the datasheet values of different ferrite cores (e.g. BH-curves or power-loss curves)
-        * Materials for comparison:
-            * N95
-            * N87
-            * N49
-            * PC200
-            * DMR96A
-..
-
-..
-    Planned features (Roadmap for 202x)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-    * Input features:
-        * Universal function to write data into the database
-
-    * Output features:
-        * Get the electric parameters from the database
-        * Extract data from the database as a specific data file (e.g. .csv)
-
-    * Plotting features:
-        * Plot the data of a specific ferrite material, e.g. the amplitude of the permeability over the magnetic flux density
-
-    * Filter features:
-        * Get all available data for specific filter keys (e.g. temperature, frequency, material etc.)
-        * Filter for some specific value intervals (e.g. 10mT < B-flux < 30mT)
-..
-
 
 Installation
 ---------------
@@ -88,32 +34,53 @@ Installation
 
     pip install materialdatabase
 
-..
-    Basic usage and minimal example
-    ------------------------------------
+Example Data
+------------------------------------
+The data is stored in .csv files:
 
-    Material properties:
-    ::
+|material_data|
 
-        material_db = mdb.MaterialDatabase()
-        materials = material_db.material_list_in_database()
-        initial_u_r_abs = material_db.get_material_property(material_name="N95", property="initial_permeability")
-        core_material_resistivity = material_db.get_material_property(material_name="N95", property="resistivity")
 
-    .. image:: /docs/source/figures/database_json.png
-       :align: center
+Example Code
+------------------------------------
 
-    Interpolated permeability and permittivity data of a Material:
+Material properties can be loaded as follows:
+::
+    mdb_data = mdb.Data()
+    material_name = mdb.Material.N95
 
-    ::
+    permeability = mdb_data.get_complex_permeability(material=material_name,
+                                                     data_source=mdb.DataSource.LEA_MTB,
+                                                     pv_fit_function=mdb.FitFunction.enhancedSteinmetz)
+    print(f"Exemplary complex permeability data: \n {permeability.measurement_data.head()} \n")
 
-        b_ref, mu_r_real, mu_r_imag = material_db.permeability_data_to_pro_file(temperature=25, frequency=150000, material_name = "N95", datatype = "complex_permeability",
-                                              datasource = mdb.MaterialDataSource.ManufacturerDatasheet, parent_directory = "")
+    permittivity = mdb_data.get_complex_permittivity(material=material_name,
+                                                     data_source=mdb.DataSource.LEA_MTB)
+    print(f"Exemplary complex permittivity data: \n {permittivity.measurement_data.head()} \n ")
 
-        epsilon_r, epsilon_phi_deg = material_db.get_permittivity(temperature= 25, frequency=150000, material_name = "N95", datasource = "measurements",
-                                              datatype = mdb.MeasurementDataType.ComplexPermittivity, measurement_setup = "LEA_LK",interpolation_type = "linear")
 
-    These function return complex permittivity and permeability for a certain operation point defined by temperature and frequency.
+Output:
+::
+    Exemplary complex permeability data:
+                probe        f       T         b      mu_real     mu_imag  h_offset
+    0  R29.5x19x14.9  59629.0  30.145  0.040125  3955.516035  333.486173         0
+    1  R29.5x19x14.9  58929.0  30.154  0.049834  4050.789996  380.241871         0
+    2  R29.5x19x14.9  58329.0  30.154  0.058502  4138.476021  424.009115         0
+    3  R29.5x19x14.9  57929.0  30.147  0.066572  4239.539939  458.079275         0
+    4  R29.5x19x14.9  57529.0  30.158  0.074332  4303.405675  488.755116         0
+
+    Exemplary complex permittivity data:
+       probe         f   T      eps_real      eps_imag
+    0   LE2  107760.0  28  95567.710843  36977.344836
+    1   LE2  121546.0  28  93791.671181  35002.540113
+    2   LE2  137096.0  28  92085.767038  33189.049457
+    3   LE2  154635.0  28  90442.389511  31563.885192
+    4   LE2  174418.0  28  88863.933437  30088.808585
+
+
+Further examples can be found in the "examples" folder.
+
+
 
 
 Usage via FEM Magnetics Toolbox (FEMMT)
@@ -140,3 +107,4 @@ Changelog
 Find the changelog `here <CHANGELOG.md>`__.
 
 .. |material_overview| image:: /docs/source/figures/overview.jpg
+.. |material_data| image:: /docs/source/figures/exemplary_N95_permeability_data.jpg
