@@ -1,7 +1,7 @@
 Material database for power electronic usage
 ===============================================
 
-The materialdatabase mainly contains complex magnetic and dielectric data of soft-magnetic ferrite materials under sinusoidal excitation. Typical target applications of the provided material data are magentic components in power electronic converters operated at switching frequencies reaching from 100 kHz to 3 MHz. The database allows to compare materials and measurement setups, to work with fit functions (e.g., Steinmetz), and features data export as interpolation grids. FEM solvers like Comsol can directly import these interpolation grids and incorporate the data in frequency-domain simulations. The amplitude-dependency of the complex permeability is then typically modelled via local linearization (e.g., based on Newton iterations). The open-source FEM Magnetics Toolbox (`FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__) automatically allows to import material data from this database.
+The materialdatabase mainly contains complex magnetic and dielectric data of soft-magnetic ferrite materials under sinusoidal excitation. Typical target applications of the provided material data are magnetic components in power electronic converters operated at switching frequencies reaching from 100 kHz to 3 MHz. The database allows to compare materials and measurement setups, to work with fit functions (e.g., Steinmetz), and features data export as interpolation grids. FEM solvers like Comsol can directly import these interpolation grids and incorporate the data in frequency-domain simulations. The amplitude-dependency of the complex permeability is then typically modeled via local linearization (e.g., based on Newton iterations). The open-source FEM Magnetics Toolbox (`FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__) automatically allows to import material data from this database.
 
 Overview
 -------------------
@@ -15,7 +15,7 @@ Overview
 * Data sources:
     * Complex Permeability:
         * Datasheet:
-            Data based on datasheet or manufacturer design tool data (e.g., `TDK MDT <https://www.tdk-electronics.tdk.com/de/194550/design-support/tools-fuer-entwickler/ferrite-magnetic>`__ ). The complex permeability is computed from the given loss densit< and amplitude permeability.
+            Data based on datasheet or manufacturer design tool data (e.g., `TDK MDT <https://www.tdk-electronics.tdk.com/de/194550/design-support/tools-fuer-entwickler/ferrite-magnetic>`__ ). The complex permeability is computed from the given loss density and amplitude permeability.
         * MagNet:
             Data from the `MagNet <https://mag-net.princeton.edu/>`__ project. The time series data of the sinusoidal measurements is simplified to complex permeability assuming perfectly elliptical hysteresis. For the MagNet data, also DC bias is provided.
         * LEA MTB (LEA Material Test Bench):
