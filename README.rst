@@ -78,7 +78,7 @@ Output:
     4   LE2  174418.0  28  88863.933437  30088.808585
 
 
-Further examples can be found in the "examples" folder.
+Detailed examples with material comparisons and data exporting can be found in the "examples" folder.
 
 
 
