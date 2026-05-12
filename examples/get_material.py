@@ -9,16 +9,16 @@ def get_material_example():
     """Get different material data example."""
     # init a material database instance
     mdb_data = mdb.Data()
-    material_name = mdb.Material.N49
+    material_name = mdb.Material.N95
 
     permeability = mdb_data.get_complex_permeability(material=material_name,
-                                                     data_source=mdb.DataSource.TDK_MDT,
+                                                     data_source=mdb.DataSource.LEA_MTB,
                                                      pv_fit_function=mdb.FitFunction.enhancedSteinmetz)
-    print(f"Exemplary complex permeability data: \n {permeability.measurement_data} \n")
+    print(f"Exemplary complex permeability data: \n {permeability.measurement_data.head()} \n")
 
     permittivity = mdb_data.get_complex_permittivity(material=material_name,
                                                      data_source=mdb.DataSource.LEA_MTB)
-    print(f"Exemplary complex permittivity data: \n {permittivity.measurement_data} \n ")
+    print(f"Exemplary complex permittivity data: \n {permittivity.measurement_data.head()} \n ")
 
 
 if __name__ == '__main__':
