@@ -206,7 +206,7 @@
 <span class="n">core_material_resistivity</span> <span class="o">=</span> <span class="n">material_db</span><span class="o">.</span><span class="n">get_material_property</span><span class="p">(</span><span class="n">material_name</span><span class="o">=</span><span class="s2">&quot;N95&quot;</span><span class="p">,</span> <span class="nb">property</span><span class="o">=</span><span class="s2">&quot;resistivity&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<img alt="_images/database_json.png" class="align-center" src="_images/database_json.png" />
+<img alt="figures/database_json.png" class="align-center" src="figures/database_json.png" />
 <p>Interpolated permeability and permittivity data of a Material:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">b_ref</span><span class="p">,</span> <span class="n">mu_r_real</span><span class="p">,</span> <span class="n">mu_r_imag</span> <span class="o">=</span> <span class="n">material_db</span><span class="o">.</span><span class="n">permeability_data_to_pro_file</span><span class="p">(</span><span class="n">temperature</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span> <span class="n">frequency</span><span class="o">=</span><span class="mi">150000</span><span class="p">,</span> <span class="n">material_name</span> <span class="o">=</span> <span class="s2">&quot;N95&quot;</span><span class="p">,</span> <span class="n">datatype</span> <span class="o">=</span> <span class="s2">&quot;complex_permeability&quot;</span><span class="p">,</span>
                                       <span class="n">datasource</span> <span class="o">=</span> <span class="n">mdb</span><span class="o">.</span><span class="n">MaterialDataSource</span><span class="o">.</span><span class="n">ManufacturerDatasheet</span><span class="p">,</span> <span class="n">parent_directory</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -225,8 +225,8 @@
 </pre></div>
 </div>
 <p>For working with the latest version, refer to the <a class="reference external" href="https://upb-lea.github.io/FEM_Magnetics_Toolbox/intro.html">documentation</a></p>
-<p><img alt="gui_database" src="_images/gui_database.png" /></p>
-<p><img alt="gui_database_loss" src="_images/gui_database_loss.png" /></p>
+<p><img alt="gui_database" src="figures/gui_database.png" /></p>
+<p><img alt="gui_database_loss" src="figures/gui_database_loss.png" /></p>
 </section>
 <section id="bug-reports">
 <h2><span class="sectnum">1.5 </span>Bug Reports<a class="headerlink" href="#bug-reports" title="Link to this heading"></a></h2>
