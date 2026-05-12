@@ -1,7 +1,12 @@
 Material database for power electronic usage
 ===============================================
 
-The materialdatabase mainly contains complex magnetic and dielectric data of soft-magnetic ferrite materials under sinusoidal excitation. Typical target applications of the provided material data are magnetic components in power electronic converters operated at switching frequencies reaching from 100 kHz to 3 MHz. The database allows to compare materials and measurement setups, to work with fit functions (e.g., Steinmetz), and features data export as interpolation grids. FEM solvers like Comsol can directly import these interpolation grids and incorporate the data in frequency-domain simulations. The amplitude-dependency of the complex permeability is then typically modeled via local linearization (e.g., based on Newton iterations). The open-source FEM Magnetics Toolbox (`FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__) automatically allows to import material data from this database.
+The materialdatabase mainly contains complex magnetic and dielectric data of soft-magnetic ferrite materials under sinusoidal excitation.
+Typical target applications of the provided material data are magnetic components in power electronic converters operated at switching frequencies reaching from 100 kHz to 3 MHz.
+The database allows to compare materials and measurement setups, to work with fit functions (e.g., Steinmetz), and features data export as interpolation grids.
+FEM solvers like Comsol can directly import these interpolation grids and incorporate the data in frequency-domain simulations.
+The amplitude-dependency of the complex permeability is then typically modeled via local linearization (e.g., based on Newton iterations).
+The open-source FEM Magnetics Toolbox (`FEMMT <https://github.com/upb-lea/FEM_Magnetics_Toolbox>`__) automatically allows to import material data from this database.
 
 Overview
 -------------------
@@ -19,10 +24,11 @@ Overview
         * MagNet:
             Data from the `MagNet <https://mag-net.princeton.edu/>`__ project. The time series data of the sinusoidal measurements is simplified to complex permeability assuming perfectly elliptical hysteresis. For the MagNet data, also DC bias is provided.
         * LEA MTB (LEA Material Test Bench):
-            Data from measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The measurements are taken with a setup employing the `capacitive compensated two-winding method <https://ieeexplore.ieee.org/document/6648460>`__.
+            Data from measurements at the department of Power Electronics and Electrical Drives at Paderborn University.
+The measurements are taken with a setup employing the `capacitive compensated two-winding method <https://ieeexplore.ieee.org/document/6648460>`__.
     * Complex Permittivity:
         * LEA MTB (LEA Material Test Bench):
-            Measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The dielectric measurements are taken with a Wayne Kerr 6500b impedance analyzer on thin silver-plated cuboidal cores.
+            Measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The dielectric measurements are taken with a Wayne Kerr 6515B impedance analyzer on thin silver-plated cuboidal cores.
 * The database currently contains the ferrite materials listed in the following table:
 
 |material_overview|
