@@ -24,8 +24,7 @@ Overview
         * MagNet:
             Data from the `MagNet <https://mag-net.princeton.edu/>`__ project. The time series data of the sinusoidal measurements is simplified to complex permeability assuming perfectly elliptical hysteresis. For the MagNet data, also DC bias is provided.
         * LEA MTB (LEA Material Test Bench):
-            Data from measurements at the department of Power Electronics and Electrical Drives at Paderborn University.
-The measurements are taken with a setup employing the `capacitive compensated two-winding method <https://ieeexplore.ieee.org/document/6648460>`__.
+            Data from measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The measurements are taken with a setup employing the `capacitive compensated two-winding method <https://ieeexplore.ieee.org/document/6648460>`__.
     * Complex Permittivity:
         * LEA MTB (LEA Material Test Bench):
             Measurements at the department of Power Electronics and Electrical Drives at Paderborn University. The dielectric measurements are taken with a Wayne Kerr 6515B impedance analyzer on thin silver-plated cuboidal cores.
