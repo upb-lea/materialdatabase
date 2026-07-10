@@ -6,7 +6,7 @@ authors = [
 ]
 description = "A database for ferrite core materials to store datasheet information and self-measured data."
 readme = "README.rst"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -76,7 +76,7 @@ line-ending = "auto"
 
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 disallow_incomplete_defs = true
