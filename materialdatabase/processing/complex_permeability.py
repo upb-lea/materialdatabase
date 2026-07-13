@@ -199,13 +199,13 @@ class ComplexPermeability:
         self.params_pv = popt_pv
 
         # print optimal parameters
-        logging.info(popt_pv)
+        logger.info(popt_pv)
 
         # Check fit quality
         fit_function = self.pv_fit_function.get_function()
         pv_pred = fit_function((fit_data["f"].to_numpy(), fit_data["T"].to_numpy(), fit_data["b"].to_numpy()), *popt_pv)
         rel_error = abs(pv_pred - pv) / pv
-        logging.info(f"MRE = {np.mean(rel_error)}")
+        logger.info(f"MRE = {np.mean(rel_error)}")
 
         return popt_pv
 
