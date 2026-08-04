@@ -133,7 +133,11 @@ def log_enhanced_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray,
     :param c_2: Quadratic temperature coefficient
     :return: Logarithm of power loss density
     """
-    return np.log(enhanced_steinmetz_qT(fTb, alpha, beta, k_b, k_f, k_alpha2, c_0, c_1, c_2))
+    # avoid RunTime Warning during the scipy curve fit operation
+    with np.errstate(invalid='ignore'):
+        steinmetz_result = np.log(enhanced_steinmetz_qT(fTb, alpha, beta, k_b, k_f, k_alpha2, c_0, c_1, c_2))
+
+    return steinmetz_result
 
 
 def fit_mu_abs_TDK_MDT(
