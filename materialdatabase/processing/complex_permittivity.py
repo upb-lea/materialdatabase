@@ -163,9 +163,9 @@ class ComplexPermittivity:
         """
         # Check for extrapolation of frequency
         if np.any((f < self.measurement_data["f"].min()) | (f > self.measurement_data["f"].max())):
-            logger.warning(f"To fit frequency {f} extrapolation is required. \n"
-                           f"f_min: {self.measurement_data['f'].min()}\n"
-                           f"f_max: {self.measurement_data['f'].max()}\n")
+            logger.warning(f"To fit frequency {f} extrapolation is required. "
+                           f"f_min: {self.measurement_data['f'].min()}, "
+                           f"f_max: {self.measurement_data['f'].max()}")
 
         # Auto-generate magnitude fit if missing
         if self.params_sigma_real is None or self.params_sigma_imag is None:
