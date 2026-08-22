@@ -101,15 +101,16 @@ if PLOT_MU_ABS:
         material.fit_permeability_magnitude()
 
         col_name = f"mu_abs_{key}"
-        # Satisfy mypy by checking material.params_pv against not None
+
         if material.params_mu_a is not None:
-            df_common[col_name] = material.mu_a_fit_function.get_function()((df_common["f"].to_numpy(),
-                                                                             df_common["T"].to_numpy(),
-                                                                             df_common["b"].to_numpy()),
-                                                                            *material.params_mu_a
-                                                                            )
+            df_common[col_name] = material.mu_a_fit_function.get_function()(
+                (df_common["f"].to_numpy(),
+                 df_common["T"].to_numpy(),
+                 df_common["b"].to_numpy()),
+                *material.params_mu_a
+            )
         else:
-            raise ValueError("Program error caused by corrupt method material.fit_permeability_magnitude!")
+            raise ValueError("material.params_mu_a is None")
 
         styles_mu[col_name] = cast(StyleDict, {
             "marker": cfg.marker,
@@ -139,8 +140,8 @@ if PLOT_PV:
         material.fit_losses()
 
         col_name = f"pv_{key}"
-        # Satisfy mypy by checking material.params_mu_a against not None
-        if material.params_mu_a is not None:
+
+        if material.params_pv is not None:
             df_common[col_name] = material.pv_fit_function.get_function()(
                 (df_common["f"].to_numpy(),
                  df_common["T"].to_numpy(),
@@ -148,7 +149,7 @@ if PLOT_PV:
                 *material.params_pv
             )
         else:
-            raise ValueError("Program error caused by corrupt method material.fit_losses!")
+            raise ValueError("material.params_pv is None")
 
         styles_pv[col_name] = cast(StyleDict, {
             "marker": cfg.marker,
