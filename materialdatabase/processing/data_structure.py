@@ -627,7 +627,7 @@ class Data:
         if not act_b_over_h_at_f_T['f'].isin([act_f]).any():
             available_f_list = act_b_over_h_at_f_T['f'].unique().tolist()
             available_f_list.sort()
-            raise ValueError("The requested frequency is not available.\n"
+            raise ValueError(f"The requested frequency {act_f} Hz for material {material.name} is not available.\n"
                              f"The available frequencies are {available_f_list}!")
 
         # Evaluate requested parameter
