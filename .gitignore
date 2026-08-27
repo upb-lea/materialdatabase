@@ -12,13 +12,12 @@ build/
 dist/
 gpgit/
 docs/build
-materialdatabase/core_materials_temp.pro
-venv_linux
+examples/trials
 
 # Files
-tests/core_materials_temp.pro
 materialdatabase/meta/config.toml
 dictionary.dic
-
+mdb_overview.svg
+readme.html
 
 # General File Types
