@@ -108,6 +108,7 @@ else:
             f
             for f in listdir(path2processed_probe_data)
             if isfile(path2processed_probe_data.joinpath(str(f)))
+            and Path(f).suffix.lower() == ".csv"
         ]
 
         # If only a single file is in the specified path, assume that it contains the correct measurement:

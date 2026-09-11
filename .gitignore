@@ -21,3 +21,4 @@ mdb_overview.svg
 readme.html
 
 # General File Types
+*.code-workspace
