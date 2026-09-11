@@ -254,10 +254,20 @@ def plot_combined_loss(
         y_label=True,
     )
     plot_loss_vs_frequency(
-        ax=axs[1], df=df, y_columns=y_columns, styles=styles, annotate=annotate
+        ax=axs[1],
+        df=df,
+        y_columns=y_columns,
+        styles=styles,
+        annotate=annotate,
+        y_label=False,
     )
     plot_loss_vs_flux_density(
-        ax=axs[2], df=df, y_columns=y_columns, styles=styles, annotate=annotate
+        ax=axs[2],
+        df=df,
+        y_columns=y_columns,
+        styles=styles,
+        annotate=annotate,
+        y_label=False,
     )
     plt.tight_layout()
     plt.show()
@@ -459,10 +469,20 @@ def plot_mu_all(
         y_label=True,
     )
     plot_mu_vs_frequency(
-        ax=axs[1], df=df, y_columns=y_columns, styles=styles, annotate=annotate
+        ax=axs[1],
+        df=df,
+        y_columns=y_columns,
+        styles=styles,
+        annotate=annotate,
+        y_label=False,
     )
     plot_mu_vs_flux_density(
-        ax=axs[2], df=df, y_columns=y_columns, styles=styles, annotate=annotate
+        ax=axs[2],
+        df=df,
+        y_columns=y_columns,
+        styles=styles,
+        annotate=annotate,
+        y_label=False,
     )
 
     plt.tight_layout()
