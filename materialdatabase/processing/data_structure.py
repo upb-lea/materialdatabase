@@ -17,7 +17,7 @@ from scipy.signal import savgol_filter
 from materialdatabase.meta.data_enums import ComplexDataType, Material, DataSource, FitFunction, \
     DatasheetCurveType, DatasheetCurvesFolder, DatasheetAttribute
 from materialdatabase.meta.config import check_paths_in_toml, get_user_paths
-from materialdatabase.processing.complex_permeability import ComplexPermeability
+from materialdatabase.processing.complex_permeability import ComplexPermeability, LossFitModel
 from materialdatabase.processing.complex_permittivity import ComplexPermittivity
 
 logger = logging.getLogger(__name__)
@@ -289,7 +289,7 @@ class Data:
     def get_complex_permeability(self,
                                  material: Material,
                                  data_source: DataSource,
-                                 pv_fit_function: FitFunction,
+                                 pv_fit_function: FitFunction | LossFitModel,
                                  h_offset: float = 0,
                                  probe_codes: list[str] | None = None) -> ComplexPermeability:
         """

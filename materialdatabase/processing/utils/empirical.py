@@ -57,22 +57,6 @@ def steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.n
     return steinmetz((f, b), alpha, beta, k)
 
 
-def log_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
-                     alpha: float, beta: float, c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
-    """
-    Temperature-dependent Steinmetz model using quadratic temperature function.
-
-    :param fTb: Tuple (f, T, B) of frequency, temperature, and flux density
-    :param alpha: Frequency exponent
-    :param beta: Flux density exponent
-    :param c_0: Constant coefficient for temperature scaling
-    :param c_1: Linear temperature coefficient
-    :param c_2: Quadratic temperature coefficient
-    :return: Power loss density
-    """
-    return np.log(steinmetz_qT(fTb, alpha, beta, c_0, c_1, c_2))
-
-
 def enhanced_steinmetz(fb: tuple[float | np.ndarray, float | np.ndarray],
                        alpha: float, beta: float, k: float,
                        k_b: float, k_f: float, k_alpha2: float) -> float | np.ndarray:
@@ -113,31 +97,6 @@ def enhanced_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, flo
     f, T, b = fTb
     k = quadratic_temperature(T, c_0, c_1, c_2)
     return (k + k_b * b + k_f * f ** k_alpha2) * f ** alpha * b ** beta
-
-
-def log_enhanced_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
-                              alpha: float, beta: float,
-                              k_b: float, k_f: float, k_alpha2: float,
-                              c_0: float, c_1: float, c_2: float) -> float | np.ndarray:
-    """
-    Logarithm of the temperature-dependent enhanced Steinmetz model with frequency and flux-density dependent scaling.
-
-    :param fTb: Tuple (f, T, B) of frequency, temperature, and flux density
-    :param alpha: Frequency exponent
-    :param beta: Flux density exponent
-    :param k_b: Coefficient for flux density-dependent scaling
-    :param k_f: Coefficient for frequency-dependent scaling
-    :param k_alpha2: Exponent for frequency in additional scaling term
-    :param c_0: Constant coefficient for temperature scaling
-    :param c_1: Linear temperature coefficient
-    :param c_2: Quadratic temperature coefficient
-    :return: Logarithm of power loss density
-    """
-    # avoid RunTime Warning during the scipy curve fit operation
-    with np.errstate(invalid='ignore'):
-        steinmetz_result = np.log(enhanced_steinmetz_qT(fTb, alpha, beta, k_b, k_f, k_alpha2, c_0, c_1, c_2))
-
-    return steinmetz_result
 
 
 def fit_mu_abs_TDK_MDT(

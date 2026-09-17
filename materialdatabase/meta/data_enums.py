@@ -6,7 +6,6 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 from enum import Enum
 from typing import Any
 from materialdatabase.processing.utils.empirical import steinmetz_qT, enhanced_steinmetz_qT, \
-    log_enhanced_steinmetz_qT, log_steinmetz_qT, \
     fit_mu_abs_TDK_MDT, fit_mu_abs_LEA_MTB_MagNet, \
     fit_sigma_fT
 
@@ -20,17 +19,6 @@ class FitFunction(str, Enum):
     mu_abs_LEA_MTB = "mu_abs_LEA_MTB_MagNet"
     mu_abs_MagNet = "mu_abs_LEA_MTB_MagNet"
     sigma = "fit_eps_qT"
-
-    def get_log_function(self) -> Any:
-        """
-        Get a the logarithmic callable function according to the defined enum.
-
-        :return:
-        """
-        return {
-            FitFunction.Steinmetz: log_steinmetz_qT,
-            FitFunction.enhancedSteinmetz: log_enhanced_steinmetz_qT
-        }[self]
 
     def get_function(self) -> Any:
         """

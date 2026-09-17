@@ -1,7 +1,10 @@
 """Class to represent the data structure and load material data."""
 import logging
 # python libraries
+import inspect
 import os
+from dataclasses import dataclass
+from typing import Any, Callable
 
 # 3rd party libraries
 import numpy as np
@@ -23,6 +26,16 @@ from materialdatabase.processing.utils.constants import mu_0
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class LossFitModel:
+    """Describe a user-defined power-loss model for fitting."""
+
+    function: Callable[..., Any]
+    p0: tuple[float, ...] | None = None
+    bounds: tuple[Any, Any] = (-np.inf, np.inf)
+    name: str = "custom"
+
+
 class ComplexPermeability:
     """Class to process complex permeability data."""
 
@@ -30,7 +43,7 @@ class ComplexPermeability:
                  df_complex_permeability: pd.DataFrame,
                  material: Material,
                  data_source: DataSource,
-                 pv_fit_function: FitFunction):
+                 pv_fit_function: FitFunction | LossFitModel):
         """
         Initialize the complex permeability measurement data.
 
@@ -182,8 +195,6 @@ class ComplexPermeability:
         :return: Fitted parameters (popt_pv) of the Steinmetz-based power loss model.
         :rtype: np.ndarray
         """
-        log_pv_fit_function = self.pv_fit_function.get_log_function()
-
         fit_data = self.filter_fTb(self.measurement_data,
                                    f_min=f_min, f_max=f_max,
                                    T_min=T_min, T_max=T_max,
@@ -193,17 +204,43 @@ class ComplexPermeability:
         pv = pv_mag(fit_data["f"].to_numpy(),
                     - (fit_data["mu_imag"].to_numpy() * mu_0),  # type: ignore
                     fit_data["b"].to_numpy() / mu_abs / mu_0)
-        popt_pv, pcov_pv = curve_fit(log_pv_fit_function,
-                                     (fit_data["f"], fit_data["T"], fit_data["b"]),
-                                     np.log(pv), maxfev=100000)
+
+        if isinstance(self.pv_fit_function, LossFitModel):
+            fit_function = self.pv_fit_function.function
+            p0 = self.pv_fit_function.p0
+            bounds = self.pv_fit_function.bounds
+        else:
+            fit_function = self.pv_fit_function.get_function()
+            p0 = None
+            bounds = (-np.inf, np.inf)
+
+        parameters = list(inspect.signature(fit_function).parameters.values())
+        has_variadic_parameters = any(parameter.kind == inspect.Parameter.VAR_POSITIONAL
+                                      for parameter in parameters)
+        parameter_count = len(parameters) - 1
+        if has_variadic_parameters and p0 is None:
+            raise ValueError("LossFitModel.p0 is required for functions with *params.")
+        if p0 is None and parameter_count > 0:
+            p0 = np.ones(parameter_count)
+
+        def log_fit_function(x: tuple[np.ndarray, np.ndarray, np.ndarray], *params: float) -> Any:
+            with np.errstate(invalid="ignore", divide="ignore"):
+                return np.log(fit_function(x, *params))
+
+        popt_pv, pcov_pv = curve_fit(log_fit_function,
+                                     (fit_data["f"].to_numpy(),
+                                      fit_data["T"].to_numpy(),
+                                      fit_data["b"].to_numpy()),
+                                     np.log(pv), p0=p0, bounds=bounds, maxfev=100000)
         self.params_pv = popt_pv
 
         # print optimal parameters
         logger.info(f"Fit parameters for losses: {popt_pv}")
 
         # Check fit quality
-        fit_function = self.pv_fit_function.get_function()
-        pv_pred = fit_function((fit_data["f"].to_numpy(), fit_data["T"].to_numpy(), fit_data["b"].to_numpy()), *popt_pv)
+        pv_pred = fit_function((fit_data["f"].to_numpy(),
+                    fit_data["T"].to_numpy(),
+                    fit_data["b"].to_numpy()), *popt_pv)
         rel_error = abs(pv_pred - pv) / pv
         logger.info(f"MRE for loss fit = {np.mean(rel_error)}")
 
@@ -240,7 +277,11 @@ class ComplexPermeability:
             mu_a = self.mu_a_fit_function.get_function()((f_op, T_op, b_vals), *self.params_mu_a)
 
             # Fit specific power loss using provided model
-            pv_vals = self.pv_fit_function.get_function()((f_op, T_op, b_vals), *self.params_pv)
+            if isinstance(self.pv_fit_function, LossFitModel):
+                pv_function = self.pv_fit_function.function
+            else:
+                pv_function = self.pv_fit_function.get_function()
+            pv_vals = pv_function((f_op, T_op, b_vals), *self.params_pv)
 
             # Compute excitation field strength H = B / (μₐ * μ₀)
             h_vals = b_vals / mu_a / mu_0
