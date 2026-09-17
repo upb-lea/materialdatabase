@@ -302,17 +302,12 @@ class Data:
         Get a complex permeability data set of a certain material and measurement type.
 
         :param material: Material from material database, e.g. mdb.Material.N95
-        :type  material: Material
         :param data_source: Source folder of the material database, e.g. mdb.MeasurementSetup.TDK_MDT
-        :type  data_source: DataSource
         :param pv_fit_function: Algorithm to fit data point by given measurements
-        :type  pv_fit_function: FitFunction
         :param h_offset: H-Offset of the requested data
-        :type  h_offset: float
         :param probe_codes: None -> all probe codes available or select probes via ['Y3F', '7U8'], e.g.
-        :type  probe_codes: list[str]
+        :param mu_a_fit_function: Algorithm to fit data point by given measurements
         :return: Requested data within a data frame
-        :rtype:  pd.DataFrame
         """
         # Read data set
         data_set = self.get_complex_data_set(
@@ -339,8 +334,7 @@ class Data:
             raise ValueError(f"A dataset with h_offset={h_offset} is not available.\n"
                              f"Please use the 'get_available_h_offset' method to retrieve the list of available h-offsets.")
 
-        return ComplexPermeability(result_data_set, material, data_source, pv_fit_function,
-                       mu_a_fit_function=mu_a_fit_function)
+        return ComplexPermeability(result_data_set, material, data_source, pv_fit_function, mu_a_fit_function)
 
     def combine_material_permeability_data(self, material: Material, data_source: DataSource) -> bool:
         """

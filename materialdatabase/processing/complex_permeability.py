@@ -68,7 +68,7 @@ class ComplexPermeability:
         self._fitted_data: pd.DataFrame | None = None
         self.params_mu_a = None
         self.mu_a_fit_function = (get_fit_function_from_setup(data_source)
-                      if mu_a_fit_function is None else mu_a_fit_function)
+                                  if mu_a_fit_function is None else mu_a_fit_function)
         self.params_pv = None
         self.pv_fit_function = pv_fit_function
 
@@ -179,7 +179,7 @@ class ComplexPermeability:
 
         if isinstance(self.mu_a_fit_function, PermeabilityFitModel):
             fit_mu_a = self.mu_a_fit_function.function
-            p0 = self.mu_a_fit_function.p0
+            p0: tuple[float, ...] | np.ndarray | None = self.mu_a_fit_function.p0
             bounds = self.mu_a_fit_function.bounds
         else:
             fit_mu_a = self.mu_a_fit_function.get_function()
@@ -204,9 +204,11 @@ class ComplexPermeability:
         self.params_mu_a = popt_mu_a
 
         logger.info(f"Fit parameters for permeability magnitude: {popt_mu_a}")
-        mu_a_pred = fit_mu_a((fit_data["f"].to_numpy(),
-                      fit_data["T"].to_numpy(),
-                      fit_data["b"].to_numpy()), *popt_mu_a)
+        mu_a_pred = fit_mu_a(
+            (fit_data["f"].to_numpy(),
+             fit_data["T"].to_numpy(),
+             fit_data["b"].to_numpy()),
+            *popt_mu_a)
         rel_error = abs(mu_a_pred - mu_a) / mu_a
         logger.info(f"MRE for permeability magnitude fit = {np.mean(rel_error)}")
 
@@ -243,7 +245,7 @@ class ComplexPermeability:
 
         if isinstance(self.pv_fit_function, LossFitModel):
             fit_function = self.pv_fit_function.function
-            p0 = self.pv_fit_function.p0
+            p0: tuple[float, ...] | np.ndarray | None = self.pv_fit_function.p0
             bounds = self.pv_fit_function.bounds
         else:
             fit_function = self.pv_fit_function.get_function()
@@ -274,9 +276,11 @@ class ComplexPermeability:
         logger.info(f"Fit parameters for losses: {popt_pv}")
 
         # Check fit quality
-        pv_pred = fit_function((fit_data["f"].to_numpy(),
-                    fit_data["T"].to_numpy(),
-                    fit_data["b"].to_numpy()), *popt_pv)
+        pv_pred = fit_function(
+            (fit_data["f"].to_numpy(),
+             fit_data["T"].to_numpy(),
+             fit_data["b"].to_numpy()),
+            *popt_pv)
         rel_error = abs(pv_pred - pv) / pv
         logger.info(f"MRE for loss fit = {np.mean(rel_error)}")
 

@@ -24,9 +24,7 @@ class StyleDict(TypedDict, total=False):
 
 def _flatten_y_columns(y_columns: Union[List[str], tuple]) -> List[str]:
     if (
-        isinstance(y_columns, tuple)
-        and len(y_columns) == 1
-        and isinstance(y_columns[0], list)
+        isinstance(y_columns, tuple) and len(y_columns) == 1 and isinstance(y_columns[0], list)
     ):
         return y_columns[0]
     return list(y_columns)

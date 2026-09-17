@@ -109,7 +109,11 @@ if PLOT_MU_ABS:
                                                          pv_fit_function=cfg.mat_cfg.pv_fit_function)
         params = permeability.fit_permeability_magnitude()
         col = f"mu_abs_{key}"
-        df_common[col] = permeability.mu_a_fit_function.get_function()(
+        if isinstance(permeability.mu_a_fit_function, mdb.PermeabilityFitModel):
+            mu_a_function = permeability.mu_a_fit_function.function
+        else:
+            mu_a_function = permeability.mu_a_fit_function.get_function()
+        df_common[col] = mu_a_function(
             (df_common["f"].to_numpy(),
              df_common["T"].to_numpy(),
              df_common["b"].to_numpy()),
@@ -140,7 +144,11 @@ if PLOT_PV:
                                                          pv_fit_function=cfg.mat_cfg.pv_fit_function)
         params = permeability.fit_losses()
         col = f"pv_{key}"
-        df_common[col] = permeability.pv_fit_function.get_function()(
+        if isinstance(permeability.pv_fit_function, mdb.LossFitModel):
+            pv_function = permeability.pv_fit_function.function
+        else:
+            pv_function = permeability.pv_fit_function.get_function()
+        df_common[col] = pv_function(
             (df_common["f"].to_numpy(),
              df_common["T"].to_numpy(),
              df_common["b"].to_numpy()),
