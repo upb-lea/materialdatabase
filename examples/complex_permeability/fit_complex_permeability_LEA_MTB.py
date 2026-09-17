@@ -33,7 +33,8 @@ def fit_complex_permeability_lea_mtb_example(mu_abs_flag: bool, pv_flag: bool,
     # load ComplexPermeability instance
     mu_mat = mdb_data.get_complex_permeability(material=mdb.Material.N49,
                                                data_source=mdb.DataSource.LEA_MTB,
-                                               pv_fit_function=mdb.FitFunction.Steinmetz)
+                                               pv_fit_function=mdb.FitFunction.Steinmetz,
+                                               probe_codes=["AT1", "AT2"])
 
     # copy measurement in an extra dataframe
     df_mat = mu_mat.measurement_data.copy(deep=True)
@@ -56,8 +57,8 @@ def fit_complex_permeability_lea_mtb_example(mu_abs_flag: bool, pv_flag: bool,
         # # plot measurement vs fitted data
         y_columns = ["mu_abs", "mu_abs_fitted"]
         styles_mu = {
-            "mu_abs": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured"}),
-            "mu_abs_fitted": cast(StyleDict, {"marker": "*", "color": colors().compare1, "label": "Fitted"}),
+            "mu_abs": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured", "line_style": "-"}),
+            "mu_abs_fitted": cast(StyleDict, {"marker": "*", "color": colors().compare1, "label": "Fitted", "line_style": "--"}),
         }
         if is_plot:
             plot_mu_all(df=df_mat,
@@ -82,9 +83,9 @@ def fit_complex_permeability_lea_mtb_example(mu_abs_flag: bool, pv_flag: bool,
         # plot the fitted data
         y_columns = ["pv", "pv_fitted_eSE", "pv_fitted_SE"]
         styles_losses: Dict[str, StyleDict] = {
-            "pv": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured"}),
-            "pv_fitted_SE": cast(StyleDict, {"marker": ".", "color": colors().compare1, "label": "Fitted SE"}),
-            "pv_fitted_eSE": cast(StyleDict, {"marker": "*", "color": colors().compare2, "label": "Fitted eSE"}),
+            "pv": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured", "line_style": "-"}),
+            "pv_fitted_SE": cast(StyleDict, {"marker": ".", "color": colors().compare1, "label": "Fitted SE", "line_style": ":"}),
+            "pv_fitted_eSE": cast(StyleDict, {"marker": "*", "color": colors().compare2, "label": "Fitted eSE", "line_style": "--"}),
         }
         if is_plot:
             plot_combined_loss(df=df_mat,

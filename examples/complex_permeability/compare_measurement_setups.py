@@ -115,7 +115,8 @@ if PLOT_MU_ABS:
         styles_mu[col_name] = cast(StyleDict, {
             "marker": cfg.marker,
             "color": cfg.color,
-            "label": cfg.label
+            "label": cfg.label,
+            "line_style": cfg.line_style,
         })
 
     plot_mu_all(df=df_common, y_columns=list(styles_mu.keys()), styles=styles_mu, annotate=False)
@@ -154,7 +155,8 @@ if PLOT_PV:
         styles_pv[col_name] = cast(StyleDict, {
             "marker": cfg.marker,
             "color": cfg.color,
-            "label": cfg.label
+            "label": cfg.label,
+            "line_style": cfg.line_style,
         })
 
     plot_combined_loss(df=df_common, y_columns=list(styles_pv.keys()), styles=styles_pv, annotate=False)

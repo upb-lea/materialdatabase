@@ -56,8 +56,8 @@ def fit_complex_permeability_tdk_mdt_example(mu_abs_flag: bool, pv_flag: bool,
         # # plot measurement vs fitted data
         y_columns = ["mu_abs", "mu_abs_fitted"]
         styles_mu = {
-            "mu_abs": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured"}),
-            "mu_abs_fitted": cast(StyleDict, {"marker": "*", "color": colors().compare1, "label": "Fitted"}),
+            "mu_abs": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured", "line_style": "-"}),
+            "mu_abs_fitted": cast(StyleDict, {"marker": "*", "color": colors().compare1, "label": "Fitted", "line_style": "--"}),
         }
         if is_plot:
             plot_mu_all(df=df_mat[(df_mat["T"].isin([25, 40, 60, 80, 100, 120])) & (df_mat["f"].isin([25e3, 100e3, 500e3, 1e6]))],
@@ -80,9 +80,9 @@ def fit_complex_permeability_tdk_mdt_example(mu_abs_flag: bool, pv_flag: bool,
         # plot the fitted data
         y_columns = ["pv", "pv_fitted_eSE", "pv_fitted_SE"]
         styles_losses: Dict[str, StyleDict] = {
-            "pv": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured"}),
-            "pv_fitted_SE": cast(StyleDict, {"marker": ".", "color": colors().compare1, "label": "Fitted SE"}),
-            "pv_fitted_eSE": cast(StyleDict, {"marker": "*", "color": colors().compare2, "label": "Fitted eSE"}),
+            "pv": cast(StyleDict, {"marker": "x", "color": colors().gtruth, "label": "Measured", "line_style": "-"}),
+            "pv_fitted_SE": cast(StyleDict, {"marker": ".", "color": colors().compare1, "label": "Fitted SE", "line_style": ":"}),
+            "pv_fitted_eSE": cast(StyleDict, {"marker": "*", "color": colors().compare2, "label": "Fitted eSE", "line_style": "--"}),
         }
         if is_plot:
             plot_combined_loss(df=df_mat[(df_mat["T"].isin([25, 60, 100])) & (df_mat["f"].isin([25e3, 100e3, 500e3, 1e6]))],
