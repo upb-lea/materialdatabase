@@ -36,6 +36,16 @@ class LossFitModel:
     name: str = "custom"
 
 
+@dataclass
+class PermeabilityFitModel:
+    """Describe a user-defined permeability-amplitude model for fitting."""
+
+    function: Callable[..., Any]
+    p0: tuple[float, ...] | None = None
+    bounds: tuple[Any, Any] = (-np.inf, np.inf)
+    name: str = "custom"
+
+
 class ComplexPermeability:
     """Class to process complex permeability data."""
 
@@ -43,7 +53,8 @@ class ComplexPermeability:
                  df_complex_permeability: pd.DataFrame,
                  material: Material,
                  data_source: DataSource,
-                 pv_fit_function: FitFunction | LossFitModel):
+                 pv_fit_function: FitFunction | LossFitModel,
+                 mu_a_fit_function: FitFunction | PermeabilityFitModel | None = None):
         """
         Initialize the complex permeability measurement data.
 
@@ -56,7 +67,8 @@ class ComplexPermeability:
         self.data_source = data_source
         self._fitted_data: pd.DataFrame | None = None
         self.params_mu_a = None
-        self.mu_a_fit_function = get_fit_function_from_setup(data_source)  # permeability fit is coupled to measurement setup
+        self.mu_a_fit_function = (get_fit_function_from_setup(data_source)
+                      if mu_a_fit_function is None else mu_a_fit_function)
         self.params_pv = None
         self.pv_fit_function = pv_fit_function
 
@@ -165,15 +177,39 @@ class ComplexPermeability:
                                    T_min=T_min, T_max=T_max,
                                    b_min=b_min, b_max=b_max)
 
-        fit_mu_a = self.mu_a_fit_function.get_function()
+        if isinstance(self.mu_a_fit_function, PermeabilityFitModel):
+            fit_mu_a = self.mu_a_fit_function.function
+            p0 = self.mu_a_fit_function.p0
+            bounds = self.mu_a_fit_function.bounds
+        else:
+            fit_mu_a = self.mu_a_fit_function.get_function()
+            p0 = None
+            bounds = (-np.inf, np.inf)
+
+        parameters = list(inspect.signature(fit_mu_a).parameters.values())
+        has_variadic_parameters = any(parameter.kind == inspect.Parameter.VAR_POSITIONAL
+                                      for parameter in parameters)
+        parameter_count = len(parameters) - 1
+        if has_variadic_parameters and p0 is None:
+            raise ValueError("PermeabilityFitModel.p0 is required for functions with *params.")
+        if p0 is None and parameter_count > 0:
+            p0 = np.ones(parameter_count)
 
         mu_a = np.sqrt(fit_data["mu_real"] ** 2 + fit_data["mu_imag"] ** 2)
         popt_mu_a, pcov_mu_a = curve_fit(fit_mu_a,
                                          (fit_data["f"],
                                           fit_data["T"],
                                           fit_data["b"]),
-                                         mu_a, maxfev=int(1e6))
+                                         mu_a, p0=p0, bounds=bounds, maxfev=int(1e6))
         self.params_mu_a = popt_mu_a
+
+        logger.info(f"Fit parameters for permeability magnitude: {popt_mu_a}")
+        mu_a_pred = fit_mu_a((fit_data["f"].to_numpy(),
+                      fit_data["T"].to_numpy(),
+                      fit_data["b"].to_numpy()), *popt_mu_a)
+        rel_error = abs(mu_a_pred - mu_a) / mu_a
+        logger.info(f"MRE for permeability magnitude fit = {np.mean(rel_error)}")
+
         return popt_mu_a
 
     def fit_losses(self,
@@ -274,7 +310,11 @@ class ComplexPermeability:
 
         if self.params_pv is not None and self.params_mu_a is not None:
             # Fit permeability magnitude μₐ(f, T, B)
-            mu_a = self.mu_a_fit_function.get_function()((f_op, T_op, b_vals), *self.params_mu_a)
+            if isinstance(self.mu_a_fit_function, PermeabilityFitModel):
+                mu_a_function = self.mu_a_fit_function.function
+            else:
+                mu_a_function = self.mu_a_fit_function.get_function()
+            mu_a = mu_a_function((f_op, T_op, b_vals), *self.params_mu_a)
 
             # Fit specific power loss using provided model
             if isinstance(self.pv_fit_function, LossFitModel):

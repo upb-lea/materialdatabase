@@ -17,7 +17,11 @@ from scipy.signal import savgol_filter
 from materialdatabase.meta.data_enums import ComplexDataType, Material, DataSource, FitFunction, \
     DatasheetCurveType, DatasheetCurvesFolder, DatasheetAttribute
 from materialdatabase.meta.config import check_paths_in_toml, get_user_paths
-from materialdatabase.processing.complex_permeability import ComplexPermeability, LossFitModel
+from materialdatabase.processing.complex_permeability import (
+    ComplexPermeability,
+    LossFitModel,
+    PermeabilityFitModel,
+)
 from materialdatabase.processing.complex_permittivity import ComplexPermittivity
 
 logger = logging.getLogger(__name__)
@@ -291,7 +295,9 @@ class Data:
                                  data_source: DataSource,
                                  pv_fit_function: FitFunction | LossFitModel,
                                  h_offset: float = 0,
-                                 probe_codes: list[str] | None = None) -> ComplexPermeability:
+                                 probe_codes: list[str] | None = None,
+                                 mu_a_fit_function: FitFunction | PermeabilityFitModel | None = None
+                                 ) -> ComplexPermeability:
         """
         Get a complex permeability data set of a certain material and measurement type.
 
@@ -333,7 +339,8 @@ class Data:
             raise ValueError(f"A dataset with h_offset={h_offset} is not available.\n"
                              f"Please use the 'get_available_h_offset' method to retrieve the list of available h-offsets.")
 
-        return ComplexPermeability(result_data_set, material, data_source, pv_fit_function)
+        return ComplexPermeability(result_data_set, material, data_source, pv_fit_function,
+                       mu_a_fit_function=mu_a_fit_function)
 
     def combine_material_permeability_data(self, material: Material, data_source: DataSource) -> bool:
         """

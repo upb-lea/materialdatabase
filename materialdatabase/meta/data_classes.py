@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 from materialdatabase.meta.data_enums import Material, DataSource, FitFunction
+from materialdatabase.processing.complex_permeability import LossFitModel, PermeabilityFitModel
 
 
 @dataclass
@@ -11,8 +12,9 @@ class ComplexPermeabilityConfig:
 
     material: Material
     setup: DataSource
-    pv_fit_function: FitFunction
+    pv_fit_function: FitFunction | LossFitModel
     probe_codes: None | list[str] = None
+    mu_a_fit_function: FitFunction | PermeabilityFitModel | None = None
 
 
 @dataclass
