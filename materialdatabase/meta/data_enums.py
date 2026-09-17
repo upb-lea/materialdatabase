@@ -6,6 +6,7 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 from enum import Enum
 from typing import Any
 from materialdatabase.processing.utils.empirical import steinmetz_qT, enhanced_steinmetz_qT, \
+    temperature_enhanced_steinmetz_qT, \
     fit_mu_abs_TDK_MDT, fit_mu_abs_LEA_MTB_MagNet, \
     fit_sigma_fT
 
@@ -15,6 +16,7 @@ class FitFunction(str, Enum):
 
     Steinmetz = "steinmetz"
     enhancedSteinmetz = "enhanced_steinmetz"
+    temperatureEnhancedSteinmetz = "temperature_enhanced_steinmetz"
     mu_abs_TDK_MDT = "mu_abs_TDK_MDT"
     mu_abs_LEA_MTB = "mu_abs_LEA_MTB_MagNet"
     mu_abs_MagNet = "mu_abs_LEA_MTB_MagNet"
@@ -29,6 +31,7 @@ class FitFunction(str, Enum):
         return {
             FitFunction.Steinmetz: steinmetz_qT,
             FitFunction.enhancedSteinmetz: enhanced_steinmetz_qT,
+            FitFunction.temperatureEnhancedSteinmetz: temperature_enhanced_steinmetz_qT,
             FitFunction.mu_abs_TDK_MDT: fit_mu_abs_TDK_MDT,
             FitFunction.mu_abs_LEA_MTB: fit_mu_abs_LEA_MTB_MagNet,
             FitFunction.mu_abs_MagNet: fit_mu_abs_LEA_MTB_MagNet,

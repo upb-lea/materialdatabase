@@ -83,6 +83,43 @@ Output:
     4   LE2  174418.0  28  88863.933437  30088.808585
 
 
+Adding a Fit Function
+------------------------------------
+
+New magnetic loss fit functions are added in two places:
+
+1. Add the model function to ``materialdatabase/processing/utils/empirical/permeability.py``.
+   The function must accept the input tuple ``(f, T, b)`` followed by its fit parameters and return the modeled loss density.
+   For example:
+
+   .. code-block:: python
+
+       def temperature_enhanced_steinmetz_qT(
+               fTb, alpha, beta, k_b, k_f, k_alpha2, c_0, c_1, c_2):
+           f, T, b = fTb
+           temperature_factor = c_0 - c_1 * T + c_2 * T ** 2
+           return (temperature_factor + k_b * b + k_f * T * f ** k_alpha2) * f ** alpha * b ** beta
+
+2. Register the function in ``materialdatabase/meta/data_enums.py`` by adding a ``FitFunction`` member
+   and mapping it in ``FitFunction.get_function()``:
+
+   .. code-block:: python
+
+       temperatureEnhancedSteinmetz = "temperature_enhanced_steinmetz"
+
+       FitFunction.temperatureEnhancedSteinmetz: temperature_enhanced_steinmetz_qT,
+
+The new model can then be selected with:
+
+.. code-block:: python
+
+    permeability = mdb_data.get_complex_permeability(
+        material=mdb.Material.N49,
+        data_source=mdb.DataSource.LEA_MTB,
+        pv_fit_function=mdb.FitFunction.temperatureEnhancedSteinmetz,
+    )
+
+
 Detailed examples with material comparisons and data exporting can be found in the "examples" folder.
 
 

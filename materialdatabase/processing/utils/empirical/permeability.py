@@ -47,6 +47,18 @@ def enhanced_steinmetz_qT(fTb: tuple[float | np.ndarray, float | np.ndarray, flo
     return (k + k_b * b + k_f * f ** k_alpha2) * f ** alpha * b ** beta
 
 
+def temperature_enhanced_steinmetz_qT(
+        fTb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
+        alpha: float, beta: float,
+        k_b: float, k_f: float, k_alpha2: float,
+        c_0: float, c_1: float, c_2: float
+) -> float | np.ndarray:
+    """Enhanced Steinmetz model with temperature-scaled frequency dependence."""
+    f, T, b = fTb
+    temperature_factor = c_0 - c_1 * T + c_2 * T ** 2
+    return (temperature_factor + k_b * b + k_f * T * f ** k_alpha2) * f ** alpha * b ** beta
+
+
 def fit_mu_abs_TDK_MDT(
         _Tb: tuple[float | np.ndarray, float | np.ndarray, float | np.ndarray],
         mur_0: float,
