@@ -5,10 +5,15 @@ The enums must be consistent with the FEM Magnetics Toolbox (FEMMT).
 
 from enum import Enum
 from typing import Any
-from materialdatabase.processing.utils.empirical import steinmetz_qT, enhanced_steinmetz_qT, \
-    temperature_enhanced_steinmetz_qT, \
-    fit_mu_abs_TDK_MDT, fit_mu_abs_LEA_MTB_MagNet, \
-    fit_sigma_fT
+from materialdatabase.processing.utils.empirical import (
+    steinmetz_qT,
+    enhanced_steinmetz_qT,
+    temperature_enhanced_steinmetz_qT,
+    te_steinmetz,
+    fit_mu_abs_TDK_MDT,
+    fit_mu_abs_LEA_MTB_MagNet,
+    fit_sigma_fT,
+)
 
 
 class FitFunction(str, Enum):
@@ -16,6 +21,7 @@ class FitFunction(str, Enum):
 
     Steinmetz = "steinmetz"
     enhancedSteinmetz = "enhanced_steinmetz"
+    te_steinmetz = "te_steinmetz"
     temperatureEnhancedSteinmetz = "temperature_enhanced_steinmetz"
     mu_abs_TDK_MDT = "mu_abs_TDK_MDT"
     mu_abs_LEA_MTB = "mu_abs_LEA_MTB_MagNet"
@@ -31,11 +37,12 @@ class FitFunction(str, Enum):
         return {
             FitFunction.Steinmetz: steinmetz_qT,
             FitFunction.enhancedSteinmetz: enhanced_steinmetz_qT,
+            FitFunction.te_steinmetz: te_steinmetz,
             FitFunction.temperatureEnhancedSteinmetz: temperature_enhanced_steinmetz_qT,
             FitFunction.mu_abs_TDK_MDT: fit_mu_abs_TDK_MDT,
             FitFunction.mu_abs_LEA_MTB: fit_mu_abs_LEA_MTB_MagNet,
             FitFunction.mu_abs_MagNet: fit_mu_abs_LEA_MTB_MagNet,
-            FitFunction.sigma: fit_sigma_fT
+            FitFunction.sigma: fit_sigma_fT,
         }[self]
 
 
@@ -57,6 +64,7 @@ class DatasheetAttribute(str, Enum):
     SaturationFluxDensity25 = "saturation flux density in T at 25 C"
     SaturationFluxDensity100 = "saturation flux density in T at 100 C"
 
+
 class DatasheetCurveType(str, Enum):
     """Set the type of datasheet curve."""
 
@@ -68,6 +76,7 @@ class DatasheetCurveType(str, Enum):
     small_signal_mu_imag_over_f_at_T = "small_signal_mu_imag_over_f_at_T"
     small_signal_mu_initial_over_T = "small_signal_mu_initial_over_T"
     small_signal_mu_real_over_f_at_T = "small_signal_mu_real_over_f_at_T"
+
 
 class ComplexDataType(str, Enum):
     """Set the type of complex material data."""
@@ -161,8 +170,8 @@ class ToroidDirectoryName(str, Enum):
     """
 
     N87_1 = "R24,6x20,25x20,5_A00"
-    DMR96A_1 = '???'
-    DMR96A_2 = 'R_25.0x21.0x15.0x4x4'
+    DMR96A_1 = "???"
+    DMR96A_2 = "R_25.0x21.0x15.0x4x4"
 
 
 class CuboidDirectoryName(str, Enum):
