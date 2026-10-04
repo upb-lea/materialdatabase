@@ -22,3 +22,4 @@ readme.html
 
 # General File Types
 *.code-workspace
+*_backup.csv
