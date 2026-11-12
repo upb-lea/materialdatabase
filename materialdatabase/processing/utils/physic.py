@@ -47,7 +47,7 @@ def eps_r_from_sigma(f: float | np.ndarray, sigma: float | np.ndarray) -> comple
     """
     return sigma / (1j * 2 * np.pi * f * epsilon_0)
 
-def sigma_from_eps_r(f: float | np.ndarray, eps_r: float | np.ndarray) -> complex | np.ndarray:
+def sigma_from_eps_r(f: float | np.ndarray, eps_r: complex | np.ndarray) -> complex | np.ndarray:
     """
     Calculate the (complex) conductivity from a (complex) relative permittivity.
 
